@@ -99,7 +99,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     
                     SizedBox(height: 40),
                     
-                    // Transparent container wrapping both Name and Role inputs
+                    // Transparent container wrapping Name, Role, and School inputs
                     Container(
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -166,13 +166,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           
                           SizedBox(height: 20),
                           
-                          // Role Selection Dropdown with "Role" label in top-left
+                          // Role Selection Dropdown with "Role" label in top-left - FIXED COLOR
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: _selectedRole == 'Visitor' 
-                                  ? Colors.grey.withOpacity(0.4) // More transparent
-                                  : Color(0xFFF5E6A8).withOpacity(0.9), // Cream/beige color for Student
+                              color: Colors.grey.withOpacity(0.4), // SAME COLOR AS NAME FIELD
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Stack(
@@ -184,7 +182,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   child: Text(
                                     'Role',
                                     style: TextStyle(
-                                      color: _selectedRole == 'Visitor' ? Colors.white70 : Colors.black54,
+                                      color: Colors.white70, // CONSISTENT COLOR
                                       fontSize: 12,
                                       fontWeight: FontWeight.w300,
                                     ),
@@ -198,7 +196,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       value: _selectedRole,
                                       isExpanded: true,
                                       style: TextStyle(
-                                        color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                        color: Colors.white, // CONSISTENT WHITE TEXT
                                         fontSize: 18, // Increased font size
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -233,7 +231,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                               child: Text(
                                                 value,
                                                 style: TextStyle(
-                                                  color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                                  color: Colors.white, // CONSISTENT WHITE TEXT
                                                   fontSize: 18, // Increased font size
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -246,7 +244,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         padding: EdgeInsets.only(right: 20),
                                         child: Icon(
                                           Icons.arrow_drop_down,
-                                          color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                          color: Colors.white, // CONSISTENT WHITE ICON
                                           size: 28, // Increased icon size
                                         ),
                                       ),
@@ -256,50 +254,70 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               ],
                             ),
                           ),
+                          
+                          // School Input Field (only for students) - MOVED INSIDE CONTAINER AND FIXED STYLING
+                          if (_showSchoolField) ...[
+                            SizedBox(height: 20),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.4), // SAME COLOR AS OTHER FIELDS
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Stack(
+                                children: [
+                                  // "What School?" label in top-left corner
+                                  Positioned(
+                                    top: 8,
+                                    left: 15,
+                                    child: Text(
+                                      'What School?',
+                                      style: TextStyle(
+                                        color: Colors.white70, // CONSISTENT COLOR
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                  // TextField with centered text and top padding
+                                  TextField(
+                                    controller: _schoolController,
+                                    focusNode: _schoolFocusNode,
+                                    style: TextStyle(
+                                      color: Colors.white, // CONSISTENT WHITE TEXT
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center, // CENTER THE INPUT TEXT
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.done,
+                                    onTap: () {
+                                      // Explicitly request focus when tapped
+                                      _schoolFocusNode.requestFocus();
+                                    },
+                                    onSubmitted: (value) {
+                                      // Hide keyboard when done
+                                      FocusScope.of(context).unfocus();
+                                      _proceedToNext();
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Ex: STI College Tagum',
+                                      hintStyle: TextStyle(color: Colors.white54), // CONSISTENT HINT COLOR
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.only(
+                                        left: 20, 
+                                        right: 20, 
+                                        top: 35, // Top padding for label
+                                        bottom: 15
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    
-                    // School Input Field (only for students)
-                    if (_showSchoolField) ...[
-                      SizedBox(height: 20),
-                      Text(
-                        'What School?',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFF5E6A8).withOpacity(0.9), // Cream/beige color
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: TextField(
-                          controller: _schoolController,
-                          focusNode: _schoolFocusNode,
-                          style: TextStyle(color: Colors.black),
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.done,
-                          onTap: () {
-                            // Explicitly request focus when tapped
-                            _schoolFocusNode.requestFocus();
-                          },
-                          onSubmitted: (value) {
-                            // Hide keyboard when done
-                            FocusScope.of(context).unfocus();
-                            _proceedToNext();
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Ex: STI College Tagum',
-                            hintStyle: TextStyle(color: Colors.black54),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                          ),
-                        ),
-                      ),
-                    ],
                     
                     SizedBox(height: 40),
                     
