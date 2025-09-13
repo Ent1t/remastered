@@ -58,121 +58,205 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start, // Changed to start for left alignment
                   children: [
                     SizedBox(height: 40),
                     
-                    // Logo/Title Box
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'HUNI SA TRIBU',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                    // Logo/Title Box - centered (REMOVED name and role display)
+                    Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'HUNI SA TRIBU',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
                         ),
                       ),
                     ),
                     
                     SizedBox(height: 30),
                     
-                    // Welcome Text
-                    Text(
-                      'Welcome!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w300,
+                    // Welcome Text - aligned to the left
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Welcome!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w300,
+                        ),
                       ),
                     ),
                     
                     SizedBox(height: 40),
                     
-                    // Name Input Field
+                    // Transparent container wrapping both Name and Role inputs
                     Container(
+                      padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.black.withOpacity(0.3), // Transparent dark background
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: TextField(
-                        controller: _nameController,
-                        focusNode: _nameFocusNode,
-                        style: TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.next,
-                        onTap: () {
-                          // Explicitly request focus when tapped
-                          _nameFocusNode.requestFocus();
-                        },
-                        onSubmitted: (value) {
-                          // Move focus to next field or dropdown
-                          if (_showSchoolField) {
-                            _schoolFocusNode.requestFocus();
-                          }
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Name',
-                          hintStyle: TextStyle(color: Colors.white70),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        ),
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Role Selection Dropdown
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: _selectedRole == 'Visitor' 
-                            ? Colors.grey.withOpacity(0.8)
-                            : Colors.yellow.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedRole,
-                          isExpanded: true,
-                          style: TextStyle(
-                            color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
-                            fontSize: 16,
-                          ),
-                          dropdownColor: Colors.white,
-                          items: <String>['Visitor', 'Student'].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Text(
-                                  value,
-                                  style: TextStyle(color: Colors.black),
+                      child: Column(
+                        children: [
+                          // Name Input Field with "Name" label in top-left
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.4), // More transparent
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Stack(
+                              children: [
+                                // "Name" label in top-left corner
+                                Positioned(
+                                  top: 8,
+                                  left: 15,
+                                  child: Text(
+                                    'Name',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedRole = newValue!;
-                              _showSchoolField = (_selectedRole == 'Student');
-                            });
-                            // Hide keyboard when dropdown changes
-                            FocusScope.of(context).unfocus();
-                          },
-                          icon: Padding(
-                            padding: EdgeInsets.only(right: 20),
-                            child: Icon(
-                              Icons.arrow_drop_down,
-                              color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                // TextField with centered text and top padding
+                                TextField(
+                                  controller: _nameController,
+                                  focusNode: _nameFocusNode,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center, // Center the input text
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                  onTap: () {
+                                    _nameFocusNode.requestFocus();
+                                  },
+                                  onSubmitted: (value) {
+                                    if (_showSchoolField) {
+                                      _schoolFocusNode.requestFocus();
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: '', // Remove placeholder text
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.only(
+                                      left: 20, 
+                                      right: 20, 
+                                      top: 35, // Top padding for label
+                                      bottom: 15
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+                          
+                          SizedBox(height: 20),
+                          
+                          // Role Selection Dropdown with "Role" label in top-left
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: _selectedRole == 'Visitor' 
+                                  ? Colors.grey.withOpacity(0.4) // More transparent
+                                  : Color(0xFFF5E6A8).withOpacity(0.9), // Cream/beige color for Student
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Stack(
+                              children: [
+                                // "Role" label in top-left corner
+                                Positioned(
+                                  top: 8,
+                                  left: 15,
+                                  child: Text(
+                                    'Role',
+                                    style: TextStyle(
+                                      color: _selectedRole == 'Visitor' ? Colors.white70 : Colors.black54,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                                // Dropdown with padding for label
+                                Padding(
+                                  padding: EdgeInsets.only(top: 25, bottom: 8),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _selectedRole,
+                                      isExpanded: true,
+                                      style: TextStyle(
+                                        color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                        fontSize: 18, // Increased font size
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      dropdownColor: Colors.white,
+                                      items: <String>['Visitor', 'Student'].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Center( // Center the dropdown text
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18, // Increased font size
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          _selectedRole = newValue!;
+                                          _showSchoolField = (_selectedRole == 'Student');
+                                        });
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                      selectedItemBuilder: (BuildContext context) {
+                                        return <String>['Visitor', 'Student'].map((String value) {
+                                          return Center( // Center the selected item text
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 4), // Add vertical padding
+                                              child: Text(
+                                                value,
+                                                style: TextStyle(
+                                                  color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                                  fontSize: 18, // Increased font size
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                      icon: Padding(
+                                        padding: EdgeInsets.only(right: 20),
+                                        child: Icon(
+                                          Icons.arrow_drop_down,
+                                          color: _selectedRole == 'Visitor' ? Colors.white : Colors.black,
+                                          size: 28, // Increased icon size
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     
@@ -189,7 +273,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       SizedBox(height: 10),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.yellow.withOpacity(0.9),
+                          color: Color(0xFFF5E6A8).withOpacity(0.9), // Cream/beige color
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextField(
@@ -219,26 +303,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     
                     SizedBox(height: 40),
                     
-                    // Proceed Button
-                    ElevatedButton(
-                      onPressed: () {
-                        // Hide keyboard before proceeding
-                        FocusScope.of(context).unfocus();
-                        _proceedToNext();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.yellow,
-                        foregroundColor: Colors.black,
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    // Proceed Button - centered
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Hide keyboard before proceeding
+                          FocusScope.of(context).unfocus();
+                          _proceedToNext();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFFDF8D7), // Updated to FDF8D7 color
+                          foregroundColor: Colors.black,
+                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        'PROCEED',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          'PROCEED',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
