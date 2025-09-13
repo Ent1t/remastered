@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: _currentIndex == 0 
-          ? _buildHomeContent() 
+          ? _buildWelcomeScreen() 
           : _currentIndex == 1 
             ? _buildTribesContent()
             : _buildTranslationContent(),
@@ -27,180 +28,351 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeContent() {
-    return Column(
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildQRScannerSection(),
-                SizedBox(height: 20),
-                _buildAboutSection(),
-                SizedBox(height: 20),
-                _buildTribeCard(
-                  title: "ATA-MANOBO",
-                  description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They have maintained their ancestral ways while adapting to modern times.",
-                  imagePath: "assets/images/atamanon.jpg", // Replace with your image
-                ),
-                SizedBox(height: 16),
-                _buildTribeCard(
-                  title: "MANDAYA",
-                  description: "The Mandaya tribe is renowned for their intricate weaving techniques and colorful traditional clothing. Their cultural practices have been passed down through generations.",
-                  imagePath: "assets/images/mandaya.jpg", // Replace with your image
-                ),
-                SizedBox(height: 16),
-                _buildTribeCard(
-                  title: "MANSAKA",
-                  description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. Their customs reflect their harmonious relationship with the environment.",
-                  imagePath: "assets/images/mansaka.jpg", // Replace with your image
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeader() {
+  Widget _buildWelcomeScreen() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      height: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.green[800],
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+        // Background with cultural pattern/image
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF1a4a3a), // Dark green
+            Color(0xFF2d5a4a),
+            Colors.black,
+          ],
         ),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Text(
-            'Home',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          SizedBox(height: 10),
+          // Background pattern/texture overlay
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            width: double.infinity,
+            height: double.infinity,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'HUNI SA TRIBU',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
+              // Add your cultural background image here
+              image: DecorationImage(
+                image: AssetImage('assets/images/cultural_background.jpg'), // Add your background
+                fit: BoxFit.cover,
+                opacity: 0.3,
+                onError: (exception, stackTrace) {},
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQRScannerSection() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[700]!, width: 1),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Scan QR Code to',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            'Start your AR Experience',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 20),
+          
+          // Dark overlay for text visibility
           Container(
-            width: 80,
-            height: 80,
+            width: double.infinity,
+            height: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Icon(
-              Icons.qr_code_scanner,
-              size: 40,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(height: 15),
-          ElevatedButton(
-            onPressed: () {
-              _openQRScanner();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-            child: Text(
-              'SCANNER',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.4),
+                  Colors.black.withOpacity(0.7),
+                  Colors.black.withOpacity(0.9),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAboutSection() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'ABOUT THE TRIBES',
-            style: TextStyle(
-              color: Colors.amber,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Discover the rich cultural heritage of the three indigenous tribes of Davao Region. Each tribe has its unique traditions, customs, and stories that have been preserved for generations.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.5,
+          
+          // Main Content
+          SingleChildScrollView(
+            controller: _scrollController,
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 40),
+                  
+                  // Main Title Box
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white, width: 2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'HUNI SA TRIBU',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Cultural Heritage Museum',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(height: 40),
+                  
+                  // Portal Text
+                  Text(
+                    'Your Portal to a',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  Text(
+                    'Rich Heritage.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  
+                  SizedBox(height: 30),
+                  
+                  // Divider line
+                  Container(
+                    width: double.infinity,
+                    height: 1,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                  
+                  SizedBox(height: 30),
+                  
+                  // Journey begins text
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your journey',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'begins with a scan.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Text(
+                              'Scan QR codes on museum exhibits to ',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              'explore',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'the rich culture of indigenous tribes',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(height: 40),
+                  
+                  // QR Scanner Card
+                  Container(
+                    width: 280,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0.6),
+                        ],
+                      ),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Background pattern for QR card
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/tribal_pattern.jpg'), // Add tribal pattern
+                              fit: BoxFit.cover,
+                              opacity: 0.4,
+                              onError: (exception, stackTrace) {},
+                            ),
+                          ),
+                        ),
+                        
+                        // QR Scanner content
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.8),
+                              ],
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                // QR Icon with brown/golden background
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFB8860B), // Dark golden rod
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // QR code pattern
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        child: GridView.builder(
+                                          physics: NeverScrollableScrollPhysics(),
+                                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 4,
+                                            mainAxisSpacing: 2,
+                                            crossAxisSpacing: 2,
+                                          ),
+                                          itemCount: 16,
+                                          itemBuilder: (context, index) {
+                                            // Create QR-like pattern
+                                            bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                color: shouldFill ? Colors.white : Colors.transparent,
+                                                borderRadius: BorderRadius.circular(1),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                
+                                SizedBox(height: 20),
+                                
+                                // Scan Here button
+                                Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border.all(color: Colors.white, width: 1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'SCAN HERE',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(height: 40),
+                  
+                  // Scroll down indicators
+                  Column(
+                    children: [
+                      Text(
+                        'Scroll down to explore',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
+                          SizedBox(width: 20),
+                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
+                          SizedBox(width: 20),
+                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
+                        ],
+                      ),
+                    ],
+                  ),
+                  
+                  SizedBox(height: 60),
+                  
+                  // Tribe Cards Section (scrollable content)
+                  _buildTribeCard(
+                    title: "ATA-MANOBO",
+                    description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
+                    imagePath: "assets/images/atamanon.jpg",
+                  ),
+                  SizedBox(height: 30),
+                  _buildTribeCard(
+                    title: "MANDAYA",
+                    description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
+                    imagePath: "assets/images/mandaya.jpg",
+                  ),
+                  SizedBox(height: 30),
+                  _buildTribeCard(
+                    title: "MANSAKA",
+                    description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
+                    imagePath: "assets/images/mansaka.jpg",
+                  ),
+                  
+                  SizedBox(height: 40),
+                ],
+              ),
             ),
           ),
         ],
@@ -214,94 +386,153 @@ class _HomeScreenState extends State<HomeScreen> {
     required String imagePath,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[700]!, width: 1),
-      ),
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-              image: DecorationImage(
-                // Replace with your actual images
-                image: AssetImage(imagePath),
-                fit: BoxFit.cover,
-                // Fallback color if image doesn't load
-                onError: (exception, stackTrace) {},
-              ),
-              // Fallback background color
-              color: Colors.grey[600],
-            ),
-            // Fallback content if image fails
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // Title header outside and above the card
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.only(bottom: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
                   style: TextStyle(
-                    color: Colors.amber,
-                    fontSize: 20,
+                    color: Color(0xFFD4AF37), // Golden color
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-                SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    _learnMore(title);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    'LEARN MORE',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                SizedBox(height: 6),
+                Container(
+                  width: 80,
+                  height: 3,
+                  color: Color(0xFFD4AF37), // Golden underline
                 ),
               ],
+            ),
+          ),
+          
+          // Gray card with rounded corners
+          Container(
+            decoration: BoxDecoration(
+              color: Color(0xFF4A4A4A), // Gray background matching image
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 12,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Column(
+                children: [
+                  // Image section
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    child: Stack(
+                      children: [
+                        // Image (replace with your actual image)
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: Image.asset(
+                            imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Fallback when image doesn't exist
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFF8B4513),
+                                      Color(0xFF654321),
+                                      Color(0xFF2F1B14),
+                                    ],
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.image,
+                                    size: 60,
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        // Gradient overlay for text readability
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.6),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Text section
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        height: 1.6,
+                        letterSpacing: 0.3,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Explore more button outside and below the card
+          Padding(
+            padding: EdgeInsets.only(top: 16),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  _exploreMore(title);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFD4AF37), // Golden color
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  elevation: 3,
+                ),
+                child: Text(
+                  'Explore more',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -338,9 +569,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF2d5a4a),
+            Color(0xFF1a4a3a),
+          ],
+        ),
         border: Border(
-          top: BorderSide(color: Colors.grey[700]!, width: 1),
+          top: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
         ),
       ),
       child: BottomNavigationBar(
@@ -351,21 +587,43 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.grey[500],
+        selectedItemColor: Color(0xFFD4AF37),
+        unselectedItemColor: Colors.white60,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _currentIndex == 0 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.home),
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.groups),
+            icon: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _currentIndex == 1 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.groups),
+            ),
             label: 'Tribes',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.translate),
+            icon: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _currentIndex == 2 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.translate),
+            ),
             label: 'Translate',
           ),
         ],
@@ -373,19 +631,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _openQRScanner() {
-    // TODO: Implement QR scanner with camera
+  void _exploreMore(String tribeName) {
+    // Navigate to tribes section or show detailed information
+    setState(() {
+      _currentIndex = 1; // Switch to Tribes tab
+    });
+    
+    // You can also navigate to a detailed tribe screen
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.grey[900],
+          backgroundColor: Color(0xFF404040),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
-            'QR Scanner',
-            style: TextStyle(color: Colors.white),
+            tribeName,
+            style: TextStyle(
+              color: Color(0xFFD4AF37),
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Text(
-            'QR Scanner will be implemented later with camera access.',
+            'Exploring detailed information about $tribeName tribe. This will navigate to the comprehensive tribe details page.',
             style: TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -394,8 +663,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).pop();
               },
               child: Text(
-                'OK',
-                style: TextStyle(color: Colors.amber),
+                'Continue Exploring',
+                style: TextStyle(color: Color(0xFFD4AF37)),
               ),
             ),
           ],
@@ -404,33 +673,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _learnMore(String tribeName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[900],
-          title: Text(
-            tribeName,
-            style: TextStyle(color: Colors.amber),
-          ),
-          content: Text(
-            'More detailed information about $tribeName will be available in the Tribes section.',
-            style: TextStyle(color: Colors.white70),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'OK',
-                style: TextStyle(color: Colors.amber),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
   }
 }
