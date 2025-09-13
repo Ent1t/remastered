@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _pulseAnimation;
   
   bool _showScrollIndicator = true;
+  bool _userHasScrolled = false; // Track if user has scrolled
 
   @override
   void initState() {
@@ -64,15 +65,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Start with full opacity
     _fadeController.reset();
     
-    // Start pulsing animation
+    // Start pulsing animation and keep it running until user scrolls
     _pulseController.repeat(reverse: true);
     
-    // Auto-hide after 3 seconds if user hasn't scrolled
-    Future.delayed(Duration(seconds: 3), () {
-      if (_showScrollIndicator && mounted) {
-        _hideScrollIndicator();
-      }
-    });
+    // Remove the auto-hide timer - now only hides when user scrolls
   }
   
   void _hideScrollIndicator() {
@@ -99,8 +95,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ? _buildTribesContent()
                 : _buildTranslationContent(),
             
-            // Scroll Indicator - Only visible on Home screen
-            if (_currentIndex == 0)
+            // Scroll Indicator - Only visible on Home screen and when user hasn't scrolled
+            if (_currentIndex == 0 && _showScrollIndicator)
               Positioned(
                 bottom: 8, // Position above bottom navigation
                 left: 0,
@@ -295,11 +291,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   
                   SizedBox(height: 30),
                   
-                  // Divider line
-                  Container(
-                    width: double.infinity,
-                    height: 1,
-                    color: Colors.white.withOpacity(0.3),
+                  // Divider line - full width
+                  Transform.translate(
+                    offset: Offset(-24, 0), // Negative padding to extend to edges
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 1,
+                      color: Colors.white.withOpacity(0.3),
+                    ),
                   ),
                   
                   SizedBox(height: 30),
@@ -835,7 +834,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onScroll() {
     // Hide scroll indicator when user starts scrolling (only on home screen)
-    if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator) {
+    if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator && !_userHasScrolled) {
+      _userHasScrolled = true; // Mark that user has scrolled
       _hideScrollIndicator();
     }
   }
@@ -845,16 +845,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (mounted) {
       setState(() {
         _showScrollIndicator = true;
+        _userHasScrolled = false; // Reset scroll tracking
       });
       _fadeController.reset();
       _pulseController.repeat(reverse: true);
       
-      // Auto-hide after 3 seconds
-      Future.delayed(Duration(seconds: 3), () {
-        if (_showScrollIndicator && mounted) {
-          _hideScrollIndicator();
-        }
-      });
+      // No auto-hide timer - only hides when user scrolls
     }
   }
 
