@@ -9,20 +9,158 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   ScrollController _scrollController = ScrollController();
+  
+  // Animation controllers for scroll indicator
+  late AnimationController _fadeController;
+  late AnimationController _pulseController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _pulseAnimation;
+  
+  bool _showScrollIndicator = true;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize animation controllers
+    _fadeController = AnimationController(
+      duration: Duration(milliseconds: 500),
+      vsync: this,
+    );
+    
+    _pulseController = AnimationController(
+      duration: Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    
+    // Initialize animations
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    ));
+    
+    _pulseAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+    
+    // Start the initial animations
+    _startInitialAnimations();
+    
+    // Add scroll listener
+    _scrollController.addListener(_onScroll);
+  }
+  
+  void _startInitialAnimations() {
+    // Start with full opacity
+    _fadeController.reset();
+    
+    // Start pulsing animation
+    _pulseController.repeat(reverse: true);
+    
+    // Auto-hide after 3 seconds if user hasn't scrolled
+    Future.delayed(Duration(seconds: 3), () {
+      if (_showScrollIndicator && mounted) {
+        _hideScrollIndicator();
+      }
+    });
+  }
+  
+  void _hideScrollIndicator() {
+    if (_showScrollIndicator && mounted) {
+      setState(() {
+        _showScrollIndicator = false;
+      });
+      _pulseController.stop();
+      _fadeController.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: _currentIndex == 0 
-          ? _buildWelcomeScreen() 
-          : _currentIndex == 1 
-            ? _buildTribesContent()
-            : _buildTranslationContent(),
+        child: Stack(
+          children: [
+            // Main content based on current index
+            _currentIndex == 0 
+              ? _buildWelcomeScreen() 
+              : _currentIndex == 1 
+                ? _buildTribesContent()
+                : _buildTranslationContent(),
+            
+            // Scroll Indicator - Only visible on Home screen
+            if (_currentIndex == 0)
+              Positioned(
+                bottom: 80, // Position above bottom navigation
+                left: 0,
+                right: 0,
+                child: IgnorePointer( // Prevents interference with scrolling
+                  child: AnimatedBuilder(
+                    animation: _fadeAnimation,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: _fadeAnimation.value,
+                        child: AnimatedBuilder(
+                          animation: _pulseAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _pulseAnimation.value,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.8),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Color(0xFFD4AF37).withOpacity(0.6),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Scroll down to explore',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      _buildAnimatedArrow(0),
+                                      SizedBox(width: 16),
+                                      _buildAnimatedArrow(200),
+                                      SizedBox(width: 16),
+                                      _buildAnimatedArrow(400),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
@@ -121,21 +259,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   
                   SizedBox(height: 40),
                   
-                  // Portal Text
-                  Text(
-                    'Your Portal to a',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Text(
-                    'Rich Heritage.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  // Portal Text - aligned to the left
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your Portal to a',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        Text(
+                          'Rich Heritage.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   
@@ -323,32 +469,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   
-                  SizedBox(height: 40),
-                  
-                  // Scroll down indicators
-                  Column(
-                    children: [
-                      Text(
-                        'Scroll down to explore',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
-                          SizedBox(width: 20),
-                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
-                          SizedBox(width: 20),
-                          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 20),
-                        ],
-                      ),
-                    ],
-                  ),
-                  
                   SizedBox(height: 60),
                   
                   // Tribe Cards Section (scrollable content)
@@ -377,6 +497,34 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+  
+  Widget _buildAnimatedArrow(int delay) {
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        return TweenAnimationBuilder(
+          duration: Duration(milliseconds: 1500),
+          tween: Tween<double>(
+            begin: 0.0,
+            end: _pulseController.isAnimating ? 1.0 : 0.0,
+          ),
+          builder: (context, double value, child) {
+            return Transform.translate(
+              offset: Offset(0, 4 * value),
+              child: Opacity(
+                opacity: 1.0 - (value * 0.3),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -585,6 +733,10 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentIndex = index;
           });
+          // Only reset scroll indicator if switching to home screen
+          if (index == 0) {
+            _showScrollIndicatorForCurrentTab();
+          }
         },
         backgroundColor: Colors.transparent,
         selectedItemColor: Color(0xFFD4AF37),
@@ -673,13 +825,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _onScroll() {
+    // Hide scroll indicator when user starts scrolling (only on home screen)
+    if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator) {
+      _hideScrollIndicator();
+    }
+  }
+
+  void _showScrollIndicatorForCurrentTab() {
+    // Reset and show scroll indicator when switching to home tab
+    if (mounted) {
+      setState(() {
+        _showScrollIndicator = true;
+      });
+      _fadeController.reset();
+      _pulseController.repeat(reverse: true);
+      
+      // Auto-hide after 3 seconds
+      Future.delayed(Duration(seconds: 3), () {
+        if (_showScrollIndicator && mounted) {
+          _hideScrollIndicator();
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _fadeController.dispose();
+    _pulseController.dispose();
     super.dispose();
-  }
-
-  void _onScroll() {
   }
 }
