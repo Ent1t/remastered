@@ -662,31 +662,75 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Explore more button outside and below the card
+          // Explore more button with layered design
           Padding(
             padding: EdgeInsets.only(top: 16),
             child: Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  _exploreMore(title);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFD4AF37), // Golden color
-                  foregroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+              child: Stack(
+                children: [
+                  // Background layer 3 (darkest/furthest back)
+                  Positioned(
+                    right: 0,
+                    top: 6,
+                    child: Container(
+                      width: 110,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF5D4A37), // Darker brown
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
-                  elevation: 3,
-                ),
-                child: Text(
-                  'Explore more',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  // Background layer 2 (medium)
+                  Positioned(
+                    right: 2,
+                    top: 3,
+                    child: Container(
+                      width: 110,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF6B5644), // Medium brown
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
-                ),
+                  // Main button (front layer)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF8B7355), // Main brown color
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _exploreMore(title);
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          child: Text(
+                            'Explore more',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
