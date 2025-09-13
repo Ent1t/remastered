@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             // Scroll Indicator - Only visible on Home screen
             if (_currentIndex == 0)
               Positioned(
-                bottom: 80, // Position above bottom navigation
+                bottom: 8, // Position above bottom navigation
                 left: 0,
                 right: 0,
                 child: IgnorePointer( // Prevents interference with scrolling
@@ -226,34 +226,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 children: [
                   SizedBox(height: 40),
                   
+                 
                   // Main Title Box
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'HUNI SA TRIBU',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'HUNI SA TRIBU',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Cultural Heritage Museum',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                            letterSpacing: 1,
+                          SizedBox(height: 8),
+                          Padding(
+                            padding: EdgeInsets.only(left: 32), // Tab-like spacing
+                            child: Text(
+                              'Cultural Heritage Museum',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                                letterSpacing: 1,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   
