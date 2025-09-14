@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
+import 'screen/translation_screen.dart';
+import 'screen/qr_scanner_screen.dart';
 
 void main() {
   runApp(MyApp());
