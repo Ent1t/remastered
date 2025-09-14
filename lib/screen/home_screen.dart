@@ -81,6 +81,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  void _onScroll() {
+    // Hide scroll indicator when user starts scrolling (only on home screen)
+    if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator && !_userHasScrolled) {
+      _userHasScrolled = true; // Mark that user has scrolled
+      _hideScrollIndicator();
+    }
+  }
+
+  void _showScrollIndicatorForCurrentTab() {
+    // Reset and show scroll indicator when switching to home tab
+    if (mounted) {
+      setState(() {
+        _showScrollIndicator = true;
+        _userHasScrolled = false; // Reset scroll tracking
+      });
+      _fadeController.reset();
+      _pulseController.repeat(reverse: true);
+      
+      // No auto-hide timer - only hides when user scrolls
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                           SizedBox(height: 8),
                           Padding(
-                            padding: EdgeInsets.only(left: 32), // Tab-like spacing
+                            padding: EdgeInsets.only(left: 28), // Tab-like spacing
                             child: Text(
                               'Cultural Heritage Museum',
                               style: TextStyle(
@@ -254,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 fontSize: 14,
                                 letterSpacing: 1,
                               ),
-                            ),
+                            ),  
                           ),
                         ],
                       ),
@@ -358,118 +380,125 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   
                   SizedBox(height: 40),
                   
-                  // QR Scanner Card
+                   // QR Scanner Card with new design
                   Container(
                     width: 280,
                     height: 300,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                      color: Color(0xFFE0D4BE), // Container background
                       borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.6),
-                        ],
-                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Stack(
                       children: [
+                        // Semi-transparent overlay (40% fill)
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Color(0x66252525), // 40% opacity of 252525
+                          ),
+                        ),
+                        
                         // Background pattern for QR card
                         Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
                               image: AssetImage('assets/images/tribal_pattern.jpg'), // Add tribal pattern
                               fit: BoxFit.cover,
-                              opacity: 0.4,
+                              opacity: 0.3,
                               onError: (exception, stackTrace) {},
                             ),
                           ),
                         ),
                         
                         // QR Scanner content
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.8),
-                              ],
-                            ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // QR Icon with brown/golden background
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFB8860B), // Dark golden rod
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
+                        Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Circular scan button with shadow/border design
+                              GestureDetector(
+                                onTap: () {
+                                  // Handle QR scan action
+                                  print('QR Scanner tapped');
+                                },
+                                child: Container(
+                                  width: 140,
+                                  height: 140,
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      // QR code pattern
+                                      // Shadow/border circle (outer)
                                       Container(
-                                        width: 60,
-                                        height: 60,
-                                        child: GridView.builder(
-                                          physics: NeverScrollableScrollPhysics(),
-                                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 4,
-                                            mainAxisSpacing: 2,
-                                            crossAxisSpacing: 2,
-                                          ),
-                                          itemCount: 16,
-                                          itemBuilder: (context, index) {
-                                            // Create QR-like pattern
-                                            bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                color: shouldFill ? Colors.white : Colors.transparent,
-                                                borderRadius: BorderRadius.circular(1),
+                                        width: 140,
+                                        height: 140,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF010100), // Shadow/border color
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      // Main circle body
+                                      Container(
+                                        width: 130,
+                                        height: 130,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF8E714B), // Main body color
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          // QR icon
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            child: GridView.builder(
+                                              physics: NeverScrollableScrollPhysics(),
+                                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 4,
+                                                mainAxisSpacing: 2,
+                                                crossAxisSpacing: 2,
                                               ),
-                                            );
-                                          },
+                                              itemCount: 16,
+                                              itemBuilder: (context, index) {
+                                                // Create QR-like pattern
+                                                bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: shouldFill ? Color(0xFFEADCB6) : Colors.transparent, // QR icon color
+                                                    borderRadius: BorderRadius.circular(1),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                
-                                SizedBox(height: 20),
-                                
-                                // Scan Here button
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    border: Border.all(color: Colors.white, width: 1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    'SCAN HERE',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.5,
-                                    ),
-                                  ),
+                              ),
+                              
+                              SizedBox(height: 30),
+                              
+                              // Scan Here text
+                              Text(
+                                'SCAN HERE',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xFFFFEFBB), // Text color
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -477,6 +506,98 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                   
                   SizedBox(height: 60),
+                  
+                  // About the Tribes Section
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(bottom: 40),
+                    child: Column(
+                      children: [
+                        // About the Tribes Header with background image
+                        Container(
+                          width: double.infinity,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Stack(
+                              children: [
+                                // Background image
+                                Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  child: Image.asset(
+                                    'assets/images/tribes_header_bg.jpg', // Add your tribal background image
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // Fallback gradient background
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              Color(0xFF8B4513),
+                                              Color(0xFF654321),
+                                              Color(0xFF2F1B14),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                // Dark overlay for text visibility
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.7),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Title text with Abril Fatface font
+                                Center(
+                                  child: Text(
+                                    'ABOUT THE TRIBES',
+                                    style: TextStyle(
+                                      color: Color(0xFFF8F4E6), // Light cream color
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Abril Fatface', // Abril Fatface font
+                                      letterSpacing: 2,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 4,
+                                          color: Colors.black.withOpacity(0.8),
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        // White line separator
+                        Container(
+                          margin: EdgeInsets.symmetric(vertical: 20),
+                          height: 1,
+                          width: double.infinity,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                  ),
                   
                   // Tribe Cards Section (scrollable content)
                   _buildTribeCard(
@@ -545,7 +666,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title header outside and above the card
+          // Title header outside and above the card with Poppins font
           Padding(
             padding: EdgeInsets.only(bottom: 12),
             child: Column(
@@ -554,9 +675,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Text(
                   title,
                   style: TextStyle(
-                    color: Color(0xFFD4AF37), // Golden color
+                    color: Color(0xFFDBCCB5), // Light beige color
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins', // Poppins font
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -564,7 +686,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   width: 80,
                   height: 3,
-                  color: Color(0xFFD4AF37), // Golden underline
+                  color: Color(0xFFEADCB6), // Light golden beige underline
                 ),
               ],
             ),
@@ -642,15 +764,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  // Text section
+                  // Text section with Regular font and updated color
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(20),
                     child: Text(
                       description,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFC5C6C7), // Light gray color
                         fontSize: 16,
+                        fontFamily: 'Regular', // Regular font
                         height: 1.6,
                         letterSpacing: 0.3,
                       ),
@@ -662,49 +785,64 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Explore more button with layered design
+          // Enhanced layered "Explore more" button
           Padding(
             padding: EdgeInsets.only(top: 16),
             child: Align(
               alignment: Alignment.centerRight,
               child: Stack(
                 children: [
-                  // Background layer 3 (darkest/furthest back)
+                  // Background layer 4 (furthest back - darkest shadow)
                   Positioned(
                     right: 0,
-                    top: 6,
+                    top: 8,
                     child: Container(
-                      width: 110,
-                      height: 32,
+                      width: 130,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xFF5D4A37), // Darker brown
-                        borderRadius: BorderRadius.circular(4),
+                        color: Color(0xFF2C1810), // Very dark brown
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                   ),
-                  // Background layer 2 (medium)
+                  // Background layer 3 (third layer)
                   Positioned(
                     right: 2,
+                    top: 6,
+                    child: Container(
+                      width: 130,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF3D2317), // Dark brown
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  // Background layer 2 (second layer)
+                  Positioned(
+                    right: 4,
                     top: 3,
                     child: Container(
-                      width: 110,
-                      height: 32,
+                      width: 130,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xFF6B5644), // Medium brown
-                        borderRadius: BorderRadius.circular(4),
+                        color: Color(0xFF5D4A37), // Medium brown
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                   ),
                   // Main button (front layer)
                   Container(
+                    width: 130,
+                    height: 40,
                     decoration: BoxDecoration(
-                      color: Color(0xFF8B7355), // Main brown color
-                      borderRadius: BorderRadius.circular(4),
+                      color: Color(0xFF8B7355), // Light brown/beige
+                      borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
                         ),
                       ],
                     ),
@@ -714,16 +852,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         onTap: () {
                           _exploreMore(title);
                         },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          alignment: Alignment.center,
                           child: Text(
                             'Explore more',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
                             ),
                           ),
                         ),
@@ -768,12 +906,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF2d5a4a),
-            Color(0xFF1a4a3a),
-          ],
-        ),
+        color: Color(0xFF000A00), // Very dark green background
         border: Border(
           top: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
         ),
@@ -790,17 +923,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           }
         },
         backgroundColor: Colors.transparent,
-        selectedItemColor: Color(0xFFD4AF37),
-        unselectedItemColor: Colors.white60,
+        selectedItemColor: Color(0xFFF4EBAF), // Light cream color for selected icons
+        unselectedItemColor: Color(0xFFF4EBAF), // Same light cream color for all icons
         elevation: 0,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFFBFFE6), // Light cream color for selected labels
+        ),
+        unselectedLabelStyle: TextStyle(
+          color: Color(0xFFFBFFE6), // Light cream color for unselected labels
+        ),
         items: [
           BottomNavigationBarItem(
             icon: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 0 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 0 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.home),
@@ -811,7 +950,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             icon: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 1 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 1 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.groups),
@@ -822,7 +961,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             icon: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 2 ? Color(0xFFD4AF37).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 2 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(Icons.translate),
@@ -858,7 +997,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           content: Text(
             'Exploring detailed information about $tribeName tribe. This will navigate to the comprehensive tribe details page.',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
           ),
           actions: [
             TextButton(
@@ -876,26 +1018,56 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _onScroll() {
-    // Hide scroll indicator when user starts scrolling (only on home screen)
-    if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator && !_userHasScrolled) {
-      _userHasScrolled = true; // Mark that user has scrolled
-      _hideScrollIndicator();
-    }
-  }
-
-  void _showScrollIndicatorForCurrentTab() {
-    // Reset and show scroll indicator when switching to home tab
-    if (mounted) {
-      setState(() {
-        _showScrollIndicator = true;
-        _userHasScrolled = false; // Reset scroll tracking
-      });
-      _fadeController.reset();
-      _pulseController.repeat(reverse: true);
-      
-      // No auto-hide timer - only hides when user scrolls
-    }
+  void _openQRScanner() {
+    // Implement QR scanner functionality
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF404040),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'QR Scanner',
+            style: TextStyle(
+              color: Color(0xFFD4AF37),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.qr_code_scanner,
+                size: 80,
+                color: Color(0xFFD4AF37),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'QR Scanner will open here. Point your camera at a QR code on the museum exhibits to discover tribal information.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Close',
+                style: TextStyle(color: Color(0xFFD4AF37)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
