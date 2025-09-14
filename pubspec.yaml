@@ -32,3 +32,17 @@ flutter:
     - assets/image/background/logging/
     - assets/fonts/
     
+
+    # Add your fonts here if using custom fonts
+  fonts:
+    - family: Regular
+      fonts:
+        - asset: fonts/Regular.ttf # Make sure this font file exists
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-Bold.ttf
+          weight: 700
+    - family: Abril Fatface
+      fonts:
+        - asset: fonts/AbrilFatface-Regular.ttf

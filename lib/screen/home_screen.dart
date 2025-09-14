@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Add this import for haptic feedback
 import 'qr_scanner_screen.dart'; // Add this import
+import 'translation_screen.dart'; // ADD THIS IMPORT
+import 'tribes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -112,12 +114,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       body: SafeArea(
         child: Stack(
           children: [
-            // Main content based on current index
+            // Main content based on current index - FIXED THIS SECTION
             _currentIndex == 0 
               ? _buildWelcomeScreen() 
               : _currentIndex == 1 
                 ? _buildTribesContent()
-                : _buildTranslationContent(),
+                : TranslationScreen(), // CHANGED: Now shows actual TranslationScreen
             
             // Scroll Indicator - Only visible on Home screen and when user hasn't scrolled
             if (_currentIndex == 0 && _showScrollIndicator)
@@ -917,30 +919,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildTribesContent() {
-    return Center(
-      child: Text(
-        'Tribes Screen\n(To be implemented)',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-        ),
+  return Center(
+    child: Text(
+      'Tribes Screen\n(To be implemented)',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildTranslationContent() {
-    return Center(
-      child: Text(
-        'Translation Screen\n(To be implemented)',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-        ),
-      ),
-    );
-  }
+  // REMOVED: _buildTranslationContent() method - no longer needed since we use the actual TranslationScreen
 
   Widget _buildBottomNavigationBar() {
     return Container(
