@@ -35,9 +35,9 @@ flutter:
 
     # Add your fonts here if using custom fonts
   fonts:
-    - family: Regular
+    - family: Poppins
       fonts:
-        - asset: fonts/Regular.ttf # Make sure this font file exists
+        - asset: fonts/Poppins-Regular.ttf # Make sure this font file exists
     - family: Poppins
       fonts:
         - asset: fonts/Poppins-Regular.ttf

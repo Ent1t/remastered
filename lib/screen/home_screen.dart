@@ -7,7 +7,7 @@ import 'tribes_screen.dart';
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  const HomeScreen({Key? key, required this.userData}) : super(key: key);
+  const HomeScreen({super.key, required this.userData});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   
   // Animation controllers for scroll indicator
   late AnimationController _fadeController;
@@ -32,12 +32,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     
     // Initialize animation controllers
     _fadeController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     
     _pulseController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
     
@@ -118,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             _currentIndex == 0 
               ? _buildWelcomeScreen() 
               : _currentIndex == 1 
-                ? _buildTribesContent()
-                : TranslationScreen(), // CHANGED: Now shows actual TranslationScreen
+                ? const TribesScreen() // CHANGED: Now shows actual TribesScreen widget
+                : const TranslationScreen(), // CHANGED: Now shows actual TranslationScreen
             
             // Scroll Indicator - Only visible on Home screen and when user hasn't scrolled
             if (_currentIndex == 0 && _showScrollIndicator)
@@ -142,16 +142,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.black.withOpacity(0.8),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: Color(0xFFD4AF37).withOpacity(0.6),
+                                        color: const Color(0xFFD4AF37).withOpacity(0.6),
                                         width: 1,
                                       ),
                                     ),
-                                    child: Text(
+                                    child: const Text(
                                       'Scroll down to explore',
                                       style: TextStyle(
                                         color: Colors.white,
@@ -160,14 +160,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 12),
+                                  const SizedBox(height: 12),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       _buildAnimatedArrow(0),
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       _buildAnimatedArrow(200),
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       _buildAnimatedArrow(400),
                                     ],
                                   ),
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         // Background with cultural pattern/image
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               // Add your cultural background image here
               image: DecorationImage(
-                image: AssetImage('assets/images/cultural_background.jpg'), // Add your background
+                image: const AssetImage('assets/images/cultural_background.jpg'), // Add your background
                 fit: BoxFit.cover,
                 opacity: 0.3,
                 onError: (exception, stackTrace) {},
@@ -242,23 +242,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           SingleChildScrollView(
             controller: _scrollController,
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   
                  
                   // Main Title Box
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.white, width: 2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -287,10 +287,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   
                   // Portal Text - aligned to the left
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,11 +315,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   
                   // Divider line - full width
                   Transform.translate(
-                    offset: Offset(-24, 0), // Negative padding to extend to edges
+                    offset: const Offset(-24, 0), // Negative padding to extend to edges
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: 1,
@@ -327,10 +327,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   
                   // Journey begins text
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,20 +382,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   
                   // FIXED QR Scanner Card with proper navigation
                   Container(
                     width: 280,
                     height: 300,
                     decoration: BoxDecoration(
-                      color: Color(0xFFE0D4BE), // Container background
+                      color: const Color(0xFFE0D4BE), // Container background
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.3),
                           blurRadius: 8,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -405,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: Color(0x66252525), // 40% opacity of 252525
+                            color: const Color(0x66252525), // 40% opacity of 252525
                           ),
                         ),
                         
@@ -414,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
-                              image: AssetImage('assets/images/tribal_pattern.jpg'),
+                              image: const AssetImage('assets/images/tribal_pattern.jpg'),
                               fit: BoxFit.cover,
                               opacity: 0.3,
                               onError: (exception, stackTrace) {},
@@ -435,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   HapticFeedback.lightImpact();
                                   _openQRScanner();
                                 },
-                                child: Container(
+                                child: SizedBox(
                                   width: 140,
                                   height: 140,
                                   child: Stack(
@@ -445,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       Container(
                                         width: 140,
                                         height: 140,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Color(0xCC010100), // Increased opacity for better visibility
                                           shape: BoxShape.circle,
                                         ),
@@ -455,25 +455,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         width: 130,
                                         height: 130,
                                         decoration: BoxDecoration(
-                                          color: Color(0xDD8E714B), // Slightly more opaque main body
+                                          color: const Color(0xDD8E714B), // Slightly more opaque main body
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black.withOpacity(0.3),
                                               blurRadius: 6,
-                                              offset: Offset(0, 3),
+                                              offset: const Offset(0, 3),
                                             ),
                                           ],
                                         ),
                                         child: Center(
                                           // QR icon - PERFECTLY CENTERED
-                                          child: Container(
+                                          child: SizedBox(
                                             width: 50,
                                             height: 50,
                                             child: GridView.builder(
-                                              physics: NeverScrollableScrollPhysics(),
+                                              physics: const NeverScrollableScrollPhysics(),
                                               shrinkWrap: true,
-                                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                                 crossAxisCount: 4,
                                                 mainAxisSpacing: 2,
                                                 crossAxisSpacing: 2,
@@ -484,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                 bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
                                                 return Container(
                                                   decoration: BoxDecoration(
-                                                    color: shouldFill ? Color(0xFFEADCB6) : Colors.transparent,
+                                                    color: shouldFill ? const Color(0xFFEADCB6) : Colors.transparent,
                                                     borderRadius: BorderRadius.circular(1),
                                                   ),
                                                 );
@@ -504,9 +504,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             _openQRScanner();
                                           },
                                           borderRadius: BorderRadius.circular(65),
-                                          splashColor: Color(0xFFD4AF37).withOpacity(0.3),
-                                          highlightColor: Color(0xFFD4AF37).withOpacity(0.1),
-                                          child: Container(
+                                          splashColor: const Color(0xFFD4AF37).withOpacity(0.3),
+                                          highlightColor: const Color(0xFFD4AF37).withOpacity(0.1),
+                                          child: SizedBox(
                                             width: 130,
                                             height: 130,
                                           ),
@@ -518,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ),
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
                             // Scan Here text - PERFECTLY CENTERED WITH ENHANCED STYLING
                             Center(
@@ -526,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 'SCAN HERE',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Color(0xFFFFEFBB),
+                                  color: const Color(0xFFFFEFBB),
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2,
@@ -534,7 +534,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     Shadow(
                                       blurRadius: 2,
                                       color: Colors.black.withOpacity(0.5),
-                                      offset: Offset(0, 1),
+                                      offset: const Offset(0, 1),
                                     ),
                                   ],
                                 ),
@@ -546,12 +546,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: 60),
+                  const SizedBox(height: 60),
                   
                   // About the Tribes Section
                   Container(
                     width: double.infinity,
-                    margin: EdgeInsets.only(bottom: 40),
+                    margin: const EdgeInsets.only(bottom: 40),
                     child: Column(
                       children: [
                         // About the Tribes Header with background image
@@ -567,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             child: Stack(
                               children: [
                                 // Background image
-                                Container(
+                                SizedBox(
                                   width: double.infinity,
                                   height: double.infinity,
                                   child: Image.asset(
@@ -576,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     errorBuilder: (context, error, stackTrace) {
                                       // Fallback gradient background
                                       return Container(
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           gradient: LinearGradient(
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
@@ -609,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   child: Text(
                                     'ABOUT THE TRIBES',
                                     style: TextStyle(
-                                      color: Color(0xFFF8F4E6), // Light cream color
+                                      color: const Color(0xFFF8F4E6), // Light cream color
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Abril Fatface', // Abril Fatface font
@@ -618,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         Shadow(
                                           blurRadius: 4,
                                           color: Colors.black.withOpacity(0.8),
-                                          offset: Offset(0, 2),
+                                          offset: const Offset(0, 2),
                                         ),
                                       ],
                                     ),
@@ -631,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         
                         // White line separator
                         Container(
-                          margin: EdgeInsets.symmetric(vertical: 20),
+                          margin: const EdgeInsets.symmetric(vertical: 20),
                           height: 1,
                           width: double.infinity,
                           color: Colors.white.withOpacity(0.3),
@@ -646,20 +646,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
                     imagePath: "assets/images/atamanon.jpg",
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   _buildTribeCard(
                     title: "MANDAYA",
                     description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
                     imagePath: "assets/images/mandaya.jpg",
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   _buildTribeCard(
                     title: "MANSAKA",
                     description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
                     imagePath: "assets/images/mansaka.jpg",
                   ),
                   
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -674,7 +674,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       animation: _pulseController,
       builder: (context, child) {
         return TweenAnimationBuilder(
-          duration: Duration(milliseconds: 1500),
+          duration: const Duration(milliseconds: 1500),
           tween: Tween<double>(
             begin: 0.0,
             end: _pulseController.isAnimating ? 1.0 : 0.0,
@@ -684,7 +684,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               offset: Offset(0, 4 * value),
               child: Opacity(
                 opacity: 1.0 - (value * 0.3),
-                child: Icon(
+                child: const Icon(
                   Icons.keyboard_arrow_down,
                   color: Colors.white,
                   size: 24,
@@ -703,19 +703,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required String imagePath,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title header outside and above the card with Poppins font
           Padding(
-            padding: EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFDBCCB5), // Light beige color
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -723,11 +723,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     letterSpacing: 1.2,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Container(
                   width: 80,
                   height: 3,
-                  color: Color(0xFFEADCB6), // Light golden beige underline
+                  color: const Color(0xFFEADCB6), // Light golden beige underline
                 ),
               ],
             ),
@@ -736,13 +736,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Gray card with rounded corners
           Container(
             decoration: BoxDecoration(
-              color: Color(0xFF4A4A4A), // Gray background matching image
+              color: const Color(0xFF4A4A4A), // Gray background matching image
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.4),
                   blurRadius: 12,
-                  offset: Offset(0, 6),
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -751,13 +751,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Column(
                 children: [
                   // Image section
-                  Container(
+                  SizedBox(
                     height: 200,
                     width: double.infinity,
                     child: Stack(
                       children: [
                         // Image (replace with your actual image)
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           height: double.infinity,
                           child: Image.asset(
@@ -766,7 +766,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             errorBuilder: (context, error, stackTrace) {
                               // Fallback when image doesn't exist
                               return Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -808,10 +808,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   // Text section with Regular font and updated color
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Text(
                       description,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(0xFFC5C6C7), // Light gray color
                         fontSize: 16,
                         fontFamily: 'Regular', // Regular font
@@ -828,7 +828,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           
           // Enhanced layered "Explore more" button
           Padding(
-            padding: EdgeInsets.only(top: 16),
+            padding: const EdgeInsets.only(top: 16),
             child: Align(
               alignment: Alignment.centerRight,
               child: Stack(
@@ -841,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       width: 130,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xFF2C1810), // Very dark brown
+                        color: const Color(0xFF2C1810), // Very dark brown
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
@@ -854,7 +854,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       width: 130,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xFF3D2317), // Dark brown
+                        color: const Color(0xFF3D2317), // Dark brown
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
@@ -867,7 +867,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       width: 130,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xFF5D4A37), // Medium brown
+                        color: const Color(0xFF5D4A37), // Medium brown
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
@@ -877,13 +877,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     width: 130,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color(0xFF8B7355), // Light brown/beige
+                      color: const Color(0xFF8B7355), // Light brown/beige
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.4),
                           blurRadius: 6,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -896,7 +896,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
                           alignment: Alignment.center,
-                          child: Text(
+                          child: const Text(
                             'Explore more',
                             style: TextStyle(
                               color: Colors.white,
@@ -918,25 +918,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTribesContent() {
-  return Center(
-    child: Text(
-      'Tribes Screen\n(To be implemented)',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-      ),
-    ),
-  );
-}
-
-  // REMOVED: _buildTranslationContent() method - no longer needed since we use the actual TranslationScreen
+  // REMOVED: _buildTribesContent() method - no longer needed since we use the actual TribesScreen
 
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xFF000A00), // Very dark green background
+        color: const Color(0xFF000A00), // Very dark green background
         border: Border(
           top: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
         ),
@@ -953,48 +940,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           }
         },
         backgroundColor: Colors.transparent,
-        selectedItemColor: Color(0xFFF4EBAF), // Light cream color for selected icons
-        unselectedItemColor: Color(0xFFF4EBAF), // Same light cream color for all icons
+        selectedItemColor: const Color(0xFFF4EBAF), // Light cream color for selected icons
+        unselectedItemColor: const Color(0xFFF4EBAF), // Same light cream color for all icons
         elevation: 0,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(
+        selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
           color: Color(0xFFFBFFE6), // Light cream color for selected labels
         ),
-        unselectedLabelStyle: TextStyle(
+        unselectedLabelStyle: const TextStyle(
           color: Color(0xFFFBFFE6), // Light cream color for unselected labels
         ),
         items: [
           BottomNavigationBarItem(
             icon: Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 0 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 0 ? const Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.home),
+              child: const Icon(Icons.home),
             ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 1 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 1 ? const Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.groups),
+              child: const Icon(Icons.groups),
             ),
             label: 'Tribes',
           ),
           BottomNavigationBarItem(
             icon: Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _currentIndex == 2 ? Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
+                color: _currentIndex == 2 ? const Color(0xFFF4EBAF).withOpacity(0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.translate),
+              child: const Icon(Icons.translate),
             ),
             label: 'Translate',
           ),
@@ -1014,20 +1001,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF404040),
+          backgroundColor: const Color(0xFF404040),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
             tribeName,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFFD4AF37),
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Exploring detailed information about $tribeName tribe. This will navigate to the comprehensive tribe details page.',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
             ),
@@ -1037,7 +1024,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Continue Exploring',
                 style: TextStyle(color: Color(0xFFD4AF37)),
               ),
@@ -1058,7 +1045,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => 
-          QRScannerScreen(),
+          const QRScannerScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           // Slide up transition
           const begin = Offset(0.0, 1.0);
@@ -1074,7 +1061,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 400),
+        transitionDuration: const Duration(milliseconds: 400),
       ),
     );
   }

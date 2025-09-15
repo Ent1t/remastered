@@ -11,117 +11,109 @@ class TribesScreen extends StatefulWidget {
 class _TribesScreenState extends State<TribesScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Container(
-        decoration: BoxDecoration(
-          // Dark background with subtle pattern
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1a1a1a),
-              Color(0xFF0d0d0d),
-              Colors.black,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20),
-                
-                // Header Section
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    // Subtle background pattern
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(0.05),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'INDIGENOUS TRIBES',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Explore Cultural\nHeritage',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w300,
-                          height: 1.3,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                SizedBox(height: 40),
-                
-                // Tribe Cards
-                _buildTribeCard(
-                  tribeName: 'ATA MANOBO',
-                  description: 'Known for their rich oral tradition and intricate beadwork',
-                  categories: '4 Categories',
-                  imagePath: 'assets/images/ata_manobo_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Ata Manobo'),
-                ),
-                
-                SizedBox(height: 24),
-                
-                _buildTribeCard(
-                  tribeName: 'MANSAKA',
-                  description: 'Renowned for their traditional weaving and agricultural practices',
-                  categories: '4 Categories',
-                  imagePath: 'assets/images/mansaka_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Mansaka'),
-                ),
-                
-                SizedBox(height: 24),
-                
-                _buildTribeCard(
-                  tribeName: 'MANDAYA',
-                  description: 'Masters of traditional music and dance ceremonies',
-                  categories: '4 Categories',
-                  imagePath: 'assets/images/mandaya_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Mandaya'),
-                ),
-                
-                SizedBox(height: 40),
-              ],
-            ),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        // Dark background with subtle pattern
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF1a1a1a),
+            Color(0xFF0d0d0d),
+            Colors.black,
+          ],
         ),
       ),
-      
-      // Bottom Navigation (matching the design)
-      bottomNavigationBar: _buildBottomNavigation(),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            
+            // Header Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                // Subtle background pattern
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.05),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'INDIGENOUS TRIBES',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Explore Cultural\nHeritage',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w300,
+                      height: 1.3,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 40),
+            
+            // Tribe Cards
+            _buildTribeCard(
+              tribeName: 'ATA MANOBO',
+              description: 'Known for their rich oral tradition and intricate beadwork',
+              categories: '4 Categories',
+              imagePath: 'assets/images/ata_manobo_main.jpg',
+              onTap: () => _navigateToTribeDetail('Ata Manobo'),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            _buildTribeCard(
+              tribeName: 'MANSAKA',
+              description: 'Renowned for their traditional weaving and agricultural practices',
+              categories: '4 Categories',
+              imagePath: 'assets/images/mansaka_main.jpg',
+              onTap: () => _navigateToTribeDetail('Mansaka'),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            _buildTribeCard(
+              tribeName: 'MANDAYA',
+              description: 'Masters of traditional music and dance ceremonies',
+              categories: '4 Categories',
+              imagePath: 'assets/images/mandaya_main.jpg',
+              onTap: () => _navigateToTribeDetail('Mandaya'),
+            ),
+            
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
     );
   }
 
@@ -135,12 +127,21 @@ class _TribesScreenState extends State<TribesScreen> {
     return Container(
       height: 160,
       decoration: BoxDecoration(
+        // Linear gradient with 80% fill (433D34 to 836F50)
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF433D34).withOpacity(0.8), // 80% opacity
+            const Color(0xFF836F50).withOpacity(0.8), // 80% opacity
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.6),
             blurRadius: 15,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -149,23 +150,22 @@ class _TribesScreenState extends State<TribesScreen> {
         child: Stack(
           children: [
             // Background Image
-            Container(
+            SizedBox(
               width: double.infinity,
               height: double.infinity,
               child: Image.asset(
                 imagePath,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback background with cultural colors
+                  // Fallback background matching the gradient
                   return Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF8B4513), // Saddle brown
-                          Color(0xFF654321), // Dark brown
-                          Color(0xFF2F1B14), // Very dark brown
+                          Color(0xFF433D34),
+                          Color(0xFF836F50),
                         ],
                       ),
                     ),
@@ -181,25 +181,23 @@ class _TribesScreenState extends State<TribesScreen> {
               ),
             ),
             
-            // Dark overlay gradient
+            // Overlay with the specified gradient (80% opacity)
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
-                    Colors.black.withOpacity(0.8),
-                    Colors.black.withOpacity(0.4),
-                    Colors.transparent,
+                    const Color(0xFF433D34).withOpacity(0.8), // 80% opacity
+                    const Color(0xFF836F50).withOpacity(0.8), // 80% opacity
                   ],
-                  stops: [0.0, 0.6, 1.0],
                 ),
               ),
             ),
             
             // Content
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
                   // Text Content
@@ -209,21 +207,23 @@ class _TribesScreenState extends State<TribesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Title with F8F4E6 color
                         Text(
                           tribeName,
-                          style: TextStyle(
-                            color: Colors.white,
+                          style: const TextStyle(
+                            color: Color(0xFFF8F4E6), // Specified title color
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
                             fontFamily: 'Poppins',
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
+                        // Description with C5C6C7 color
                         Text(
                           description,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                          style: const TextStyle(
+                            color: Color(0xFFC5C6C7), // Specified text color
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             height: 1.4,
@@ -232,41 +232,46 @@ class _TribesScreenState extends State<TribesScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
+                        // Categories with FBFFE6 color
                         Text(
                           categories,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                          style: const TextStyle(
+                            color: Color(0xFFFBFFE6), // Specified categories color
                             fontSize: 12,
                             fontWeight: FontWeight.w300,
                             letterSpacing: 0.5,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         
-                        // Click Here Button
+                        // Click Here Button with 94937C and 30% fill
                         GestureDetector(
                           onTap: () {
                             HapticFeedback.lightImpact();
                             onTap();
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Color(0xFF8B7355).withOpacity(0.9),
+                              color: const Color(0xFF94937C).withOpacity(0.3), // 30% fill
                               borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(0xFF94937C), // Full color for border
+                                width: 1,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.4),
                                   blurRadius: 4,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: Text(
+                            child: const Text(
                               'CLICK HERE',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Color(0xFFF8F4E6), // Same as title color for visibility
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
@@ -298,99 +303,10 @@ class _TribesScreenState extends State<TribesScreen> {
                 borderRadius: BorderRadius.circular(16),
                 splashColor: Colors.white.withOpacity(0.1),
                 highlightColor: Colors.white.withOpacity(0.05),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height: double.infinity,
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigation() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0xFF1a1a1a),
-        border: Border(
-          top: BorderSide(
-            color: Colors.white.withOpacity(0.1),
-            width: 1,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.qr_code_scanner,
-                label: 'Scan',
-                isActive: false,
-                onTap: () {
-                  Navigator.pop(context); // Go back to home/scanner
-                },
-              ),
-              _buildNavItem(
-                icon: Icons.groups,
-                label: 'Tribes',
-                isActive: true,
-                onTap: () {
-                  // Already on tribes screen
-                },
-              ),
-              _buildNavItem(
-                icon: Icons.translate,
-                label: 'Translate',
-                isActive: false,
-                onTap: () {
-                  // Navigate to translate screen
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? Color(0xFF8B7355).withOpacity(0.3) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? Color(0xFFF4EBAF) : Colors.white70,
-              size: 24,
-            ),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Color(0xFFF4EBAF) : Colors.white70,
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ],
@@ -419,7 +335,7 @@ class _TribesScreenState extends State<TribesScreen> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
@@ -442,12 +358,12 @@ class TribeDetailScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           tribeName.toUpperCase(),
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -457,7 +373,7 @@ class TribeDetailScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -469,7 +385,7 @@ class TribeDetailScreen extends StatelessWidget {
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -483,7 +399,7 @@ class TribeDetailScreen extends StatelessWidget {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.6),
                       blurRadius: 15,
-                      offset: Offset(0, 8),
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
@@ -494,7 +410,7 @@ class TribeDetailScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -514,10 +430,10 @@ class TribeDetailScreen extends StatelessWidget {
                                 size: 80,
                                 color: Colors.white.withOpacity(0.3),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Text(
                                 tribeName.toUpperCase(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -533,12 +449,12 @@ class TribeDetailScreen extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               
               // Description Section
               Text(
-                'About ${tribeName}',
-                style: TextStyle(
+                'About $tribeName',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -547,7 +463,7 @@ class TribeDetailScreen extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               
               Text(
                 _getTribeDescription(tribeName),
@@ -559,10 +475,10 @@ class TribeDetailScreen extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               
               // Categories Section
-              Text(
+              const Text(
                 'Cultural Categories',
                 style: TextStyle(
                   color: Colors.white,
@@ -572,11 +488,11 @@ class TribeDetailScreen extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               
               _buildCategoryGrid(),
               
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -586,16 +502,16 @@ class TribeDetailScreen extends StatelessWidget {
 
   Widget _buildCategoryGrid() {
     List<Map<String, dynamic>> categories = [
-      {'name': 'Traditional Clothing', 'icon': Icons.checkroom, 'color': Color(0xFF8B4513)},
-      {'name': 'Music & Dance', 'icon': Icons.music_note, 'color': Color(0xFF654321)},
-      {'name': 'Arts & Crafts', 'icon': Icons.palette, 'color': Color(0xFF2F4F4F)},
-      {'name': 'Language', 'icon': Icons.translate, 'color': Color(0xFF8B7355)},
+      {'name': 'Traditional Clothing', 'icon': Icons.checkroom, 'color': const Color(0xFF8B4513)},
+      {'name': 'Music & Dance', 'icon': Icons.music_note, 'color': const Color(0xFF654321)},
+      {'name': 'Arts & Crafts', 'icon': Icons.palette, 'color': const Color(0xFF2F4F4F)},
+      {'name': 'Language', 'icon': Icons.translate, 'color': const Color(0xFF8B7355)},
     ];
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
@@ -627,7 +543,7 @@ class TribeDetailScreen extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -636,11 +552,11 @@ class TribeDetailScreen extends StatelessWidget {
                   color: category['color'],
                   size: 40,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   category['name'],
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
