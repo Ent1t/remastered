@@ -9,6 +9,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,6 +26,8 @@ class MyApp extends StatelessWidget {
 }
 
 class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
+
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
@@ -47,7 +51,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             // Replace with your background image
             image: DecorationImage(
               image: AssetImage('assets/image/background/logging/main.png'), // Add your image here
@@ -63,17 +67,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start, // Changed to start for left alignment
                   children: [
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     
                     // Logo/Title Box - centered (REMOVED name and role display)
                     Center(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.white, width: 2),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
+                        child: const Text(
                           'HUNI SA TRIBU',
                           style: TextStyle(
                             color: Colors.white,
@@ -85,10 +89,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     
                     // Welcome Text - aligned to the left
-                    Align(
+                    const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Welcome!',
@@ -100,11 +104,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     
                     // Transparent container wrapping Name, Role, and School inputs
                     Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.3), // Transparent dark background
                         borderRadius: BorderRadius.circular(12),
@@ -120,7 +124,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             child: Stack(
                               children: [
                                 // "Name" label in top-left corner
-                                Positioned(
+                                const Positioned(
                                   top: 8,
                                   left: 15,
                                   child: Text(
@@ -136,7 +140,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 TextField(
                                   controller: _nameController,
                                   focusNode: _nameFocusNode,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -152,7 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       _schoolFocusNode.requestFocus();
                                     }
                                   },
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     hintText: '', // Remove placeholder text
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.only(
@@ -167,7 +171,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                           ),
                           
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           
                           // Role Selection Dropdown with "Role" label in top-left - FIXED COLOR
                           Container(
@@ -179,7 +183,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             child: Stack(
                               children: [
                                 // "Role" label in top-left corner
-                                Positioned(
+                                const Positioned(
                                   top: 8,
                                   left: 15,
                                   child: Text(
@@ -193,12 +197,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 ),
                                 // Dropdown with padding for label
                                 Padding(
-                                  padding: EdgeInsets.only(top: 25, bottom: 8),
+                                  padding: const EdgeInsets.only(top: 25, bottom: 8),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<String>(
                                       value: _selectedRole,
                                       isExpanded: true,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white, // CONSISTENT WHITE TEXT
                                         fontSize: 18, // Increased font size
                                         fontWeight: FontWeight.w500,
@@ -210,7 +214,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           child: Center( // Center the dropdown text
                                             child: Text(
                                               value,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 18, // Increased font size
                                                 fontWeight: FontWeight.w500,
@@ -230,10 +234,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         return <String>['Visitor', 'Student'].map((String value) {
                                           return Center( // Center the selected item text
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(vertical: 4), // Add vertical padding
+                                              padding: const EdgeInsets.symmetric(vertical: 4), // Add vertical padding
                                               child: Text(
                                                 value,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: Colors.white, // CONSISTENT WHITE TEXT
                                                   fontSize: 18, // Increased font size
                                                   fontWeight: FontWeight.w500,
@@ -243,7 +247,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           );
                                         }).toList();
                                       },
-                                      icon: Padding(
+                                      icon: const Padding(
                                         padding: EdgeInsets.only(right: 20),
                                         child: Icon(
                                           Icons.arrow_drop_down,
@@ -260,7 +264,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           
                           // School Input Field (only for students) - MOVED INSIDE CONTAINER AND FIXED STYLING
                           if (_showSchoolField) ...[
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.grey.withOpacity(0.4), // SAME COLOR AS OTHER FIELDS
@@ -269,7 +273,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               child: Stack(
                                 children: [
                                   // "What School?" label in top-left corner
-                                  Positioned(
+                                  const Positioned(
                                     top: 8,
                                     left: 15,
                                     child: Text(
@@ -285,7 +289,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   TextField(
                                     controller: _schoolController,
                                     focusNode: _schoolFocusNode,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white, // CONSISTENT WHITE TEXT
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -302,7 +306,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       FocusScope.of(context).unfocus();
                                       _proceedToNext();
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: 'Ex: STI College Tagum',
                                       hintStyle: TextStyle(color: Colors.white54), // CONSISTENT HINT COLOR
                                       border: InputBorder.none,
@@ -322,7 +326,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     
                     // Proceed Button - centered
                     Center(
@@ -333,14 +337,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           _proceedToNext();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFFDF8D7), // Updated to FDF8D7 color
+                          backgroundColor: const Color(0xFFFDF8D7), // Updated to FDF8D7 color
                           foregroundColor: Colors.black,
-                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'PROCEED',
                           style: TextStyle(
                             fontSize: 16,
@@ -350,7 +354,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     
-                    Spacer(),
+                    const Spacer(),
                   ],
                 ),
               ),
@@ -394,14 +398,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );

@@ -35,7 +35,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
   };
 
   // Data from API or fallback
-  Map<String, Map<String, Map<String, String>>> _phrases = {};
+  final Map<String, Map<String, Map<String, String>>> _phrases = {};
   List<dynamic> _categories = [];
   List<dynamic> _phrasesData = [];
   List<dynamic> _languages = [];
@@ -503,7 +503,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.translate_outlined,
               size: 64,
               color: Colors.grey,
@@ -514,7 +514,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
               const SizedBox(height: 8),
               Text(
                 'Error: $errorMessage',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 12,
                 ),
