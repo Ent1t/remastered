@@ -130,7 +130,9 @@ class _TribesScreenState extends State<TribesScreen> {
     required VoidCallback onTap,
   }) {
     return Container(
-      height: 160,
+      constraints: const BoxConstraints(
+        minHeight: 180, // Minimum height to ensure consistent look
+      ),
       decoration: BoxDecoration(
         // Linear gradient with 80% fill (433D34 to 836F50)
         gradient: LinearGradient(
@@ -152,188 +154,195 @@ class _TribesScreenState extends State<TribesScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            // Overlay with the specified gradient (80% opacity)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF433D34).withOpacity(0.8),
-                    const Color(0xFF836F50).withOpacity(0.8),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Main content with side-by-side layout
-            Row(
-              children: [
-                // Left side - Image
-                Container(
-                  width: 120,
-                  height: double.infinity,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                    ),
-                    child: Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        // Fallback image
-                        return Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF433D34),
-                                Color(0xFF836F50),
-                              ],
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.people,
-                              size: 40,
-                              color: Colors.white.withOpacity(0.3),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+        child: IntrinsicHeight(
+          child: Stack(
+            children: [
+              // Overlay with the specified gradient (80% opacity)
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0xFF433D34).withOpacity(0.8),
+                      const Color(0xFF836F50).withOpacity(0.8),
+                    ],
                   ),
                 ),
-                
-                // Right side - Content
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title with underline
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tribeName,
-                              style: const TextStyle(
-                                color: Color(0xFFF8F4E6),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
+              ),
+              
+              // Main content with side-by-side layout
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Left side - Image
+                  Container(
+                    width: 120,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16),
+                      ),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Fallback image
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF433D34),
+                                  Color(0xFF836F50),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Container(
-                              height: 2,
-                              width: 60, // Underline width
-                              color: const Color(0xFFF8F4E6),
-                            ),
-                          ],
-                        ),
-                        
-                        const SizedBox(height: 12),
-                        
-                        // Description
-                        Text(
-                          description,
-                          style: const TextStyle(
-                            color: Color(0xFFC5C6C7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            height: 1.4,
-                            letterSpacing: 0.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        
-                        const SizedBox(height: 8),
-                        
-                        // Categories
-                        Text(
-                          categories,
-                          style: const TextStyle(
-                            color: Color(0xFFFBFFE6),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w300,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        
-                        const Spacer(),
-                        
-                        // Click Here Button - Rounded rectangle
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              onTap();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16, 
-                                vertical: 8,
+                            child: Center(
+                              child: Icon(
+                                Icons.people,
+                                size: 40,
+                                color: Colors.white.withOpacity(0.3),
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF94937C).withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(20), // More rounded
-                                border: Border.all(
-                                  color: const Color(0xFF94937C),
-                                  width: 1,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.4),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  
+                  // Right side - Content
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Top content
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title with underline
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tribeName,
+                                    style: const TextStyle(
+                                      color: Color(0xFFF8F4E6),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    height: 2,
+                                    width: 60,
+                                    color: const Color(0xFFF8F4E6),
                                   ),
                                 ],
                               ),
-                              child: const Text(
-                                'CLICK HERE',
-                                style: TextStyle(
-                                  color: Color(0xFFF8F4E6),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1,
+                              
+                              const SizedBox(height: 12),
+                              
+                              // Description
+                              Text(
+                                description,
+                                style: const TextStyle(
+                                  color: Color(0xFFC5C6C7),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.3,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 8),
+                              
+                              // Categories
+                              Text(
+                                categories,
+                                style: const TextStyle(
+                                  color: Color(0xFFFBFFE6),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w300,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: 12),
+                          
+                          // Click Here Button - Rounded rectangle
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                onTap();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF94937C).withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: const Color(0xFF94937C),
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.4),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Text(
+                                  'CLICK HERE',
+                                  style: TextStyle(
+                                    color: Color(0xFFF8F4E6),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            
-            // Tap overlay for entire card
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  onTap();
-                },
-                borderRadius: BorderRadius.circular(16),
-                splashColor: Colors.white.withOpacity(0.1),
-                highlightColor: Colors.white.withOpacity(0.05),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
+                ],
+              ),
+              
+              // Tap overlay for entire card
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    onTap();
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

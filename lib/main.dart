@@ -368,12 +368,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _proceedToNext() {
     // Validate inputs
     if (_nameController.text.trim().isEmpty) {
-      _showErrorDialog('Please enter your name');
+      _showCustomErrorDialog(
+        'Name Required',
+        'Please enter your name to continue.',
+        Icons.person_outline,
+      );
       return;
     }
     
     if (_selectedRole == 'Student' && _schoolController.text.trim().isEmpty) {
-      _showErrorDialog('Please enter your school');
+      _showCustomErrorDialog(
+        'School Information Required',
+        'Please enter your school name to continue.',
+        Icons.school_outlined,
+      );
       return;
     }
 
@@ -393,21 +401,135 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  void _showErrorDialog(String message) {
+  void _showCustomErrorDialog(String title, String message, IconData icon) {
+    HapticFeedback.lightImpact(); // Add haptic feedback for better UX
+    
     showDialog(
       context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              // Dark background with gradient similar to your app theme
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF2a2a2a),
+                  Color(0xFF1a1a1a),
+                  Color(0xFF0d0d0d),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.red.withOpacity(0.5),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.8),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Error Icon with animated container
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(35),
+                    border: Border.all(
+                      color: Colors.red.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.red,
+                    size: 35,
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Error Title
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Error Message
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Custom OK Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop();
+                      
+                      // Auto-focus the appropriate field after closing dialog
+                      if (title.contains('Name')) {
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          _nameFocusNode.requestFocus();
+                        });
+                      } else if (title.contains('School')) {
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          _schoolFocusNode.requestFocus();
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFDF8D7), // Same as your proceed button
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      'GOT IT',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
