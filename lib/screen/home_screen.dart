@@ -292,9 +292,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 25), // Reduced from 40 to bring closer to line
                   
-                  // Portal Text - aligned to the left
+                  // Portal Text - aligned to the left and closer together
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
@@ -308,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             fontWeight: FontWeight.w300,
                           ),
                         ),
+                        SizedBox(height: 2), // Reduced spacing between lines
                         Text(
                           'Rich Heritage.',
                           style: TextStyle(
@@ -320,21 +321,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 15), // Reduced from 30 to bring closer to line
                   
-                  // Divider line - full width
+                  // Divider line - thicker and extends to both sides
                   Transform.translate(
-                    offset: const Offset(-24, 0), // Negative padding to extend to edges
+                    offset: const Offset(-24, 0), // Move left to extend beyond padding
                     child: Container(
                       width: MediaQuery.of(context).size.width,
-                      height: 1,
+                      height: 2, // Increased from 1 to make thicker
                       color: Colors.white.withOpacity(0.3),
                     ),
                   ),
                   
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20), // Reduced from 30 to bring closer to line
                   
-                  // Journey begins text
+                  // Journey begins text with bold "scan"
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
@@ -357,31 +358,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                         ),
                         SizedBox(height: 16),
-                        Row(
+                        // Updated text with bold "scan" and "explore"
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Scan QR codes on museum exhibits to ',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  'explore',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold, // Made bold
+                                  ),
+                                ),
+                              ],
+                            ),
                             Text(
-                              'Scan QR codes on museum exhibits to ',
+                              'the rich culture of indigenous tribes',
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
                               ),
                             ),
-                            Text(
-                              'explore',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                           ],
-                        ),
-                        Text(
-                          'the rich culture of indigenous tribes',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
                         ),
                       ],
                     ),
@@ -645,23 +652,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  // Tribe Cards Section (scrollable content)
-                  _buildTribeCard(
-                    title: "ATA-MANOBO",
-                    description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
-                    imagePath: "assets/images/atamanon.jpg",
-                  ),
-                  const SizedBox(height: 30),
-                  _buildTribeCard(
-                    title: "MANDAYA",
-                    description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
-                    imagePath: "assets/images/mandaya.jpg",
-                  ),
-                  const SizedBox(height: 30),
-                  _buildTribeCard(
-                    title: "MANSAKA",
-                    description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
-                    imagePath: "assets/images/mansaka.jpg",
+                  // Tribe Cards Section (scrollable content) - With proper padding restoration
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24), // Restore padding for content
+                    child: Column(
+                      children: [
+                        _buildTribeCard(
+                          title: "ATA-MANOBO",
+                          description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
+                          imagePath: "assets/images/atamanon.jpg",
+                        ),
+                        const SizedBox(height: 30),
+                        _buildTribeCard(
+                          title: "MANDAYA",
+                          description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
+                          imagePath: "assets/images/mandaya.jpg",
+                        ),
+                        const SizedBox(height: 30),
+                        _buildTribeCard(
+                          title: "MANSAKA",
+                          description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
+                          imagePath: "assets/images/mansaka.jpg",
+                        ),
+                      ],
+                    ),
                   ),
                   
                   const SizedBox(height: 40),
@@ -831,7 +845,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Enhanced layered "Explore more" button
+          // Enhanced layered "Explore more" button with bold "Explore"
           Padding(
             padding: const EdgeInsets.only(top: 16),
             child: Align(
@@ -922,8 +936,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-  // REMOVED: _buildTribesContent() method - no longer needed since we use the actual TribesScreen
 
   Widget _buildBottomNavigationBar() {
     return Container(
