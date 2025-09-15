@@ -130,15 +130,15 @@ class _TribesScreenState extends State<TribesScreen> {
     required VoidCallback onTap,
   }) {
     return Container(
-      height: 180, // Increased height slightly for better layout
+      height: 160,
       decoration: BoxDecoration(
         // Linear gradient with 80% fill (433D34 to 836F50)
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF433D34).withOpacity(0.8), // 80% opacity
-            const Color(0xFF836F50).withOpacity(0.8), // 80% opacity
+            const Color(0xFF433D34).withOpacity(0.8),
+            const Color(0xFF836F50).withOpacity(0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -154,38 +154,6 @@ class _TribesScreenState extends State<TribesScreen> {
         borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
-            // Background Image
-            SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  // Fallback background matching the gradient
-                  return Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF433D34),
-                          Color(0xFF836F50),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.people,
-                        size: 60,
-                        color: Colors.white.withOpacity(0.3),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            
             // Overlay with the specified gradient (80% opacity)
             Container(
               decoration: BoxDecoration(
@@ -193,106 +161,159 @@ class _TribesScreenState extends State<TribesScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF433D34).withOpacity(0.8), // 80% opacity
-                    const Color(0xFF836F50).withOpacity(0.8), // 80% opacity
+                    const Color(0xFF433D34).withOpacity(0.8),
+                    const Color(0xFF836F50).withOpacity(0.8),
                   ],
                 ),
               ),
             ),
             
-            // Content Layout - Using Positioned for precise placement
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Text Content - Takes most of the space
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          // Title with F8F4E6 color
-                          Text(
-                            tribeName,
-                            style: const TextStyle(
-                              color: Color(0xFFF8F4E6), // Specified title color
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          // Description with C5C6C7 color
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              color: Color(0xFFC5C6C7), // Specified text color
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              height: 1.4,
-                              letterSpacing: 0.5,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 12),
-                          // Categories with FBFFE6 color
-                          Text(
-                            categories,
-                            style: const TextStyle(
-                              color: Color(0xFFFBFFE6), // Specified categories color
-                              fontSize: 12,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+            // Main content with side-by-side layout
+            Row(
+              children: [
+                // Left side - Image
+                Container(
+                  width: 120,
+                  height: double.infinity,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Click Here Button - Positioned at bottom right
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  onTap();
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF94937C).withOpacity(0.3), // 30% fill
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: const Color(0xFF94937C), // Full color for border
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Text(
-                    'CLICK HERE',
-                    style: TextStyle(
-                      color: Color(0xFFF8F4E6), // Same as title color for visibility
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                    child: Image.asset(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback image
+                        return Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFF433D34),
+                                Color(0xFF836F50),
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.people,
+                              size: 40,
+                              color: Colors.white.withOpacity(0.3),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-              ),
+                
+                // Right side - Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title with underline
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tribeName,
+                              style: const TextStyle(
+                                color: Color(0xFFF8F4E6),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              height: 2,
+                              width: 60, // Underline width
+                              color: const Color(0xFFF8F4E6),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 12),
+                        
+                        // Description
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            color: Color(0xFFC5C6C7),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            height: 1.4,
+                            letterSpacing: 0.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // Categories
+                        Text(
+                          categories,
+                          style: const TextStyle(
+                            color: Color(0xFFFBFFE6),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w300,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        
+                        const Spacer(),
+                        
+                        // Click Here Button - Rounded rectangle
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              onTap();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16, 
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF94937C).withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(20), // More rounded
+                                border: Border.all(
+                                  color: const Color(0xFF94937C),
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Text(
+                                'CLICK HERE',
+                                style: TextStyle(
+                                  color: Color(0xFFF8F4E6),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             
             // Tap overlay for entire card
@@ -344,7 +365,7 @@ class _TribesScreenState extends State<TribesScreen> {
   }
 }
 
-// Tribe Detail Screen
+// Tribe Detail Screen (keeping the existing implementation)
 class TribeDetailScreen extends StatelessWidget {
   final String tribeName;
 

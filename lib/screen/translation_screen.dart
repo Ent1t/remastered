@@ -531,22 +531,34 @@ class _TranslationScreenState extends State<TranslationScreen> {
       );
     }
 
+    // Apply bouncing physics and proper scroll behavior like tribes screen
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      physics: const BouncingScrollPhysics(), // Same bouncing effect as tribes screen
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Match tribes screen padding
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 10), // Top spacing like tribes screen
+          
           _buildLanguageSelectionSection(),
+          
           const SizedBox(height: 32.0),
+          
           if (isPlaying) _buildAudioStatusIndicator(),
+          
           Text(
             'Common Phrases',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
+          
           const SizedBox(height: 16.0),
+          
           ..._phrases.entries.map((categoryEntry) {
             return _buildCategorySection(categoryEntry);
           }),
+          
+          // Bottom padding to ensure last content is fully visible (like tribes screen)
+          const SizedBox(height: 30),
         ],
       ),
     );

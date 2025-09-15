@@ -238,9 +238,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Main Content
+          // Main Content with Limited Bouncing Scroll
           SingleChildScrollView(
             controller: _scrollController,
+            // Apply limited bouncing scroll physics
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            clipBehavior: Clip.none, // Allow slight overscroll
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
