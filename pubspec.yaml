@@ -10,10 +10,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   mobile_scanner: ^7.0.1
-  flutter_tts: ^4.0.2      # 👈 NEW: Text-to-speech
-  audioplayers: ^6.0.0    # 👈 NEW: Audio playback
-  http: ^1.5.0            # 👈 NEW: HTTP requests 
-
+  flutter_tts: ^4.0.2
+  audioplayers: ^6.0.0
+  http: ^1.5.0
 
 dev_dependencies:
   flutter_test:
@@ -23,26 +22,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # 👈 NEW: Enable assets
   assets:
     - assets/images/
     - assets/audio/
     - assets/videos/
     - assets/artifacts/
     - assets/image/background/logging/
-    - assets/fonts/
-    
-
-    # Add your fonts here if using custom fonts
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: fonts/Poppins-Regular.ttf # Make sure this font file exists
-    - family: Poppins
-      fonts:
-        - asset: fonts/Poppins-Regular.ttf
-        - asset: fonts/Poppins-Bold.ttf
-          weight: 700
-    - family: Abril Fatface
-      fonts:
-        - asset: fonts/AbrilFatface-Regular.ttf
