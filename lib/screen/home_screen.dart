@@ -246,122 +246,121 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               parent: AlwaysScrollableScrollPhysics(),
             ),
             clipBehavior: Clip.none, // Allow slight overscroll
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  
-                 
-                  // Main Title Box
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'HUNI SA TRIBU',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Top content with padding
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      
+                     
+                      // Main Title Box
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white, width: 2),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          SizedBox(height: 8),
-                          Padding(
-                            padding: EdgeInsets.only(left: 28), // Tab-like spacing
-                            child: Text(
-                              'Cultural Heritage Museum',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                                letterSpacing: 1,
+                          child: const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'HUNI SA TRIBU',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                ),
                               ),
-                            ),  
+                              SizedBox(height: 8),
+                              Padding(
+                                padding: EdgeInsets.only(left: 28), // Tab-like spacing
+                                child: Text(
+                                  'Cultural Heritage Museum',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                    letterSpacing: 1,
+                                  ),
+                                ),  
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 25), // Reduced from 40 to bring closer to line
-                  
-                  // Portal Text - aligned to the left and closer together
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your Portal to a',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        SizedBox(height: 2), // Reduced spacing between lines
-                        Text(
-                          'Rich Heritage.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 15), // Reduced from 30 to bring closer to line
-                  
-                  // Divider line - thicker and extends to both sides
-                  Transform.translate(
-                    offset: const Offset(-24, 0), // Move left to extend beyond padding
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 2, // Increased from 1 to make thicker
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20), // Reduced from 30 to bring closer to line
-                  
-                  // Journey begins text with bold "scan"
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your journey',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          'begins with a scan.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        // Updated text with bold "scan" and "explore"
-                        Column(
+                      
+                      const SizedBox(height: 40),
+                      
+                      // Portal Text - aligned to the left
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              'Your Portal to a',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            Text(
+                              'Rich Heritage.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20), // Reduced spacing between cards
+                      
+                      // Divider line - full width
+                      Transform.translate(
+                        offset: const Offset(-24, 0), // Negative padding to extend to edges
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 1,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 30),
+                      
+                      // Journey begins text
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your journey',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              'begins with a scan.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 16),
                             Row(
                               children: [
                                 Text(
@@ -376,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
-                                    fontWeight: FontWeight.bold, // Made bold
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
@@ -390,247 +389,161 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // FIXED QR Scanner Card with proper navigation
-                  Container(
-                    width: 280,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0D4BE), // Container background
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Semi-transparent overlay (40% fill)
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: const Color(0x66252525), // 40% opacity of 252525
-                          ),
-                        ),
-                        
-                        // Background pattern for QR card
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                              image: const AssetImage('assets/images/tribal_pattern.jpg'),
-                              fit: BoxFit.cover,
-                              opacity: 0.3,
-                              onError: (exception, stackTrace) {},
-                            ),
-                          ),
-                        ),
-                        
-                        // QR Scanner content - FUNCTIONAL WITH NAVIGATION
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Centered circular scan button - NOW FUNCTIONAL
-                            Center(
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Navigate to QR Scanner Screen with haptic feedback
-                                  HapticFeedback.lightImpact();
-                                  _openQRScanner();
-                                },
-                                child: SizedBox(
-                                  width: 140,
-                                  height: 140,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Shadow/border circle (outer) - IMPROVED TRANSPARENCY
-                                      Container(
-                                        width: 140,
-                                        height: 140,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xCC010100), // Increased opacity for better visibility
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      // Main circle body with better transparency
-                                      Container(
-                                        width: 130,
-                                        height: 130,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xDD8E714B), // Slightly more opaque main body
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.3),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Center(
-                                          // QR icon - PERFECTLY CENTERED
-                                          child: SizedBox(
-                                            width: 50,
-                                            height: 50,
-                                            child: GridView.builder(
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              shrinkWrap: true,
-                                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 4,
-                                                mainAxisSpacing: 2,
-                                                crossAxisSpacing: 2,
-                                              ),
-                                              itemCount: 16,
-                                              itemBuilder: (context, index) {
-                                                // Create QR-like pattern
-                                                bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
-                                                return Container(
-                                                  decoration: BoxDecoration(
-                                                    color: shouldFill ? const Color(0xFFEADCB6) : Colors.transparent,
-                                                    borderRadius: BorderRadius.circular(1),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      
-                                      // Ripple effect overlay for tap feedback
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            // Handle QR scan action with haptic feedback
-                                            HapticFeedback.lightImpact();
-                                            _openQRScanner();
-                                          },
-                                          borderRadius: BorderRadius.circular(65),
-                                          splashColor: const Color(0xFFD4AF37).withOpacity(0.3),
-                                          highlightColor: const Color(0xFFD4AF37).withOpacity(0.1),
-                                          child: SizedBox(
-                                            width: 130,
-                                            height: 130,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 30),
-                            
-                            // Scan Here text - PERFECTLY CENTERED WITH ENHANCED STYLING
-                            Center(
-                              child: Text(
-                                'SCAN HERE',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: const Color(0xFFFFEFBB),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 2,
-                                      color: Colors.black.withOpacity(0.5),
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                      ),
+                      
+                      const SizedBox(height: 40),
+                      
+                      // FIXED QR Scanner Card with proper navigation
+                      Container(
+                        width: 280,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0D4BE), // Container background
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 60),
-                  
-                  // About the Tribes Section
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 40),
-                    child: Column(
-                      children: [
-                        // About the Tribes Header with background image
-                        Container(
-                          width: double.infinity,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Stack(
-                              children: [
-                                // Background image
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  child: Image.asset(
-                                    'assets/images/tribes_header_bg.jpg', // Add your tribal background image
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      // Fallback gradient background
-                                      return Container(
-                                        decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              Color(0xFF8B4513),
-                                              Color(0xFF654321),
-                                              Color(0xFF2F1B14),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                        child: Stack(
+                          children: [
+                            // Semi-transparent overlay (40% fill)
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: const Color(0x66252525), // 40% opacity of 252525
+                              ),
+                            ),
+                            
+                            // Background pattern for QR card
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: DecorationImage(
+                                  image: const AssetImage('assets/images/tribal_pattern.jpg'),
+                                  fit: BoxFit.cover,
+                                  opacity: 0.3,
+                                  onError: (exception, stackTrace) {},
                                 ),
-                                // Dark overlay for text visibility
-                                Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.black.withOpacity(0.3),
-                                        Colors.black.withOpacity(0.7),
-                                      ],
+                              ),
+                            ),
+                            
+                            // QR Scanner content - FUNCTIONAL WITH NAVIGATION
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Centered circular scan button - NOW FUNCTIONAL
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      // Navigate to QR Scanner Screen with haptic feedback
+                                      HapticFeedback.lightImpact();
+                                      _openQRScanner();
+                                    },
+                                    child: SizedBox(
+                                      width: 140,
+                                      height: 140,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          // Shadow/border circle (outer) - IMPROVED TRANSPARENCY
+                                          Container(
+                                            width: 140,
+                                            height: 140,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xCC010100), // Increased opacity for better visibility
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          // Main circle body with better transparency
+                                          Container(
+                                            width: 130,
+                                            height: 130,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xDD8E714B), // Slightly more opaque main body
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              // QR icon - PERFECTLY CENTERED
+                                              child: SizedBox(
+                                                width: 50,
+                                                height: 50,
+                                                child: GridView.builder(
+                                                  physics: const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 4,
+                                                    mainAxisSpacing: 2,
+                                                    crossAxisSpacing: 2,
+                                                  ),
+                                                  itemCount: 16,
+                                                  itemBuilder: (context, index) {
+                                                    // Create QR-like pattern
+                                                    bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        color: shouldFill ? const Color(0xFFEADCB6) : Colors.transparent,
+                                                        borderRadius: BorderRadius.circular(1),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          
+                                          // Ripple effect overlay for tap feedback
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              onTap: () {
+                                                // Handle QR scan action with haptic feedback
+                                                HapticFeedback.lightImpact();
+                                                _openQRScanner();
+                                              },
+                                              borderRadius: BorderRadius.circular(65),
+                                              splashColor: const Color(0xFFD4AF37).withOpacity(0.3),
+                                              highlightColor: const Color(0xFFD4AF37).withOpacity(0.1),
+                                              child: SizedBox(
+                                                width: 130,
+                                                height: 130,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                                // Title text with Abril Fatface font
+                                
+                                const SizedBox(height: 30),
+                                
+                                // Scan Here text - PERFECTLY CENTERED WITH ENHANCED STYLING
                                 Center(
                                   child: Text(
-                                    'ABOUT THE TRIBES',
+                                    'SCAN HERE',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      color: const Color(0xFFF8F4E6), // Light cream color
-                                      fontSize: 24,
+                                      color: const Color(0xFFFFEFBB),
+                                      fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      fontFamily: 'Abril Fatface', // Abril Fatface font
                                       letterSpacing: 2,
                                       shadows: [
                                         Shadow(
-                                          blurRadius: 4,
-                                          color: Colors.black.withOpacity(0.8),
-                                          offset: const Offset(0, 2),
+                                          blurRadius: 2,
+                                          color: Colors.black.withOpacity(0.5),
+                                          offset: const Offset(0, 1),
                                         ),
                                       ],
                                     ),
@@ -638,49 +551,216 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 ),
                               ],
                             ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 60),
+                    ],
+                  ),
+                ),
+                
+                // UPDATED: About the Tribes Section - FULL WIDTH
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 40),
+                  child: Column(
+                    children: [
+                      // About the Tribes Header with background image - FULL WIDTH
+                      Container(
+                        width: double.infinity,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+                        ),
+                        child: Stack(
+                          children: [
+                            // Background image - FULL WIDTH
+                            SizedBox(
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: Image.asset(
+                                'assets/images/tribes_header_bg.jpg',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  // Enhanced fallback gradient background
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF2C1810), // Dark brown
+                                          Color(0xFF8B4513), // Medium brown
+                                          Color(0xFF654321), // Darker brown
+                                          Color(0xFF2F1B14), // Very dark brown
+                                          Color(0xFF1a0f0a), // Almost black brown
+                                        ],
+                                        stops: [0.0, 0.2, 0.5, 0.8, 1.0],
+                                      ),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        // Add a subtle pattern overlay for texture
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            backgroundBlendMode: BlendMode.overlay,
+                                            color: Colors.black.withOpacity(0.1),
+                                          ),
+                                        ),
+                                        // Add some geometric patterns for tribal feel
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: TribalPatternPainter(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            
+                            // Enhanced dark overlay for better text visibility
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withOpacity(0.2),
+                                    Colors.black.withOpacity(0.6),
+                                    Colors.black.withOpacity(0.8),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Side gradient for edge blending
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.black.withOpacity(0.3),
+                                    Colors.transparent,
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.3),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Title text with enhanced styling
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Main title with enhanced shadow and glow effect
+                                  Text(
+                                    'ABOUT THE TRIBES',
+                                    style: TextStyle(
+                                      color: const Color(0xFFF8F4E6), // Light cream color
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Abril Fatface',
+                                      letterSpacing: 3,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 8,
+                                          color: Colors.black.withOpacity(0.9),
+                                          offset: const Offset(0, 2),
+                                        ),
+                                        Shadow(
+                                          blurRadius: 16,
+                                          color: Colors.black.withOpacity(0.5),
+                                          offset: const Offset(0, 4),
+                                        ),
+                                        // Add a subtle glow
+                                        Shadow(
+                                          blurRadius: 20,
+                                          color: const Color(0xFFD4AF37).withOpacity(0.3),
+                                          offset: const Offset(0, 0),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  
+                                  // Add a subtle underline accent
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: 120,
+                                    height: 2,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Colors.transparent,
+                                          Color(0xFFD4AF37),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Enhanced separator line - FULL WIDTH
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 20),
+                        height: 1,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Colors.transparent,
+                              Colors.white.withOpacity(0.6),
+                              Colors.white.withOpacity(0.3),
+                              Colors.white.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
                           ),
                         ),
-                        
-                        // White line separator
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          height: 1,
-                          width: double.infinity,
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  
-                  // Tribe Cards Section (scrollable content) - With proper padding restoration
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24), // Restore padding for content
-                    child: Column(
-                      children: [
-                        _buildTribeCard(
-                          title: "ATA-MANOBO",
-                          description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
-                          imagePath: "assets/images/atamanon.jpg",
-                        ),
-                        const SizedBox(height: 30),
-                        _buildTribeCard(
-                          title: "MANDAYA",
-                          description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
-                          imagePath: "assets/images/mandaya.jpg",
-                        ),
-                        const SizedBox(height: 30),
-                        _buildTribeCard(
-                          title: "MANSAKA",
-                          description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
-                          imagePath: "assets/images/mansaka.jpg",
-                        ),
-                      ],
-                    ),
+                ),
+                
+                // Tribe Cards Section with padding restored
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      _buildTribeCard(
+                        title: "ATA-MANOBO",
+                        description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
+                        imagePath: "assets/images/atamanon.jpg",
+                      ),
+                      const SizedBox(height: 30),
+                      _buildTribeCard(
+                        title: "MANDAYA",
+                        description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
+                        imagePath: "assets/images/mandaya.jpg",
+                      ),
+                      const SizedBox(height: 30),
+                      _buildTribeCard(
+                        title: "MANSAKA",
+                        description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
+                        imagePath: "assets/images/mansaka.jpg",
+                      ),
+                      
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                  
-                  const SizedBox(height: 40),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -845,7 +925,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Enhanced layered "Explore more" button with bold "Explore"
+          // Enhanced layered "Explore more" button
           Padding(
             padding: const EdgeInsets.only(top: 16),
             child: Align(
@@ -1091,4 +1171,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _pulseController.dispose();
     super.dispose();
   }
+}
+
+// Custom painter for tribal patterns
+class TribalPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    // Draw some subtle geometric tribal patterns
+    final path = Path();
+    
+    // Draw diamond patterns
+    for (int i = 0; i < 5; i++) {
+      double x = (size.width / 5) * i;
+      double y = size.height / 2;
+      
+      path.moveTo(x, y - 20);
+      path.lineTo(x + 15, y);
+      path.lineTo(x, y + 20);
+      path.lineTo(x - 15, y);
+      path.close();
+    }
+    
+    // Draw zigzag patterns
+    path.moveTo(0, size.height * 0.3);
+    for (int i = 0; i < 20; i++) {
+      double x = (size.width / 20) * i;
+      double y = size.height * 0.3 + (i % 2 == 0 ? -5 : 5);
+      path.lineTo(x, y);
+    }
+    
+    path.moveTo(0, size.height * 0.7);
+    for (int i = 0; i < 20; i++) {
+      double x = (size.width / 20) * i;
+      double y = size.height * 0.7 + (i % 2 == 0 ? 5 : -5);
+      path.lineTo(x, y);
+    }
+    
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
