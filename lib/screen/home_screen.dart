@@ -249,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Top content with padding
+                // Top content section with padding
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -257,7 +257,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     children: [
                       const SizedBox(height: 40),
                       
-                     
                       // Main Title Box
                       Align(
                         alignment: Alignment.centerLeft,
@@ -325,237 +324,293 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       
                       const SizedBox(height: 20), // Reduced spacing between cards
-                      
-                      // Divider line - full width
-                      Transform.translate(
-                        offset: const Offset(-24, 0), // Negative padding to extend to edges
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 1,
-                          color: Colors.white.withOpacity(0.3),
+                    ],
+                  ),
+                ),
+                
+                // FIXED: Full-width divider line - moved outside padding
+                Container(
+                  width: double.infinity,
+                  height: 1,
+                  color: Colors.white.withOpacity(0.3),
+                ),
+                
+                // NEW: Background image section between divider and "About the Tribes"
+                SizedBox(
+                  width: double.infinity,
+                  child: Stack(
+                    children: [
+                      // Background image - FULL WIDTH
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: const AssetImage('assets/images/cultural_section_bg.jpg'), // Add your background image
+                            fit: BoxFit.cover,
+                            opacity: 0.4,
+                            onError: (exception, stackTrace) {},
+                          ),
                         ),
-                      ),
-                      
-                      const SizedBox(height: 30),
-                      
-                      // Journey begins text
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Your journey',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              'begins with a scan.',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Text(
-                                  'Scan QR codes on museum exhibits to ',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  'explore',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                        child: Container(
+                          // Fallback gradient background if image fails to load
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0xFF1a4a3a), // Dark green
+                                Color(0xFF2d5a4a),
+                                Color(0xFF0F2419), // Very dark green
                               ],
                             ),
-                            Text(
-                              'the rich culture of indigenous tribes',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                       
-                      const SizedBox(height: 40),
-                      
-                      // FIXED QR Scanner Card with proper navigation
+                      // Dark overlay for text visibility
                       Container(
-                        width: 280,
-                        height: 300,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0D4BE), // Container background
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.3),
+                              Colors.black.withOpacity(0.5),
+                              Colors.black.withOpacity(0.7),
+                            ],
+                          ),
                         ),
-                        child: Stack(
+                      ),
+                      
+                      // Content with padding restored
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Semi-transparent overlay (40% fill)
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: const Color(0x66252525), // 40% opacity of 252525
+                            const SizedBox(height: 30),
+                            
+                            // Journey begins text
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Your journey',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    'begins with a scan.',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Scan QR codes on museum exhibits to ',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'explore',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'the rich culture of indigenous tribes',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             
-                            // Background pattern for QR card
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                image: DecorationImage(
-                                  image: const AssetImage('assets/images/tribal_pattern.jpg'),
-                                  fit: BoxFit.cover,
-                                  opacity: 0.3,
-                                  onError: (exception, stackTrace) {},
-                                ),
-                              ),
-                            ),
+                            const SizedBox(height: 40),
                             
-                            // QR Scanner content - FUNCTIONAL WITH NAVIGATION
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Centered circular scan button - NOW FUNCTIONAL
-                                Center(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // Navigate to QR Scanner Screen with haptic feedback
-                                      HapticFeedback.lightImpact();
-                                      _openQRScanner();
-                                    },
-                                    child: SizedBox(
-                                      width: 140,
-                                      height: 140,
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          // Shadow/border circle (outer) - IMPROVED TRANSPARENCY
-                                          Container(
-                                            width: 140,
-                                            height: 140,
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xCC010100), // Increased opacity for better visibility
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          // Main circle body with better transparency
-                                          Container(
-                                            width: 130,
-                                            height: 130,
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xDD8E714B), // Slightly more opaque main body
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.3),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Center(
-                                              // QR icon - PERFECTLY CENTERED
-                                              child: SizedBox(
-                                                width: 50,
-                                                height: 50,
-                                                child: GridView.builder(
-                                                  physics: const NeverScrollableScrollPhysics(),
-                                                  shrinkWrap: true,
-                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 4,
-                                                    mainAxisSpacing: 2,
-                                                    crossAxisSpacing: 2,
-                                                  ),
-                                                  itemCount: 16,
-                                                  itemBuilder: (context, index) {
-                                                    // Create QR-like pattern
-                                                    bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
-                                                    return Container(
-                                                      decoration: BoxDecoration(
-                                                        color: shouldFill ? const Color(0xFFEADCB6) : Colors.transparent,
-                                                        borderRadius: BorderRadius.circular(1),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          
-                                          // Ripple effect overlay for tap feedback
-                                          Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              onTap: () {
-                                                // Handle QR scan action with haptic feedback
-                                                HapticFeedback.lightImpact();
-                                                _openQRScanner();
-                                              },
-                                              borderRadius: BorderRadius.circular(65),
-                                              splashColor: const Color(0xFFD4AF37).withOpacity(0.3),
-                                              highlightColor: const Color(0xFFD4AF37).withOpacity(0.1),
-                                              child: SizedBox(
-                                                width: 130,
-                                                height: 130,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                            // QR Scanner Card with enhanced styling for background image
+                            Container(
+                              width: 280,
+                              height: 300,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0D4BE), // Container background
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.4), // Slightly more shadow for contrast
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Stack(
+                                children: [
+                                  // Semi-transparent overlay (40% fill)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: const Color(0x66252525), // 40% opacity of 252525
+                                    ),
+                                  ),
+                                  
+                                  // Background pattern for QR card
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      image: DecorationImage(
+                                        image: const AssetImage('assets/images/tribal_pattern.jpg'),
+                                        fit: BoxFit.cover,
+                                        opacity: 0.3,
+                                        onError: (exception, stackTrace) {},
                                       ),
                                     ),
                                   ),
-                                ),
-                                
-                                const SizedBox(height: 30),
-                                
-                                // Scan Here text - PERFECTLY CENTERED WITH ENHANCED STYLING
-                                Center(
-                                  child: Text(
-                                    'SCAN HERE',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: const Color(0xFFFFEFBB),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 2,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 2,
-                                          color: Colors.black.withOpacity(0.5),
-                                          offset: const Offset(0, 1),
+                                  
+                                  // QR Scanner content - FUNCTIONAL WITH NAVIGATION
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Centered circular scan button - NOW FUNCTIONAL
+                                      Center(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            // Navigate to QR Scanner Screen with haptic feedback
+                                            HapticFeedback.lightImpact();
+                                            _openQRScanner();
+                                          },
+                                          child: SizedBox(
+                                            width: 140,
+                                            height: 140,
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                // Shadow/border circle (outer) - IMPROVED TRANSPARENCY
+                                                Container(
+                                                  width: 140,
+                                                  height: 140,
+                                                  decoration: const BoxDecoration(
+                                                    color: Color(0xCC010100), // Increased opacity for better visibility
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                // Main circle body with better transparency
+                                                Container(
+                                                  width: 130,
+                                                  height: 130,
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xDD8E714B), // Slightly more opaque main body
+                                                    shape: BoxShape.circle,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black.withOpacity(0.3),
+                                                        blurRadius: 6,
+                                                        offset: const Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Center(
+                                                    // QR icon - PERFECTLY CENTERED
+                                                    child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: GridView.builder(
+                                                        physics: const NeverScrollableScrollPhysics(),
+                                                        shrinkWrap: true,
+                                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                                          crossAxisCount: 4,
+                                                          mainAxisSpacing: 2,
+                                                          crossAxisSpacing: 2,
+                                                        ),
+                                                        itemCount: 16,
+                                                        itemBuilder: (context, index) {
+                                                          // Create QR-like pattern
+                                                          bool shouldFill = [0, 1, 2, 4, 5, 7, 8, 9, 10, 12, 14, 15].contains(index);
+                                                          return Container(
+                                                            decoration: BoxDecoration(
+                                                              color: shouldFill ? const Color(0xFFEADCB6) : Colors.transparent,
+                                                              borderRadius: BorderRadius.circular(1),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                
+                                                // Ripple effect overlay for tap feedback
+                                                Material(
+                                                  color: Colors.transparent,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      // Handle QR scan action with haptic feedback
+                                                      HapticFeedback.lightImpact();
+                                                      _openQRScanner();
+                                                    },
+                                                    borderRadius: BorderRadius.circular(65),
+                                                    splashColor: const Color(0xFFD4AF37).withOpacity(0.3),
+                                                    highlightColor: const Color(0xFFD4AF37).withOpacity(0.1),
+                                                    child: const SizedBox(
+                                                      width: 130,
+                                                      height: 130,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      
+                                      const SizedBox(height: 30),
+                                      
+                                      // Scan Here text - PERFECTLY CENTERED WITH ENHANCED STYLING
+                                      Center(
+                                        child: Text(
+                                          'SCAN HERE',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFEFBB),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 2,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 2,
+                                                color: Colors.black.withOpacity(0.5),
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            
+                            const SizedBox(height: 60),
                           ],
                         ),
                       ),
-                      
-                      const SizedBox(height: 60),
                     ],
                   ),
                 ),
@@ -741,7 +796,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       _buildTribeCard(
                         title: "ATA-MANOBO",
                         description: "The Ata-Manobo people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
-                        imagePath: "assets/images/atamanon.jpg",
+                        imagePath: "assets/images/ata_manobo.jpg",
                       ),
                       const SizedBox(height: 30),
                       _buildTribeCard(
@@ -1218,3 +1273,4 @@ class TribalPatternPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
+                

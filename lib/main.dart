@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
-import 'screen/translation_screen.dart';
-import 'screen/qr_scanner_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         fontFamily: 'Regular',
       ),
-      home: WelcomeScreen(),
+      home: const WelcomeScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -54,7 +52,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           decoration: const BoxDecoration(
             // Replace with your background image
             image: DecorationImage(
-              image: AssetImage('assets/image/background/logging/main.png'), // Add your image here
+              image: AssetImage('assets/images/login.jpg'), // Add your image here
               fit: BoxFit.cover,
             ),
           ),
