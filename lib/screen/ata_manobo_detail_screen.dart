@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // Import your future screens here
-// import 'ata_manobo_learn_more_screen.dart';
+import 'learn_more_screen/ata_manobo_learn_more_screen.dart';
 // import 'category_screens/ata_manobo_music_screen.dart';
 // import 'category_screens/ata_manobo_video_screen.dart';
 // import 'category_screens/ata_manobo_artifacts_screen.dart';
@@ -14,90 +14,81 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
 
   // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const AtaManoboCulturalLearnMoreScreen(),
-    //   ),
-    // );
-    
-    // Temporary placeholder navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Learn More screen will be implemented soon!'),
-        backgroundColor: Color(0xFFD4A574),
-      ),
-    );
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const AtaManoboCulturalLearnMoreScreen(),
+    ),
+  );
+}
 
-  void _navigateToMusic(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const AtaManoboMusicScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Music screen will be implemented soon!'),
-        backgroundColor: Color(0xFFD4A574),
-      ),
-    );
-  }
+void _navigateToMusic(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const AtaManoboMusicScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Music screen will be implemented soon!'),
+      backgroundColor: Color(0xFFD4A574),
+    ),
+  );
+}
 
-  void _navigateToVideo(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const AtaManoboVideoScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Video screen will be implemented soon!'),
-        backgroundColor: Color(0xFFD4A574),
-      ),
-    );
-  }
+void _navigateToVideo(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const AtaManoboVideoScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Video screen will be implemented soon!'),
+      backgroundColor: Color(0xFFD4A574),
+    ),
+  );
+}
 
-  void _navigateToArtifacts(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const AtaManoboArtifactsScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Artifacts screen will be implemented soon!'),
-        backgroundColor: Color(0xFFD4A574),
-      ),
-    );
-  }
+void _navigateToArtifacts(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const AtaManoboArtifactsScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Artifacts screen will be implemented soon!'),
+      backgroundColor: Color(0xFFD4A574),
+    ),
+  );
+}
 
-  void _navigateToImages(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const AtaManoboImagesScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Images screen will be implemented soon!'),
-        backgroundColor: Color(0xFFD4A574),
-      ),
-    );
-  }
+void _navigateToImages(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const AtaManoboImagesScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Images screen will be implemented soon!'),
+      backgroundColor: Color(0xFFD4A574),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

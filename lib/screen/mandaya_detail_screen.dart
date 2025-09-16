@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // TODO: Import your future screens here when created
-// import 'mandaya_learn_more_screen.dart';
+import 'learn_more_screen/mandaya_learn_more_screen.dart';
 // import 'category_screens/mandaya_music_screen.dart';
 // import 'category_screens/mandaya_video_screen.dart';
 // import 'category_screens/mandaya_artifacts_screen.dart';
@@ -12,91 +12,82 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
   const MandayaCulturalDetailScreen({Key? key}) : super(key: key);
 
   // Navigation methods
-  void _navigateToLearnMore(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MandayaCulturalLearnMoreScreen(),
-    //   ),
-    // );
-    
-    // Temporary placeholder navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mandaya Learn More screen will be implemented soon!'),
-        backgroundColor: Color(0xFF7FB069),
-      ),
-    );
-  }
+ void _navigateToLearnMore(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MandayaCulturalLearnMoreScreen(),
+    ),
+  );
+}
 
-  void _navigateToMusic(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MandayaMusicScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mandaya Music screen will be implemented soon!'),
-        backgroundColor: Color(0xFF7FB069),
-      ),
-    );
-  }
+void _navigateToMusic(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MandayaMusicScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mandaya Music screen will be implemented soon!'),
+      backgroundColor: Color(0xFF7FB069),
+    ),
+  );
+}
 
-  void _navigateToVideo(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MandayaVideoScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mandaya Video screen will be implemented soon!'),
-        backgroundColor: Color(0xFF7FB069),
-      ),
-    );
-  }
+void _navigateToVideo(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MandayaVideoScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mandaya Video screen will be implemented soon!'),
+      backgroundColor: Color(0xFF7FB069),
+    ),
+  );
+}
 
-  void _navigateToArtifacts(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MandayaArtifactsScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mandaya Artifacts screen will be implemented soon!'),
-        backgroundColor: Color(0xFF7FB069),
-      ),
-    );
-  }
+void _navigateToArtifacts(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MandayaArtifactsScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mandaya Artifacts screen will be implemented soon!'),
+      backgroundColor: Color(0xFF7FB069),
+    ),
+  );
+}
 
-  void _navigateToImages(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MandayaImagesScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mandaya Images screen will be implemented soon!'),
-        backgroundColor: Color(0xFF7FB069),
-      ),
-    );
-  }
+void _navigateToImages(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MandayaImagesScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mandaya Images screen will be implemented soon!'),
+      backgroundColor: Color(0xFF7FB069),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

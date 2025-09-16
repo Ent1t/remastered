@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // TODO: Import your future screens here when created
-// import 'mansaka_learn_more_screen.dart';
+import 'learn_more_screen/mansaka_learn_more_screen.dart';
 // import 'category_screens/mansaka_music_screen.dart';
 // import 'category_screens/mansaka_video_screen.dart';
 // import 'category_screens/mansaka_artifacts_screen.dart';
@@ -13,90 +13,81 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
 
   // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MansakaCulturalLearnMoreScreen(),
-    //   ),
-    // );
-    
-    // Temporary placeholder navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mansaka Learn More screen will be implemented soon!'),
-        backgroundColor: Color(0xFFB19CD9),
-      ),
-    );
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MansakaCulturalLearnMoreScreen(),
+    ),
+  );
+}
 
-  void _navigateToMusic(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MansakaMusicScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mansaka Music screen will be implemented soon!'),
-        backgroundColor: Color(0xFFB19CD9),
-      ),
-    );
-  }
+void _navigateToMusic(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MansakaMusicScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mansaka Music screen will be implemented soon!'),
+      backgroundColor: Color(0xFFB19CD9),
+    ),
+  );
+}
 
-  void _navigateToVideo(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MansakaVideoScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mansaka Video screen will be implemented soon!'),
-        backgroundColor: Color(0xFFB19CD9),
-      ),
-    );
-  }
+void _navigateToVideo(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MansakaVideoScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mansaka Video screen will be implemented soon!'),
+      backgroundColor: Color(0xFFB19CD9),
+    ),
+  );
+}
 
-  void _navigateToArtifacts(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MansakaArtifactsScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mansaka Artifacts screen will be implemented soon!'),
-        backgroundColor: Color(0xFFB19CD9),
-      ),
-    );
-  }
+void _navigateToArtifacts(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MansakaArtifactsScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mansaka Artifacts screen will be implemented soon!'),
+      backgroundColor: Color(0xFFB19CD9),
+    ),
+  );
+}
 
-  void _navigateToImages(BuildContext context) {
-    // TODO: Uncomment when screen is created
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const MansakaImagesScreen(),
-    //   ),
-    // );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Mansaka Images screen will be implemented soon!'),
-        backgroundColor: Color(0xFFB19CD9),
-      ),
-    );
-  }
+void _navigateToImages(BuildContext context) {
+  // TODO: Uncomment when screen is created
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //     builder: (context) => const MansakaImagesScreen(),
+  //   ),
+  // );
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Mansaka Images screen will be implemented soon!'),
+      backgroundColor: Color(0xFFB19CD9),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
