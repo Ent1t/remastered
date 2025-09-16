@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 // TODO: Import your future screens here when created
 import 'learn_more_screen/mansaka_learn_more_screen.dart';
 // import 'category_screens/mansaka_music_screen.dart';
-// import 'category_screens/mansaka_video_screen.dart';
+import 'mansaka_category_screens/mansaka_video_screen.dart';
 // import 'category_screens/mansaka_artifacts_screen.dart';
 // import 'category_screens/mansaka_images_screen.dart';
 
@@ -39,18 +39,10 @@ void _navigateToMusic(BuildContext context) {
 }
 
 void _navigateToVideo(BuildContext context) {
-  // TODO: Uncomment when screen is created
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => const MansakaVideoScreen(),
-  //   ),
-  // );
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Mansaka Video screen will be implemented soon!'),
-      backgroundColor: Color(0xFFB19CD9),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MansakaVideoScreen(), // or respective screen
     ),
   );
 }
