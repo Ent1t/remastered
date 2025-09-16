@@ -6,7 +6,7 @@ import 'learn_more_screen/mansaka_learn_more_screen.dart';
 // import 'category_screens/mansaka_music_screen.dart';
 import 'mansaka_category_screens/mansaka_video_screen.dart';
 // import 'category_screens/mansaka_artifacts_screen.dart';
-// import 'category_screens/mansaka_images_screen.dart';
+import 'mansaka_category_screens/mansaka_images_screen.dart';
 
 class MansakaCulturalDetailScreen extends StatelessWidget {
   const MansakaCulturalDetailScreen({super.key});
@@ -65,18 +65,10 @@ void _navigateToArtifacts(BuildContext context) {
 }
 
 void _navigateToImages(BuildContext context) {
-  // TODO: Uncomment when screen is created
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => const MansakaImagesScreen(),
-  //   ),
-  // );
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Mansaka Images screen will be implemented soon!'),
-      backgroundColor: Color(0xFFB19CD9),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MansakaImagesScreen(), // Change for each tribe
     ),
   );
 }

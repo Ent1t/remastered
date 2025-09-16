@@ -7,7 +7,7 @@ import 'learn_more_screen/ata_manobo_learn_more_screen.dart';
 // import 'category_screens/ata_manobo_music_screen.dart';
 import 'ata_manobo_category_screens/ata_manobo_video_screen.dart';
 // import 'category_screens/ata_manobo_artifacts_screen.dart';
-// import 'category_screens/ata_manobo_images_screen.dart';
+import 'ata_manobo_category_screens/ata_manobo_images_screen.dart';
 
 class AtaManoboCulturalDetailScreen extends StatelessWidget {
   const AtaManoboCulturalDetailScreen({super.key});
@@ -66,18 +66,10 @@ void _navigateToArtifacts(BuildContext context) {
 }
 
 void _navigateToImages(BuildContext context) {
-  // TODO: Uncomment when screen is created
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => const AtaManoboImagesScreen(),
-  //   ),
-  // );
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Images screen will be implemented soon!'),
-      backgroundColor: Color(0xFFD4A574),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const AtaManoboImagesScreen(), // Change for each tribe
     ),
   );
 }
