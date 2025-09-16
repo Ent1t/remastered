@@ -176,7 +176,7 @@ class _TribesScreenState extends State<TribesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Left side - Image
-                  Container(
+                  SizedBox(
                     width: 120,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(
@@ -335,7 +335,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   borderRadius: BorderRadius.circular(16),
                   splashColor: Colors.white.withOpacity(0.1),
                   highlightColor: Colors.white.withOpacity(0.05),
-                  child: Container(
+                  child: const SizedBox(
                     width: double.infinity,
                     height: double.infinity,
                   ),
