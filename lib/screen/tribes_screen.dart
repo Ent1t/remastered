@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'ata_manobo_detail_screen.dart';
+import 'mansaka_detail_screen.dart';
+import 'mandaya_detail_screen.dart';
 
 class TribesScreen extends StatefulWidget {
   const TribesScreen({super.key});
@@ -89,7 +92,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   description: 'Known for their rich oral tradition and intricate beadwork',
                   categories: '4 Categories',
                   imagePath: 'assets/images/ata_manobo_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Ata Manobo'),
+                  onTap: () => _navigateToAtaManoboDetail(), // UPDATED THIS LINE
                 ),
                 
                 const SizedBox(height: 20),
@@ -99,7 +102,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   description: 'Renowned for their traditional weaving and agricultural practices',
                   categories: '4 Categories',
                   imagePath: 'assets/images/mansaka_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Mansaka'),
+                  onTap: () => _navigateToMansakaDetail(),
                 ),
                 
                 const SizedBox(height: 20),
@@ -109,7 +112,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   description: 'Masters of traditional music and dance ceremonies',
                   categories: '4 Categories',
                   imagePath: 'assets/images/mandaya_main.jpg',
-                  onTap: () => _navigateToTribeDetail('Mandaya'),
+                  onTap: () => _navigateToMandayaDetail(),
                 ),
                 
                 // Bottom padding to ensure last card is fully visible
@@ -348,6 +351,84 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
+  // NEW METHOD: Navigate specifically to Ata Manobo detail screen
+  void _navigateToAtaManoboDetail() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+          const AtaManoboCulturalDetailScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+
+  // NEW METHOD: Navigate specifically to Mansaka detail screen
+  void _navigateToMansakaDetail() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+          const MansakaCulturalDetailScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+
+  // NEW METHOD: Navigate specifically to Mandaya detail screen
+  void _navigateToMandayaDetail() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+          const MandayaCulturalDetailScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+
   void _navigateToTribeDetail(String tribeName) {
     Navigator.push(
       context,
@@ -374,7 +455,7 @@ class _TribesScreenState extends State<TribesScreen> {
   }
 }
 
-// Tribe Detail Screen (keeping the existing implementation)
+// Keep the existing TribeDetailScreen for other tribes (Mansaka, Mandaya)
 class TribeDetailScreen extends StatelessWidget {
   final String tribeName;
 
