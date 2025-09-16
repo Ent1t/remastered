@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // TODO: Import your future screens here when created
 import 'learn_more_screen/mandaya_learn_more_screen.dart';
-// import 'category_screens/mandaya_music_screen.dart';
+import 'mandaya_category_screens/mandaya_music_screen.dart';
 import 'mandaya_category_screens/mandaya_video_screen.dart';
-// import 'category_screens/mandaya_artifacts_screen.dart';
+import 'mandaya_category_screens/mandaya_artifacts_screen.dart';
 import 'mandaya_category_screens/mandaya_images_screen.dart';
 
 class MandayaCulturalDetailScreen extends StatelessWidget {
@@ -22,18 +22,10 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
 }
 
 void _navigateToMusic(BuildContext context) {
-  // TODO: Uncomment when screen is created
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => const MandayaMusicScreen(),
-  //   ),
-  // );
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Mandaya Music screen will be implemented soon!'),
-      backgroundColor: Color(0xFF7FB069),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MandayaMusicScreen(),
     ),
   );
 }
@@ -48,18 +40,10 @@ void _navigateToVideo(BuildContext context) {
 }
 
 void _navigateToArtifacts(BuildContext context) {
-  // TODO: Uncomment when screen is created
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => const MandayaArtifactsScreen(),
-  //   ),
-  // );
-  
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Mandaya Artifacts screen will be implemented soon!'),
-      backgroundColor: Color(0xFF7FB069),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const MandayaArtifactsScreen(),
     ),
   );
 }

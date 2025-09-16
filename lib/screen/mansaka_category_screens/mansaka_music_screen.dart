@@ -1,55 +1,61 @@
-// lib/screen/ata_manobo_category_screens/ata_manobo_music_screen.dart
+// lib/screen/mansaka_category_screens/mansaka_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AtaManoboMusicScreen extends StatefulWidget {
-  const AtaManoboMusicScreen({super.key});
+class MansakaMusicScreen extends StatefulWidget {
+  const MansakaMusicScreen({super.key});
 
   @override
-  State<AtaManoboMusicScreen> createState() => _AtaManoboMusicScreenState();
+  State<MansakaMusicScreen> createState() => _MansakaMusicScreenState();
 }
 
-class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
+class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  // Sample data for Ata Manobo music
+  // Sample data for Mansaka music
   final List<MusicTrack> _allTracks = [
     MusicTrack(
-      title: 'Harvest Song',
-      description: 'Song sung during rice harvest celebrations',
+      title: 'Pangalay Dance',
+      description: 'Traditional courtship dance with intricate movements',
       category: 'Traditional',
-      imagePath: 'assets/images/ata_manobo_harvest.jpg',
+      imagePath: 'assets/images/mansaka_pangalay.jpg',
     ),
     MusicTrack(
-      title: 'War Chant',
-      description: 'Ancient chant performed before battles',
+      title: 'Healing Chant',
+      description: 'Sacred song used in traditional healing rituals',
       category: 'Ceremonial',
-      imagePath: 'assets/images/ata_manobo_war_chant.jpg',
+      imagePath: 'assets/images/mansaka_healing.jpg',
     ),
     MusicTrack(
-      title: 'Lullaby',
-      description: 'Traditional song for children',
+      title: 'Forest Whispers',
+      description: 'Folk song celebrating the sacred forests of Compostela Valley',
       category: 'Folk',
-      imagePath: 'assets/images/ata_manobo_lullaby.jpg',
+      imagePath: 'assets/images/mansaka_forest.jpg',
     ),
     MusicTrack(
-      title: 'Spirit Dance',
-      description: 'Sacred music for ancestral rituals',
+      title: 'Spirit Calling',
+      description: 'Mystical chant to invoke ancestral spirits',
       category: 'Spiritual',
-      imagePath: 'assets/images/ata_manobo_spirit.jpg',
+      imagePath: 'assets/images/mansaka_spirits.jpg',
     ),
     MusicTrack(
-      title: 'Wedding Song',
-      description: 'Ceremonial music for marriage rituals',
-      category: 'Ceremonial',
-      imagePath: 'assets/images/ata_manobo_wedding.jpg',
+      title: 'Mining Song',
+      description: 'Work song from the gold mining traditions',
+      category: 'Traditional',
+      imagePath: 'assets/images/mansaka_mining.jpg',
     ),
     MusicTrack(
-      title: 'Mountain Echo',
-      description: 'Folk song about the sacred mountains',
+      title: 'Children\'s Game',
+      description: 'Playful song for traditional Mansaka games',
       category: 'Folk',
-      imagePath: 'assets/images/ata_manobo_mountain.jpg',
+      imagePath: 'assets/images/mansaka_children.jpg',
+    ),
+    MusicTrack(
+      title: 'Wedding Blessing',
+      description: 'Sacred music for marriage ceremonies',
+      category: 'Ceremonial',
+      imagePath: 'assets/images/mansaka_wedding.jpg',
     ),
   ];
 
@@ -123,7 +129,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: const Color(0xFFD4A574).withOpacity(0.3),
+                  color: const Color(0xFFB19CD9).withOpacity(0.3),
                 ),
               ),
               child: TextField(
@@ -175,7 +181,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
           children: [
             // Background Image
             Image.asset(
-              'assets/images/ata_manobo_music_hero.jpg',
+              'assets/images/mansaka_music_hero.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
@@ -186,9 +192,9 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFFD4A574),
-                        Color(0xFFB8935F),
-                        Color(0xFF8B7355),
+                        Color(0xFFB19CD9),
+                        Color(0xFF9B59B6),
+                        Color(0xFF8E44AD),
                       ],
                     ),
                   ),
@@ -218,7 +224,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Discover the traditional musical heritage of the Ata Manobo people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
+                    'Immerse yourself in the mystical musical world of the Mansaka people. From healing chants to ceremonial dances, discover the spiritual depths of their ancestral melodies.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.9),
                       fontSize: 14,
@@ -252,9 +258,9 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                 fontWeight: FontWeight.w500,
               ),
               backgroundColor: const Color(0xFF2A2A2A),
-              selectedColor: const Color(0xFFD4A574),
+              selectedColor: const Color(0xFFB19CD9),
               side: BorderSide(
-                color: const Color(0xFFD4A574).withOpacity(0.3),
+                color: const Color(0xFFB19CD9).withOpacity(0.3),
               ),
               onSelected: (selected) {
                 // Add filter functionality here
@@ -284,7 +290,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
         color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD4A574).withOpacity(0.2),
+          color: const Color(0xFFB19CD9).withOpacity(0.2),
         ),
       ),
       child: Material(
@@ -305,7 +311,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                   height: 60,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: const Color(0xFFD4A574).withOpacity(0.2),
+                    color: const Color(0xFFB19CD9).withOpacity(0.2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -315,7 +321,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                       errorBuilder: (context, error, stackTrace) {
                         return Icon(
                           Icons.music_note,
-                          color: const Color(0xFFD4A574),
+                          color: const Color(0xFFB19CD9),
                           size: 30,
                         );
                       },
@@ -350,13 +356,13 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD4A574).withOpacity(0.2),
+                          color: const Color(0xFFB19CD9).withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           track.category,
                           style: const TextStyle(
-                            color: Color(0xFFD4A574),
+                            color: Color(0xFFB19CD9),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -371,7 +377,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD4A574),
+                    color: const Color(0xFFB19CD9),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Icon(
@@ -392,7 +398,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Playing: ${track.title}'),
-        backgroundColor: const Color(0xFFD4A574),
+        backgroundColor: const Color(0xFFB19CD9),
         behavior: SnackBarBehavior.floating,
       ),
     );

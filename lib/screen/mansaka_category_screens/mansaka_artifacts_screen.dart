@@ -348,101 +348,6 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                             color: Colors.white,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          category.subtitle,
-                          style: TextStyle(
-                            color: const Color(0xFFB19CD9),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Items in this category:',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: ListView.builder(
-                            controller: scrollController,
-                            itemCount: category.items.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF2A2A2A),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFB19CD9).withOpacity(0.2),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      _getCategoryIcon(category.title),
-                                      color: const Color(0xFFB19CD9),
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        category.items[index],
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.white.withOpacity(0.4),
-                                      size: 14,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class ArtifactCategory {
-  final String title;
-  final String subtitle;
-  final String imagePath;
-  final List<Color> gradientColors;
-  final List<String> items;
-
-  ArtifactCategory({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-    required this.gradientColors,
-    required this.items,
-  });
-},
-                            fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                           ),
                         ),
@@ -539,4 +444,99 @@ class ArtifactCategory {
                           category.title,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 28
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          category.subtitle,
+                          style: TextStyle(
+                            color: const Color(0xFFB19CD9),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Items in this category:',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount: category.items.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2A2A2A),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFFB19CD9).withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _getCategoryIcon(category.title),
+                                      color: const Color(0xFFB19CD9),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        category.items[index],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Colors.white.withOpacity(0.4),
+                                      size: 14,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ArtifactCategory {
+  final String title;
+  final String subtitle;
+  final String imagePath;
+  final List<Color> gradientColors;
+  final List<String> items;
+
+  ArtifactCategory({
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+    required this.gradientColors,
+    required this.items,
+  });
+}
