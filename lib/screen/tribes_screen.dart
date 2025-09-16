@@ -403,31 +403,31 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
-  // NEW METHOD: Navigate specifically to Mandaya detail screen
-  void _navigateToMandayaDetail() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => 
-          const MandayaCulturalDetailScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
+  // Update the navigation method for Mandaya to use correct class name
+void _navigateToMandayaDetail() {
+  Navigator.push(
+    context,
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => 
+        const MandayaCulturalDetailScreen(), // Updated class name
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOutCubic;
 
-          var tween = Tween(begin: begin, end: end).chain(
-            CurveTween(curve: curve),
-          );
+        var tween = Tween(begin: begin, end: end).chain(
+          CurveTween(curve: curve),
+        );
 
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
-  }
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+  );
+}
 
   void _navigateToTribeDetail(String tribeName) {
     Navigator.push(

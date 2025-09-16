@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MandayaDetailScreen extends StatelessWidget {
-  const MandayaDetailScreen({Key? key}) : super(key: key);
+class MandayaCulturalDetailScreen extends StatelessWidget {
+  const MandayaCulturalDetailScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class MandayaDetailScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/ata_manobo_header.jpg',
+                'assets/images/mandaya_header.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   // Fallback gradient background
@@ -68,9 +68,9 @@ class MandayaDetailScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF8B4513),
-                          Color(0xFF654321),
-                          Color(0xFF2F1B14),
+                          Color(0xFF4A5D23),
+                          Color(0xFF2F3E15),
+                          Color(0xFF1A2209),
                         ],
                       ),
                     ),
@@ -133,7 +133,7 @@ class MandayaDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'ATA MANOBO',
+                        'MANDAYA',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -203,7 +203,7 @@ class MandayaDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.location_on,
               label: 'ORIGIN',
-              value: 'Bukidnon,\nMisamis Oriental',
+              value: 'Davao Oriental,\nCaraga Region',
             ),
           ),
           const SizedBox(width: 12),
@@ -211,7 +211,7 @@ class MandayaDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.groups,
               label: 'POPULATION',
-              value: '~50,000',
+              value: '~40,000',
             ),
           ),
           const SizedBox(width: 12),
@@ -219,7 +219,7 @@ class MandayaDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.language,
               label: 'LANGUAGE',
-              value: 'Ata\nManobo',
+              value: 'Mandaya',
             ),
           ),
         ],
@@ -238,7 +238,7 @@ class MandayaDetailScreen extends StatelessWidget {
         color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD4A574).withOpacity(0.3),
+          color: const Color(0xFF7FB069).withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -247,12 +247,12 @@ class MandayaDetailScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFD4A574).withOpacity(0.2),
+              color: const Color(0xFF7FB069).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFFD4A574),
+              color: const Color(0xFF7FB069),
               size: 24,
             ),
           ),
@@ -262,7 +262,7 @@ class MandayaDetailScreen extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFD4A574),
+              color: Color(0xFF7FB069),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 1,
@@ -296,14 +296,14 @@ class MandayaDetailScreen extends StatelessWidget {
             children: [
               Icon(
                 Icons.explore,
-                color: Color(0xFFD4A574),
+                color: Color(0xFF7FB069),
                 size: 20,
               ),
               SizedBox(width: 8),
               Text(
                 'EXPLORE CATEGORIES',
                 style: TextStyle(
-                  color: Color(0xFFD4A574),
+                  color: Color(0xFF7FB069),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
@@ -317,29 +317,29 @@ class MandayaDetailScreen extends StatelessWidget {
         
         _buildCategoryCard(
           title: 'MUSIC',
-          imagePath: 'assets/images/ata_manobo_music.jpg',
-          gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
+          imagePath: 'assets/images/mandaya_music.jpg',
+          gradientColors: const [Color(0xFF7FB069), Color(0xFF5D8A47)],
           onTap: () => print('Music category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
-          imagePath: 'assets/images/ata_manobo_video.jpg',
-          gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
+          imagePath: 'assets/images/mandaya_video.jpg',
+          gradientColors: const [Color(0xFF6B8E23), Color(0xFF556B2F)],
           onTap: () => print('Video category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
-          imagePath: 'assets/images/ata_manobo_artifacts.jpg',
-          gradientColors: const [Color(0xFF5A6B7A), Color(0xFF3D4A5C)],
+          imagePath: 'assets/images/mandaya_artifacts.jpg',
+          gradientColors: const [Color(0xFF8FBC8F), Color(0xFF6B8E6B)],
           onTap: () => print('Artifacts category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
-          imagePath: 'assets/images/ata_manobo_images.jpg',
-          gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
+          imagePath: 'assets/images/mandaya_images.jpg',
+          gradientColors: const [Color(0xFF9ACD32), Color(0xFF7B9A2D)],
           onTap: () => print('Images category tapped'),
         ),
       ],

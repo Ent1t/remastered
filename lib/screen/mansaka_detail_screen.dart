@@ -58,7 +58,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/ata_manobo_header.jpg',
+                'assets/images/mansaka_header.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   // Fallback gradient background
@@ -68,9 +68,9 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF8B4513),
-                          Color(0xFF654321),
-                          Color(0xFF2F1B14),
+                          Color(0xFF5D4E75),
+                          Color(0xFF3F325A),
+                          Color(0xFF2A1F3D),
                         ],
                       ),
                     ),
@@ -133,7 +133,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'ATA MANOBO',
+                        'MANSAKA',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -203,7 +203,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.location_on,
               label: 'ORIGIN',
-              value: 'Bukidnon,\nMisamis Oriental',
+              value: 'Davao de Oro,\nCompostela Valley',
             ),
           ),
           const SizedBox(width: 12),
@@ -211,7 +211,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.groups,
               label: 'POPULATION',
-              value: '~50,000',
+              value: '~60,000',
             ),
           ),
           const SizedBox(width: 12),
@@ -219,7 +219,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
             child: _buildInfoCard(
               icon: Icons.language,
               label: 'LANGUAGE',
-              value: 'Ata\nManobo',
+              value: 'Mansaka',
             ),
           ),
         ],
@@ -238,7 +238,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
         color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD4A574).withOpacity(0.3),
+          color: const Color(0xFFB19CD9).withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -247,12 +247,12 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFD4A574).withOpacity(0.2),
+              color: const Color(0xFFB19CD9).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFFD4A574),
+              color: const Color(0xFFB19CD9),
               size: 24,
             ),
           ),
@@ -262,7 +262,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFD4A574),
+              color: Color(0xFFB19CD9),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 1,
@@ -296,14 +296,14 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
             children: [
               Icon(
                 Icons.explore,
-                color: Color(0xFFD4A574),
+                color: Color(0xFFB19CD9),
                 size: 20,
               ),
               SizedBox(width: 8),
               Text(
                 'EXPLORE CATEGORIES',
                 style: TextStyle(
-                  color: Color(0xFFD4A574),
+                  color: Color(0xFFB19CD9),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
@@ -317,29 +317,29 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
         
         _buildCategoryCard(
           title: 'MUSIC',
-          imagePath: 'assets/images/ata_manobo_music.jpg',
-          gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
+          imagePath: 'assets/images/mansaka_music.jpg',
+          gradientColors: const [Color(0xFFB19CD9), Color(0xFF8B6DB0)],
           onTap: () => print('Music category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
-          imagePath: 'assets/images/ata_manobo_video.jpg',
-          gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
+          imagePath: 'assets/images/mansaka_video.jpg',
+          gradientColors: const [Color(0xFF9B59B6), Color(0xFF8E44AD)],
           onTap: () => print('Video category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
-          imagePath: 'assets/images/ata_manobo_artifacts.jpg',
-          gradientColors: const [Color(0xFF5A6B7A), Color(0xFF3D4A5C)],
+          imagePath: 'assets/images/mansaka_artifacts.jpg',
+          gradientColors: const [Color(0xFF6C7B95), Color(0xFF5D4E75)],
           onTap: () => print('Artifacts category tapped'),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
-          imagePath: 'assets/images/ata_manobo_images.jpg',
-          gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
+          imagePath: 'assets/images/mansaka_images.jpg',
+          gradientColors: const [Color(0xFFAB7BA5), Color(0xFF8B6098)],
           onTap: () => print('Images category tapped'),
         ),
       ],
