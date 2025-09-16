@@ -1,8 +1,102 @@
+// Updated lib/screen/mandaya_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// TODO: Import your future screens here when created
+// import 'mandaya_learn_more_screen.dart';
+// import 'category_screens/mandaya_music_screen.dart';
+// import 'category_screens/mandaya_video_screen.dart';
+// import 'category_screens/mandaya_artifacts_screen.dart';
+// import 'category_screens/mandaya_images_screen.dart';
 
 class MandayaCulturalDetailScreen extends StatelessWidget {
   const MandayaCulturalDetailScreen({Key? key}) : super(key: key);
+
+  // Navigation methods
+  void _navigateToLearnMore(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MandayaCulturalLearnMoreScreen(),
+    //   ),
+    // );
+    
+    // Temporary placeholder navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mandaya Learn More screen will be implemented soon!'),
+        backgroundColor: Color(0xFF7FB069),
+      ),
+    );
+  }
+
+  void _navigateToMusic(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MandayaMusicScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mandaya Music screen will be implemented soon!'),
+        backgroundColor: Color(0xFF7FB069),
+      ),
+    );
+  }
+
+  void _navigateToVideo(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MandayaVideoScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mandaya Video screen will be implemented soon!'),
+        backgroundColor: Color(0xFF7FB069),
+      ),
+    );
+  }
+
+  void _navigateToArtifacts(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MandayaArtifactsScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mandaya Artifacts screen will be implemented soon!'),
+        backgroundColor: Color(0xFF7FB069),
+      ),
+    );
+  }
+
+  void _navigateToImages(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MandayaImagesScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mandaya Images screen will be implemented soon!'),
+        backgroundColor: Color(0xFF7FB069),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +122,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
               const SizedBox(height: 24),
               _buildInfoSection(),
               const SizedBox(height: 32),
-              _buildCategoriesSection(),
+              _buildCategoriesSection(context),
               const SizedBox(height: 40),
             ],
           ),
@@ -61,7 +155,6 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                 'assets/images/mandaya_header.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback gradient background
                   return Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -151,11 +244,11 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                       
                       const SizedBox(height: 16),
                       
-                      // Learn More Button
+                      // Learn More Button - NOW FUNCTIONAL
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          // Navigate to detailed info
+                          _navigateToLearnMore(context);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -286,7 +379,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoriesSection() {
+  Widget _buildCategoriesSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -319,28 +412,28 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
           title: 'MUSIC',
           imagePath: 'assets/images/mandaya_music.jpg',
           gradientColors: const [Color(0xFF7FB069), Color(0xFF5D8A47)],
-          onTap: () => print('Music category tapped'),
+          onTap: () => _navigateToMusic(context),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
           imagePath: 'assets/images/mandaya_video.jpg',
           gradientColors: const [Color(0xFF6B8E23), Color(0xFF556B2F)],
-          onTap: () => print('Video category tapped'),
+          onTap: () => _navigateToVideo(context),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
           imagePath: 'assets/images/mandaya_artifacts.jpg',
           gradientColors: const [Color(0xFF8FBC8F), Color(0xFF6B8E6B)],
-          onTap: () => print('Artifacts category tapped'),
+          onTap: () => _navigateToArtifacts(context),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
           imagePath: 'assets/images/mandaya_images.jpg',
           gradientColors: const [Color(0xFF9ACD32), Color(0xFF7B9A2D)],
-          onTap: () => print('Images category tapped'),
+          onTap: () => _navigateToImages(context),
         ),
       ],
     );
@@ -384,7 +477,6 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                     imagePath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Fallback with gradient and icon
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

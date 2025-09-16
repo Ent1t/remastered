@@ -1,8 +1,102 @@
+// Updated lib/screen/mansaka_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// TODO: Import your future screens here when created
+// import 'mansaka_learn_more_screen.dart';
+// import 'category_screens/mansaka_music_screen.dart';
+// import 'category_screens/mansaka_video_screen.dart';
+// import 'category_screens/mansaka_artifacts_screen.dart';
+// import 'category_screens/mansaka_images_screen.dart';
 
 class MansakaCulturalDetailScreen extends StatelessWidget {
   const MansakaCulturalDetailScreen({super.key});
+
+  // Navigation methods
+  void _navigateToLearnMore(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MansakaCulturalLearnMoreScreen(),
+    //   ),
+    // );
+    
+    // Temporary placeholder navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mansaka Learn More screen will be implemented soon!'),
+        backgroundColor: Color(0xFFB19CD9),
+      ),
+    );
+  }
+
+  void _navigateToMusic(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MansakaMusicScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mansaka Music screen will be implemented soon!'),
+        backgroundColor: Color(0xFFB19CD9),
+      ),
+    );
+  }
+
+  void _navigateToVideo(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MansakaVideoScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mansaka Video screen will be implemented soon!'),
+        backgroundColor: Color(0xFFB19CD9),
+      ),
+    );
+  }
+
+  void _navigateToArtifacts(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MansakaArtifactsScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mansaka Artifacts screen will be implemented soon!'),
+        backgroundColor: Color(0xFFB19CD9),
+      ),
+    );
+  }
+
+  void _navigateToImages(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const MansakaImagesScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Mansaka Images screen will be implemented soon!'),
+        backgroundColor: Color(0xFFB19CD9),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +122,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
               const SizedBox(height: 24),
               _buildInfoSection(),
               const SizedBox(height: 32),
-              _buildCategoriesSection(),
+              _buildCategoriesSection(context),
               const SizedBox(height: 40),
             ],
           ),
@@ -61,7 +155,6 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                 'assets/images/mansaka_header.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback gradient background
                   return Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -151,11 +244,11 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                       
                       const SizedBox(height: 16),
                       
-                      // Learn More Button
+                      // Learn More Button - NOW FUNCTIONAL
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          // Navigate to detailed info
+                          _navigateToLearnMore(context);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -286,7 +379,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoriesSection() {
+  Widget _buildCategoriesSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -319,28 +412,28 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
           title: 'MUSIC',
           imagePath: 'assets/images/mansaka_music.jpg',
           gradientColors: const [Color(0xFFB19CD9), Color(0xFF8B6DB0)],
-          onTap: () => print('Music category tapped'),
+          onTap: () => _navigateToMusic(context),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
           imagePath: 'assets/images/mansaka_video.jpg',
           gradientColors: const [Color(0xFF9B59B6), Color(0xFF8E44AD)],
-          onTap: () => print('Video category tapped'),
+          onTap: () => _navigateToVideo(context),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
           imagePath: 'assets/images/mansaka_artifacts.jpg',
           gradientColors: const [Color(0xFF6C7B95), Color(0xFF5D4E75)],
-          onTap: () => print('Artifacts category tapped'),
+          onTap: () => _navigateToArtifacts(context),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
           imagePath: 'assets/images/mansaka_images.jpg',
           gradientColors: const [Color(0xFFAB7BA5), Color(0xFF8B6098)],
-          onTap: () => print('Images category tapped'),
+          onTap: () => _navigateToImages(context),
         ),
       ],
     );
@@ -384,7 +477,6 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                     imagePath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Fallback with gradient and icon
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

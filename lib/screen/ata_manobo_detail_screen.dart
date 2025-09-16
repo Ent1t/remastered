@@ -1,8 +1,103 @@
+// 2. Updated Ata Manobo Detail Screen with Navigation
+// lib/screen/ata_manobo_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// Import your future screens here
+// import 'ata_manobo_learn_more_screen.dart';
+// import 'category_screens/ata_manobo_music_screen.dart';
+// import 'category_screens/ata_manobo_video_screen.dart';
+// import 'category_screens/ata_manobo_artifacts_screen.dart';
+// import 'category_screens/ata_manobo_images_screen.dart';
 
 class AtaManoboCulturalDetailScreen extends StatelessWidget {
   const AtaManoboCulturalDetailScreen({super.key});
+
+  // Navigation methods
+  void _navigateToLearnMore(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const AtaManoboCulturalLearnMoreScreen(),
+    //   ),
+    // );
+    
+    // Temporary placeholder navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Learn More screen will be implemented soon!'),
+        backgroundColor: Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  void _navigateToMusic(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const AtaManoboMusicScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Music screen will be implemented soon!'),
+        backgroundColor: Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  void _navigateToVideo(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const AtaManoboVideoScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Video screen will be implemented soon!'),
+        backgroundColor: Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  void _navigateToArtifacts(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const AtaManoboArtifactsScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Artifacts screen will be implemented soon!'),
+        backgroundColor: Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  void _navigateToImages(BuildContext context) {
+    // TODO: Uncomment when screen is created
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const AtaManoboImagesScreen(),
+    //   ),
+    // );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Images screen will be implemented soon!'),
+        backgroundColor: Color(0xFFD4A574),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +123,7 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
               const SizedBox(height: 24),
               _buildInfoSection(),
               const SizedBox(height: 32),
-              _buildCategoriesSection(),
+              _buildCategoriesSection(context),
               const SizedBox(height: 40),
             ],
           ),
@@ -61,7 +156,6 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
                 'assets/images/ata_manobo_header.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback gradient background
                   return Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -151,11 +245,11 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
                       
                       const SizedBox(height: 16),
                       
-                      // Learn More Button
+                      // Learn More Button - NOW FUNCTIONAL
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          // Navigate to detailed info
+                          _navigateToLearnMore(context);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -286,7 +380,7 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoriesSection() {
+  Widget _buildCategoriesSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -319,28 +413,28 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
           title: 'MUSIC',
           imagePath: 'assets/images/ata_manobo_music.jpg',
           gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
-          onTap: () => print('Music category tapped'),
+          onTap: () => _navigateToMusic(context),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
           imagePath: 'assets/images/ata_manobo_video.jpg',
           gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
-          onTap: () => print('Video category tapped'),
+          onTap: () => _navigateToVideo(context),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
           imagePath: 'assets/images/ata_manobo_artifacts.jpg',
           gradientColors: const [Color(0xFF5A6B7A), Color(0xFF3D4A5C)],
-          onTap: () => print('Artifacts category tapped'),
+          onTap: () => _navigateToArtifacts(context),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
           imagePath: 'assets/images/ata_manobo_images.jpg',
           gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
-          onTap: () => print('Images category tapped'),
+          onTap: () => _navigateToImages(context),
         ),
       ],
     );
@@ -384,7 +478,6 @@ class AtaManoboCulturalDetailScreen extends StatelessWidget {
                     imagePath,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Fallback with gradient and icon
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
