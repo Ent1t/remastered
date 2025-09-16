@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
+import 'global.dart';
 
 void main() {
   runApp(const MyApp());
@@ -387,8 +388,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Map<String, dynamic> userData = {
       'name': _nameController.text.trim(),
       'role': _selectedRole,
-      if (_selectedRole == 'Student') 'school': _schoolController.text.trim(),
+      if (_selectedRole == 'Student') 'school': _schoolController.text.trim
+      (),
     };
+
+    global.userData = userData; // Store user data in global variable
 
     // Navigate to home screen
     Navigator.pushReplacement(
