@@ -243,10 +243,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   Future <void> _showResultDialog(String result) async {
     http.Response response = await http.post(Uri.parse("${Config.baseUrl}scan/"),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'code': result,
-        "userData": global.userData,
-      }));
+      body: jsonEncode({"code": result}));
+      body:jsonEncode({
+        "code": result,
+        "userData": Global.userData
+      });
 
     showDialog(
       context: context,
