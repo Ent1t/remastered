@@ -310,13 +310,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 image: AssetImage('assets/images/cultural_background.jpg'),
                 fit: BoxFit.cover,
                 opacity: 0.6,
-                // Removed opacity to show background clearly
               ),
             ),
             child: Container(
               // Very light overlay to maintain some text readability
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(0.2),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -463,15 +462,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           
           // ZONE 3 - About the Tribes header section with full background and border lines
           Container(
-            
             height: zone3Height,
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/cultural_section_bg.jpg'),
                 fit: BoxFit.cover,
-                opacity: 0.6,
-                // Removed opacity property to show full image at 100% opacity
+                opacity: 0.4, 
               ),
               border: Border(
                 top: BorderSide(color: Colors.white, width: 1.0),
@@ -518,8 +515,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 0, 0, 0), // Very dark green
-                  Color.fromARGB(255, 0, 0, 0), // Dark green
+                  Color.fromARGB(255, 0, 0, 0), 
+                  Color.fromARGB(255, 0, 0, 0), 
                   Colors.black,
                 ],
               ),

@@ -123,11 +123,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             image: DecorationImage(
               image: AssetImage('assets/images/login.jpg'),
               fit: BoxFit.cover,
+              opacity: 4.0, // 40% visible, 60% transparent
             ),
           ),
           child: Container(
             // Dark overlay for better text visibility
-            color: Colors.black.withOpacity(0.6),
+            color: Colors.black.withOpacity(0.5),
             child: SafeArea(
               child: SingleChildScrollView(
                 // Ensure the scroll view takes full height when keyboard is hidden
