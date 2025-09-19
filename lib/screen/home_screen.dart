@@ -463,6 +463,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           
           // ZONE 3 - About the Tribes header section with full background and border lines
           Container(
+            
             height: zone3Height,
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -517,8 +518,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF0F2419), // Very dark green
-                  Color(0xFF1a4a3a), // Dark green
+                  Color.fromARGB(255, 0, 0, 0), // Very dark green
+                  Color.fromARGB(255, 0, 0, 0), // Dark green
                   Colors.black,
                 ],
               ),
@@ -528,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 image: DecorationImage(
                   image: AssetImage('assets/images/mandaya_main.jpg'), // New background image for Zone 4
                   fit: BoxFit.cover,
-                  opacity: 0.2,
+                  opacity: 0.5,
                 ),
               ),
               child: Padding(
