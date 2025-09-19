@@ -206,9 +206,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/zone1_background.jpg'), // Add your image path here
+                image: AssetImage('assets/images/home_png '), // Add your image path here
                 fit: BoxFit.cover,
-                opacity: 0.8, // Adjust opacity as needed
+                opacity: 0.3, // Adjust opacity as needed
               ),
             ),
             child: Container(
@@ -297,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Divider line between Zone 1 and Zone 2
           Container(
             width: double.infinity,
-            height: 1,
+            height: 3,
             color: Colors.white.withOpacity(0.3),
           ),
           
@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Container(
               // Very light overlay to maintain some text readability
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(0.2),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -346,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8), // Reduced from 16 - move text higher
+                          SizedBox(height: 5), // Reduced from 16 - move text higher
                           Row(
                             children: [
                               Text(
@@ -392,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(8), // Less rounded for more box-like
                         boxShadow: [
                           BoxShadow(
-                            color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
+                            color: Colors.black.withOpacity(0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Container(
               // Black overlay for Zone 3
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3), // Black overlay for better text visibility
+                color: Colors.black.withOpacity(0.5), // Black overlay for better text visibility
               ),
               child: const Center(
                 child: Text(
@@ -791,83 +791,95 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildExploreButton(String title) {
-    return Stack(
-      children: [
-        // Shadow layers
+    return SizedBox(
+      height: 50, // Increased height to accommodate layers
+      child: Stack(
+        children: [
+            // Bottom layer (darkest shadow)
         Positioned(
-          right: 0,
-          top: 8,
+          right: 205,
+          top: 0,
           child: Container(
-            width: 130,
-            height: 40,
+            width: 140,
+            height: 45,
             decoration: BoxDecoration(
-              color: const Color(0xFF2C1810),
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 2,
-          top: 6,
-          child: Container(
-            width: 130,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF3D2317),
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 4,
-          top: 3,
-          child: Container(
-            width: 130,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF5D4A37),
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-        ),
-        // Main button
-        Container(
-          width: 130,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFF8B7355),
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.4),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                 // Color(0xFF232322),
+                 // Color(0xFF898987),
+                  Color.fromARGB(200, 96, 95, 91),
+                  Color.fromARGB(200, 96, 95, 91),
+                ],
               ),
-            ],
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                _exploreMore(title);
-              },
-              borderRadius: BorderRadius.circular(6),
-              child: Container(
-                alignment: Alignment.center,
-                child: const Text(
-                  'Explore more',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
+        ),
+        
+        // Second layer
+        Positioned(
+          right: 110,
+          top: 0,
+          child: Container(
+            width: 140,
+            height: 45,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(255, 148, 147, 145),
+                  Color.fromARGB(255, 148, 147, 145),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+
+          // Main button (top layer)
+          Positioned(
+            right: 8,
+            top: 0,
+            child: Container(
+              width: 140,
+              height: 45,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDF8D7), // Main button color  FFA0845C
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFF8B6F47), // Slight highlight border  FF8B6F47
+                  width: 1,
+                ),
+              ),
+              child: Material(
+                color: const Color.fromARGB(0, 0, 0, 0),
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    _exploreMore(title);
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Explore more',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
