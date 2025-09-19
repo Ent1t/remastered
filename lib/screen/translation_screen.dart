@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../config.dart';
 import '../services/audio_service.dart';
 
 class TranslationScreen extends StatefulWidget {
@@ -14,376 +11,144 @@ class TranslationScreen extends StatefulWidget {
 
 class _TranslationScreenState extends State<TranslationScreen> {
   String _selectedSourceLanguage = 'English';
-  String _selectedTargetLanguage = 'Ata Manobo';
+  String _selectedTargetLanguage = 'Kagan';
   
   late AudioService _audioService;
   String? currentlyPlayingPhrase;
   bool isPlaying = false;
-  bool isLoading = true;
-  String? errorMessage;
+  final ScrollController _scrollController = ScrollController();
 
   final List<String> _sourceLanguages = ['English', 'Cebuano'];
-  final List<String> _targetLanguages = ['Ata Manobo', 'Mansaka', 'Mandaya'];
+  final List<String> _targetLanguages = ['Kagan', 'Mansaka', 'Mandaya'];
 
   // Language codes for TTS
   final Map<String, String> _languageCodes = {
     'English': 'en-US',
     'Cebuano': 'fil-PH',
-    'Ata Manobo': 'fil-PH',
+    'Kagan': 'fil-PH',
     'Mansaka': 'fil-PH',
     'Mandaya': 'fil-PH',
   };
 
-  // Data from API or fallback
-  final Map<String, Map<String, Map<String, String>>> _phrases = {};
-  List<dynamic> _categories = [];
-  List<dynamic> _phrasesData = [];
-  List<dynamic> _languages = [];
+  // Local phrase data
+  final Map<String, Map<String, Map<String, String>>> _phrases = {
+    'Greetings': {
+      'Hello': {
+        'English': 'Hello',
+        'Cebuano': 'Kumusta',
+        'Kagan': 'Maayong adlaw',
+        'Mansaka': 'Maayong adlaw',
+        'Mandaya': 'Maayong adlaw',
+      },
+      'Good morning': {
+        'English': 'Good morning',
+        'Cebuano': 'Maayong buntag',
+        'Kagan': 'Maayong ugma',
+        'Mansaka': 'Maayong ugma',
+        'Mandaya': 'Maayong ugma',
+      },
+      'How are you?': {
+        'English': 'How are you?',
+        'Cebuano': 'Kumusta ka?',
+        'Kagan': 'Kumusta ikaw?',
+        'Mansaka': 'Kumusta ikaw?',
+        'Mandaya': 'Kumusta ikaw?',
+      },
+    },
+    'Basic Phrases': {
+      'Thank you': {
+        'English': 'Thank you',
+        'Cebuano': 'Salamat',
+        'Kagan': 'Salamat',
+        'Mansaka': 'Salamat',
+        'Mandaya': 'Salamat',
+      },
+      'Please': {
+        'English': 'Please',
+        'Cebuano': 'Palihog',
+        'Kagan': 'Palihog',
+        'Mansaka': 'Palihog',
+        'Mandaya': 'Palihog',
+      },
+      'Excuse me': {
+        'English': 'Excuse me',
+        'Cebuano': 'Pasensya na',
+        'Kagan': 'Pasaylua',
+        'Mansaka': 'Pasaylua',
+        'Mandaya': 'Pasaylua',
+      },
+    },
+    'Questions': {
+      'What is your name?': {
+        'English': 'What is your name?',
+        'Cebuano': 'Unsa imong ngalan?',
+        'Kagan': 'Anu su ngaran mo?',
+        'Mansaka': 'Anu su ngaran mo?',
+        'Mandaya': 'Anu su ngaran mo?',
+      },
+      'Where are you from?': {
+        'English': 'Where are you from?',
+        'Cebuano': 'Asa ka gikan?',
+        'Kagan': 'Hain ka ginghalinan?',
+        'Mansaka': 'Hain ka ginghalinan?',
+        'Mandaya': 'Hain ka ginghalinan?',
+      },
+      'How much is this?': {
+        'English': 'How much is this?',
+        'Cebuano': 'Pila ni?',
+        'Kagan': 'Pira kini?',
+        'Mansaka': 'Pira kini?',
+        'Mandaya': 'Pira kini?',
+      },
+    },
+    'Numbers': {
+      'One': {
+        'English': 'One',
+        'Cebuano': 'Usa',
+        'Kagan': 'Isa',
+        'Mansaka': 'Isa',
+        'Mandaya': 'Isa',
+      },
+      'Two': {
+        'English': 'Two',
+        'Cebuano': 'Duha',
+        'Kagan': 'Duwa',
+        'Mansaka': 'Duwa',
+        'Mandaya': 'Duwa',
+      },
+      'Three': {
+        'English': 'Three',
+        'Cebuano': 'Tulo',
+        'Kagan': 'Tulu',
+        'Mansaka': 'Tulu',
+        'Mandaya': 'Tulu',
+      },
+      'Four': {
+        'English': 'Four',
+        'Cebuano': 'Upat',
+        'Kagan': 'Upat',
+        'Mansaka': 'Upat',
+        'Mandaya': 'Upat',
+      },
+      'Five': {
+        'English': 'Five',
+        'Cebuano': 'Lima',
+        'Kagan': 'Lima',
+        'Mansaka': 'Lima',
+        'Mandaya': 'Lima',
+      },
+    },
+  };
 
   @override
   void initState() {
     super.initState();
     _audioService = AudioService();
     _initializeAudio();
-    _loadDataFromAPI();
   }
 
   void _initializeAudio() async {
     await _audioService.initialize();
-  }
-
-  Future<void> _loadDataFromAPI() async {
-    try {
-      setState(() {
-        isLoading = true;
-        errorMessage = null;
-      });
-
-      // First, let's test what endpoints are available
-      await _testEndpoints();
-      
-      // Try to fetch all required data
-      bool success = await _tryFetchFromAPI();
-      
-      if (!success) {
-        // If API fails, use fallback data
-        print('API failed, using fallback data');
-        _useFallbackData();
-      }
-
-      // Organize data into the expected structure
-      _organizePhraseData();
-
-    } catch (e) {
-      print('Error in _loadDataFromAPI: $e');
-      // Use fallback data if API completely fails
-      _useFallbackData();
-      _organizePhraseData();
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _testEndpoints() async {
-    // Test which endpoints are available
-    List<String> testEndpoints = [
-      'languages',
-      'categories', 
-      'phrases',
-      'language', // singular
-      'category',  // singular
-      'phrase',    // singular
-    ];
-
-    for (String endpoint in testEndpoints) {
-      try {
-        final response = await http.get(
-          Uri.parse('${Config.baseUrl}$endpoint'),
-          headers: {'Content-Type': 'application/json'},
-        );
-        print('Endpoint $endpoint: Status ${response.statusCode}');
-        if (response.statusCode == 200) {
-          print('Available endpoint found: $endpoint');
-        }
-      } catch (e) {
-        print('Error testing endpoint $endpoint: $e');
-      }
-    }
-  }
-
-  Future<bool> _tryFetchFromAPI() async {
-    try {
-      bool hasData = false;
-      
-      // Try to fetch languages
-      try {
-        await _fetchLanguages();
-        hasData = true;
-      } catch (e) {
-        print('Languages fetch failed: $e');
-      }
-
-      // Try to fetch categories  
-      try {
-        await _fetchCategories();
-        hasData = true;
-      } catch (e) {
-        print('Categories fetch failed: $e');
-      }
-
-      // Try to fetch phrases
-      try {
-        await _fetchPhrases();
-        hasData = true;
-      } catch (e) {
-        print('Phrases fetch failed: $e');
-      }
-
-      return hasData;
-    } catch (e) {
-      print('API fetch completely failed: $e');
-      return false;
-    }
-  }
-
-  Future<void> _fetchLanguages() async {
-    final response = await http.get(
-      Uri.parse('${Config.baseUrl}languages'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      _languages = data['data'] ?? data ?? [];
-    } else {
-      throw Exception('Languages endpoint failed: ${response.statusCode}');
-    }
-  }
-
-  Future<void> _fetchCategories() async {
-    final response = await http.get(
-      Uri.parse('${Config.baseUrl}categories'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      _categories = data['data'] ?? data ?? [];
-    } else {
-      throw Exception('Categories endpoint failed: ${response.statusCode}');
-    }
-  }
-
-  Future<void> _fetchPhrases() async {
-    final response = await http.get(
-      Uri.parse('${Config.baseUrl}phrases'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      _phrasesData = data['data'] ?? data ?? [];
-    } else {
-      throw Exception('Phrases endpoint failed: ${response.statusCode}');
-    }
-  }
-
-  void _useFallbackData() {
-    // Fallback data when API is not available
-    _languages = [
-      {'id': 1, 'name': 'English', 'code': 'en'},
-      {'id': 2, 'name': 'Cebuano', 'code': 'ceb'},
-      {'id': 3, 'name': 'Ata Manobo', 'code': 'atm'},
-      {'id': 4, 'name': 'Mansaka', 'code': 'msk'},
-      {'id': 5, 'name': 'Mandaya', 'code': 'mry'},
-    ];
-
-    _categories = [
-      {'id': 1, 'name': 'Greetings'},
-      {'id': 2, 'name': 'Basic Phrases'},
-      {'id': 3, 'name': 'Questions'},
-      {'id': 4, 'name': 'Numbers'},
-    ];
-
-    _phrasesData = [
-      {
-        'id': 1,
-        'category_id': 1,
-        'key': 'Hello',
-        'english': 'Hello',
-        'en': 'Hello',
-        'ceb': 'Kumusta',
-        'atm': 'Maayong adlaw',
-        'msk': 'Maayong adlaw',
-        'mry': 'Maayong adlaw',
-      },
-      {
-        'id': 2,
-        'category_id': 1,
-        'key': 'Good morning',
-        'english': 'Good morning',
-        'en': 'Good morning',
-        'ceb': 'Maayong buntag',
-        'atm': 'Maayong ugma',
-        'msk': 'Maayong ugma',
-        'mry': 'Maayong ugma',
-      },
-      {
-        'id': 3,
-        'category_id': 1,
-        'key': 'How are you?',
-        'english': 'How are you?',
-        'en': 'How are you?',
-        'ceb': 'Kumusta ka?',
-        'atm': 'Kumusta ikaw?',
-        'msk': 'Kumusta ikaw?',
-        'mry': 'Kumusta ikaw?',
-      },
-      {
-        'id': 4,
-        'category_id': 2,
-        'key': 'Thank you',
-        'english': 'Thank you',
-        'en': 'Thank you',
-        'ceb': 'Salamat',
-        'atm': 'Salamat',
-        'msk': 'Salamat',
-        'mry': 'Salamat',
-      },
-      {
-        'id': 5,
-        'category_id': 2,
-        'key': 'Please',
-        'english': 'Please',
-        'en': 'Please',
-        'ceb': 'Palihog',
-        'atm': 'Palihog',
-        'msk': 'Palihog',
-        'mry': 'Palihog',
-      },
-      {
-        'id': 6,
-        'category_id': 3,
-        'key': 'What is your name?',
-        'english': 'What is your name?',
-        'en': 'What is your name?',
-        'ceb': 'Unsa imong ngalan?',
-        'atm': 'Anu su ngaran mo?',
-        'msk': 'Anu su ngaran mo?',
-        'mry': 'Anu su ngaran mo?',
-      },
-      {
-        'id': 7,
-        'category_id': 3,
-        'key': 'Where are you from?',
-        'english': 'Where are you from?',
-        'en': 'Where are you from?',
-        'ceb': 'Asa ka gikan?',
-        'atm': 'Hain ka ginghalinan?',
-        'msk': 'Hain ka ginghalinan?',
-        'mry': 'Hain ka ginghalinan?',
-      },
-      {
-        'id': 8,
-        'category_id': 4,
-        'key': 'One',
-        'english': 'One',
-        'en': 'One',
-        'ceb': 'Usa',
-        'atm': 'Isa',
-        'msk': 'Isa',
-        'mry': 'Isa',
-      },
-      {
-        'id': 9,
-        'category_id': 4,
-        'key': 'Two',
-        'english': 'Two',
-        'en': 'Two',
-        'ceb': 'Duha',
-        'atm': 'Duwa',
-        'msk': 'Duwa',
-        'mry': 'Duwa',
-      },
-      {
-        'id': 10,
-        'category_id': 4,
-        'key': 'Three',
-        'english': 'Three',
-        'en': 'Three',
-        'ceb': 'Tulo',
-        'atm': 'Tulu',
-        'msk': 'Tulu',
-        'mry': 'Tulu',
-      },
-    ];
-
-    setState(() {
-      errorMessage = null;
-    });
-  }
-
-  void _organizePhraseData() {
-    _phrases.clear();
-    
-    // Group phrases by category
-    for (var category in _categories) {
-      String categoryName = category['name'] ?? 'Unknown';
-      int categoryId = category['id'] ?? 0;
-      
-      _phrases[categoryName] = {};
-      
-      // Find phrases for this category
-      var categoryPhrases = _phrasesData.where((phrase) => 
-        phrase['category_id'] == categoryId).toList();
-      
-      for (var phrase in categoryPhrases) {
-        String phraseKey = phrase['key'] ?? phrase['english'] ?? 'Unknown';
-        _phrases[categoryName]![phraseKey] = {};
-        
-        // Add translations for each language
-        for (var language in _languages) {
-          String langName = language['name'] ?? '';
-          String langCode = language['code'] ?? '';
-          
-          // Map language codes to display names
-          String displayName = _getLanguageDisplayName(langCode);
-          if (displayName.isNotEmpty) {
-            String translation = phrase[langCode] ?? phrase['english'] ?? phraseKey;
-            _phrases[categoryName]![phraseKey]![displayName] = translation;
-          }
-        }
-        
-        // Ensure English is included
-        if (!_phrases[categoryName]![phraseKey]!.containsKey('English')) {
-          _phrases[categoryName]![phraseKey]!['English'] = phrase['english'] ?? phraseKey;
-        }
-      }
-    }
-  }
-
-  String _getLanguageDisplayName(String languageCode) {
-    switch (languageCode.toLowerCase()) {
-      case 'en':
-      case 'english':
-        return 'English';
-      case 'ceb':
-      case 'cebuano':
-        return 'Cebuano';
-      case 'atm':
-      case 'ata_manobo':
-        return 'Ata Manobo';
-      case 'msk':
-      case 'mansaka':
-        return 'Mansaka';
-      case 'mry':
-      case 'mandaya':
-        return 'Mandaya';
-      default:
-        return '';
-    }
   }
 
   Future<void> _speakText(String text, String language, String phraseKey) async {
@@ -451,12 +216,9 @@ class _TranslationScreenState extends State<TranslationScreen> {
     });
   }
 
-  Future<void> _refreshData() async {
-    await _loadDataFromAPI();
-  }
-
   @override
   void dispose() {
+    _scrollController.dispose();
     _audioService.dispose();
     super.dispose();
   }
@@ -464,173 +226,235 @@ class _TranslationScreenState extends State<TranslationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Phrase Book'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: _refreshData,
-            icon: const Icon(Icons.refresh),
-          ),
-          if (isPlaying)
-            IconButton(
-              onPressed: _stopAudio,
-              icon: const Icon(Icons.stop),
-              color: Colors.red,
-            ),
-        ],
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Main scrollable content with background
+            _buildScrollableContent(),
+          ],
+        ),
       ),
-      body: _buildBody(),
     );
   }
 
-  Widget _buildBody() {
-    if (isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading phrases...'),
-          ],
-        ),
-      );
-    }
-
-    if (_phrases.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.translate_outlined,
-              size: 64,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            const Text('No phrases available'),
-            if (errorMessage != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Error: $errorMessage',
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _refreshData,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Apply bouncing physics and proper scroll behavior like tribes screen
+  Widget _buildScrollableContent() {
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(), // Same bouncing effect as tribes screen
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Match tribes screen padding
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      clipBehavior: Clip.none,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 10), // Top spacing like tribes screen
-          
-          _buildLanguageSelectionSection(),
-          
-          const SizedBox(height: 32.0),
-          
-          if (isPlaying) _buildAudioStatusIndicator(),
-          
-          Text(
-            'Common Phrases',
-            style: Theme.of(context).textTheme.headlineMedium,
+          // Single Zone with background image
+          Container(
+            width: double.infinity,
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+            ),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/tribal_pattern.jpg'),
+                fit: BoxFit.cover,
+                opacity: 0.3,
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.4),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40), // Reduced top spacing
+                    
+                    // Title Section
+                    _buildTitleSection(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Language Selection Section
+                    _buildLanguageSelectionSection(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Phrases Section
+                    _buildPhrasesSection(),
+                    
+                    const SizedBox(height: 100), // Bottom padding
+                  ],
+                ),
+              ),
+            ),
           ),
-          
-          const SizedBox(height: 16.0),
-          
-          ..._phrases.entries.map((categoryEntry) {
-            return _buildCategorySection(categoryEntry);
-          }),
-          
-          // Bottom padding to ensure last content is fully visible (like tribes screen)
-          const SizedBox(height: 30),
         ],
       ),
+    );
+  }
+
+  Widget _buildTopAppBar() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.7),
+          border: Border(
+            bottom: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'PHRASE TRANSLATOR',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            if (isPlaying)
+              GestureDetector(
+                onTap: _stopAudio,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.stop,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Indigenous Language',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        const Text(
+          'Phrase Book',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: 80,
+          height: 3,
+          color: const Color(0xFFEADCB6),
+        ),
+      ],
     );
   }
 
   Widget _buildLanguageSelectionSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Language Selection',
-          style: Theme.of(context).textTheme.headlineMedium,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFEADCB6).withOpacity(0.3),
+          width: 1,
         ),
-        const SizedBox(height: 16.0),
-        
-        _buildLanguageDropdown(
-          value: _selectedSourceLanguage,
-          items: _sourceLanguages,
-          hint: 'Select source language',
-          onChanged: (value) {
-            setState(() {
-              _selectedSourceLanguage = value!;
-            });
-          },
-        ),
-        
-        const SizedBox(height: 12.0),
-        
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              if (_sourceLanguages.contains(_selectedTargetLanguage)) {
-                setState(() {
-                  String temp = _selectedSourceLanguage;
-                  _selectedSourceLanguage = _selectedTargetLanguage;
-                  _selectedTargetLanguage = temp;
-                });
-              }
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Language Selection',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          _buildLanguageDropdown(
+            value: _selectedSourceLanguage,
+            items: _sourceLanguages,
+            hint: 'Select source language',
+            onChanged: (value) {
+              setState(() {
+                _selectedSourceLanguage = value!;
+              });
             },
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.amber.withOpacity(0.3),
-                  width: 1,
+          ),
+          
+          const SizedBox(height: 16),
+          
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                if (_sourceLanguages.contains(_selectedTargetLanguage)) {
+                  setState(() {
+                    String temp = _selectedSourceLanguage;
+                    _selectedSourceLanguage = _selectedTargetLanguage;
+                    _selectedTargetLanguage = temp;
+                  });
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEADCB6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFEADCB6).withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: const Icon(
-                Icons.swap_vert,
-                color: Colors.amber,
-                size: 24,
+                child: const Icon(
+                  Icons.swap_vert,
+                  color: Color(0xFFEADCB6),
+                  size: 24,
+                ),
               ),
             ),
           ),
-        ),
-        
-        const SizedBox(height: 12.0),
-        
-        _buildLanguageDropdown(
-          value: _selectedTargetLanguage,
-          items: _targetLanguages,
-          hint: 'Select target language',
-          onChanged: (value) {
-            setState(() {
-              _selectedTargetLanguage = value!;
-            });
-          },
-        ),
-      ],
+          
+          const SizedBox(height: 16),
+          
+          _buildLanguageDropdown(
+            value: _selectedTargetLanguage,
+            items: _targetLanguages,
+            hint: 'Select target language',
+            onChanged: (value) {
+              setState(() {
+                _selectedTargetLanguage = value!;
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -644,22 +468,24 @@ class _TranslationScreenState extends State<TranslationScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: Colors.grey[300]!,
+          color: Colors.white.withOpacity(0.2),
           width: 1.0,
         ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
-          hint: Text(hint),
+          hint: Text(hint, style: const TextStyle(color: Colors.white70)),
           isExpanded: true,
+          dropdownColor: Colors.grey[800],
+          style: const TextStyle(color: Colors.white),
           items: items.map((String language) {
             return DropdownMenuItem<String>(
               value: language,
-              child: Text(language),
+              child: Text(language, style: const TextStyle(color: Colors.white)),
             );
           }).toList(),
           onChanged: onChanged,
@@ -670,13 +496,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   Widget _buildAudioStatusIndicator() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: const Color(0xFFEADCB6).withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.amber.withOpacity(0.3),
+          color: const Color(0xFFEADCB6).withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -687,7 +513,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEADCB6)),
             ),
           ),
           const SizedBox(width: 12),
@@ -695,7 +521,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             child: Text(
               'Playing: ${currentlyPlayingPhrase ?? 'Audio'}',
               style: const TextStyle(
-                color: Colors.amber,
+                color: Color(0xFFEADCB6),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -704,7 +530,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             onTap: _stopAudio,
             child: const Icon(
               Icons.stop,
-              color: Colors.amber,
+              color: Color(0xFFEADCB6),
               size: 20,
             ),
           ),
@@ -713,24 +539,46 @@ class _TranslationScreenState extends State<TranslationScreen> {
     );
   }
 
+  Widget _buildPhrasesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Common Phrases',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 20),
+        
+        ..._phrases.entries.map((categoryEntry) {
+          return _buildCategorySection(categoryEntry);
+        }),
+      ],
+    );
+  }
+
   Widget _buildCategorySection(MapEntry<String, Map<String, Map<String, String>>> categoryEntry) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: Row(
             children: [
               Icon(
                 _getCategoryIcon(categoryEntry.key),
-                color: Colors.amber[700],
+                color: const Color(0xFFEADCB6),
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
                 categoryEntry.key,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.amber[700],
+                style: const TextStyle(
+                  color: Color(0xFFEADCB6),
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -742,7 +590,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           return _buildPhraseCard(phraseEntry);
         }),
         
-        const SizedBox(height: 16.0),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -755,19 +603,12 @@ class _TranslationScreenState extends State<TranslationScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: Colors.grey[300]!,
+          color: Colors.white.withOpacity(0.1),
           width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -776,11 +617,11 @@ class _TranslationScreenState extends State<TranslationScreen> {
             text: sourceText,
             phraseKey: phraseKey,
             isSource: true,
-            textColor: Colors.grey[800]!,
+            textColor: Colors.white70,
           ),
           
           Divider(
-            color: Colors.grey[300]!.withOpacity(0.3),
+            color: Colors.white.withOpacity(0.1),
             height: 1,
           ),
           
@@ -789,7 +630,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             text: targetText,
             phraseKey: phraseKey,
             isSource: false,
-            textColor: Colors.blue[700]!,
+            textColor: const Color(0xFFEADCB6),
           ),
         ],
       ),
@@ -817,7 +658,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   language,
                   style: TextStyle(
                     fontSize: 12.0,
-                    color: Colors.grey[600],
+                    color: Colors.white.withOpacity(0.6),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -847,7 +688,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isCurrentlyPlaying 
-                    ? Colors.red.withOpacity(0.1)
+                    ? Colors.red.withOpacity(0.2)
                     : textColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),

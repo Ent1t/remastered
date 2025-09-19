@@ -351,7 +351,7 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
-  // NEW METHOD: Navigate specifically to Ata Manobo detail screen
+  // NEW METHOD: Navigate specifically to Kagan detail screen
   void _navigateToAtaManoboDetail() {
     Navigator.push(
       context,
