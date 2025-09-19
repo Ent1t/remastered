@@ -309,6 +309,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               image: DecorationImage(
                 image: AssetImage('assets/images/cultural_background.jpg'),
                 fit: BoxFit.cover,
+                opacity: 0.6,
                 // Removed opacity to show background clearly
               ),
             ),
@@ -468,6 +469,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               image: DecorationImage(
                 image: AssetImage('assets/images/cultural_section_bg.jpg'),
                 fit: BoxFit.cover,
+                opacity: 0.6,
                 // Removed opacity property to show full image at 100% opacity
               ),
               border: Border(
