@@ -229,12 +229,12 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => VideoPlayerScreen(
+                  builder: (context) => const VideoPlayerScreen(
                     videoTitle: 'Mansaka Heritage',
                     videoDescription: 'Exploring the spiritual traditions of the highlands',
                     thumbnailPath: 'assets/videos/thumbnails/mansaka_featured.jpg',
                     duration: '22:15',
-                    accentColor: const Color(0xFFB19CD9),
+                    accentColor: Color(0xFFB19CD9),
                     tribalName: 'Mansaka',
                   ),
                 ),

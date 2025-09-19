@@ -320,9 +320,9 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                       track.imagePath,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return Icon(
+                        return const Icon(
                           Icons.music_note,
-                          color: const Color(0xFFD4A574),
+                          color: Color(0xFFD4A574),
                           size: 30,
                         );
                       },

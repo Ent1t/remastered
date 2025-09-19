@@ -24,7 +24,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
   bool _isShuffled = false;
   bool _isRepeated = false;
   double _currentPosition = 0.0;
-  double _totalDuration = 240.0; // 4 minutes in seconds
+  final double _totalDuration = 240.0; // 4 minutes in seconds
   Timer? _progressTimer;
   
   late AnimationController _playButtonController;
@@ -113,13 +113,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF1a1a1a),
-              const Color(0xFF0d0d0d),
+              Color(0xFF1a1a1a),
+              Color(0xFF0d0d0d),
               Colors.black,
             ],
           ),
@@ -259,7 +259,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
                             ],
                           ),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.music_note,
                           color: Colors.white,
                           size: 80,

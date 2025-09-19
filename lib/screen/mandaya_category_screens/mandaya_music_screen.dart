@@ -320,9 +320,9 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                       track.imagePath,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return Icon(
+                        return const Icon(
                           Icons.music_note,
-                          color: const Color(0xFF7FB069),
+                          color: Color(0xFF7FB069),
                           size: 30,
                         );
                       },

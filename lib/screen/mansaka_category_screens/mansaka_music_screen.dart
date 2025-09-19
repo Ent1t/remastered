@@ -327,9 +327,9 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                       track.imagePath,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return Icon(
+                        return const Icon(
                           Icons.music_note,
-                          color: const Color(0xFFB19CD9),
+                          color: Color(0xFFB19CD9),
                           size: 30,
                         );
                       },

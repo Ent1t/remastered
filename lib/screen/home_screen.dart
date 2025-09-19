@@ -200,96 +200,96 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ZONE 1 - Top content section with much darker gradient background
+          // ZONE 1 - Top content section with background image
           Container(
             height: zone1Height - 50, // Leave space for the divider
             width: double.infinity,
             decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 1.0,
-                colors: [
-                  Color(0xFF0F2419), // Very dark green center (darkened)
-                  Color(0xFF0A1A10), // Darker green (darkened)
-                  Color(0xFF051208), // Extremely dark green (darkened)
-                  Colors.black,     // Black corners
-                ],
-                stops: [0.0, 0.4, 0.7, 1.0],
+              image: DecorationImage(
+                image: AssetImage('assets/images/zone1_background.jpg'), // Add your image path here
+                fit: BoxFit.cover,
+                opacity: 0.8, // Adjust opacity as needed
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 15), // Reduced from 20
-                  
-                  // Main Title Box
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18), // Reduced from 20
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                        borderRadius: BorderRadius.circular(8),
+            child: Container(
+              // Optional: Add overlay for better text readability
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3), // Adjust overlay opacity as needed
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 15), // Reduced from 20
+                    
+                    // Main Title Box
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18), // Reduced from 20
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'HUNI SA TRIBU',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Padding(
+                              padding: EdgeInsets.only(left: 28),
+                              child: Text(
+                                'Cultural Heritage Museum',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  letterSpacing: 1,
+                                ),
+                              ),  
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Column(
+                    ),
+                    
+                    const SizedBox(height: 25), // Reduced from 30
+                    
+                    // Portal Text
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'HUNI SA TRIBU',
+                            'Your Portal to a',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          Text(
+                            'Rich Heritage.',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Padding(
-                            padding: EdgeInsets.only(left: 28),
-                            child: Text(
-                              'Cultural Heritage Museum',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                                letterSpacing: 1,
-                              ),
-                            ),  
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  
-                  const SizedBox(height: 25), // Reduced from 30
-                  
-                  // Portal Text
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your Portal to a',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        Text(
-                          'Rich Heritage.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Container(
               // Very light overlay to maintain some text readability
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withOpacity(0.1),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -379,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     
                     const SizedBox(height: 35), // Reduced from 50 - move QR scanner higher
                     
-                    // QR Scanner Card - transparent with border
+                    // QR Scanner Card - transparent with border and black overlay inside
                     Container(
                       width: 280, // Same width
                       height: 280, // Increased height from 200 to 280
@@ -392,17 +392,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(8), // Less rounded for more box-like
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Container(
-                        // Very subtle background for slight contrast
+                        // Black overlay inside the border
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.black.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(5), // Slightly smaller radius to stay inside border
+                          color: Colors.black.withOpacity(0.6), // Darker black overlay
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -460,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // ZONE 3 - About the Tribes header section with full background and border lines
+          // ZONE 3 - About the Tribes header section with background and black overlay
           Container(
             height: zone3Height,
             width: double.infinity,
@@ -476,10 +476,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             child: Container(
-              // Removed the gradient overlay to show full background
-              // Only adding a subtle dark overlay for text readability
+              // Black overlay for Zone 3
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3), // Light overlay for text readability
+                color: Colors.black.withOpacity(0.3), // Black overlay for better text visibility
               ),
               child: const Center(
                 child: Text(

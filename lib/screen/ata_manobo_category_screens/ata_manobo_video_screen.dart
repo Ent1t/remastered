@@ -229,12 +229,12 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => VideoPlayerScreen(
+                  builder: (context) => const VideoPlayerScreen(
                     videoTitle: 'Ata Manobo Heritage',
                     videoDescription: 'A comprehensive look into the rich culture and traditions',
                     thumbnailPath: 'assets/videos/thumbnails/ata_featured.jpg',
                     duration: '15:30',
-                    accentColor: const Color(0xFFD4A574),
+                    accentColor: Color(0xFFD4A574),
                     tribalName: 'Ata Manobo',
                   ),
                 ),

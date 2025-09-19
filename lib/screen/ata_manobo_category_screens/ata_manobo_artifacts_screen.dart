@@ -18,7 +18,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
       title: 'Jewelry',
       subtitle: 'Sacred Beadwork',
       imagePath: 'assets/images/ata_manobo_jewelry.jpg',
-      gradientColors: [Color(0xFFD4A574), Color(0xFFB8935F)],
+      gradientColors: [const Color(0xFFD4A574), const Color(0xFFB8935F)],
       items: [
         'Traditional Necklaces',
         'Sacred Beads',
@@ -31,7 +31,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
       title: 'Weapons',
       subtitle: 'Traditional Arms',
       imagePath: 'assets/images/ata_manobo_weapons.jpg',
-      gradientColors: [Color(0xFF8B4513), Color(0xFF654321)],
+      gradientColors: [const Color(0xFF8B4513), const Color(0xFF654321)],
       items: [
         'Hunting Spears',
         'Ceremonial Daggers',
@@ -44,7 +44,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
       title: 'Ritual',
       subtitle: 'Ceremonial Objects',
       imagePath: 'assets/images/ata_manobo_ritual.jpg',
-      gradientColors: [Color(0xFF654321), Color(0xFF4A3728)],
+      gradientColors: [const Color(0xFF654321), const Color(0xFF4A3728)],
       items: [
         'Prayer Bowls',
         'Incense Burners',
@@ -57,7 +57,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
       title: 'Tools',
       subtitle: 'Daily Use Items',
       imagePath: 'assets/images/ata_manobo_tools.jpg',
-      gradientColors: [Color(0xFF8B7355), Color(0xFF6B5B47)],
+      gradientColors: [const Color(0xFF8B7355), const Color(0xFF6B5B47)],
       items: [
         'Farming Tools',
         'Weaving Looms',
@@ -288,7 +288,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
               HapticFeedback.mediumImpact();
               _showArtifactDetails(category);
             },
-            child: Container(
+            child: SizedBox(
               height: 200,
               child: Stack(
                 children: [
@@ -451,8 +451,8 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
                         const SizedBox(height: 8),
                         Text(
                           category.subtitle,
-                          style: TextStyle(
-                            color: const Color(0xFFD4A574),
+                          style: const TextStyle(
+                            color: Color(0xFFD4A574),
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                           ),

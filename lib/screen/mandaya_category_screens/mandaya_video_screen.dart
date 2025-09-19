@@ -229,12 +229,12 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => VideoPlayerScreen(
+                  builder: (context) => const VideoPlayerScreen(
                     videoTitle: 'Mandaya Heritage',
                     videoDescription: 'Discovering the ancient traditions of the mountains',
                     thumbnailPath: 'assets/videos/thumbnails/mandaya_featured.jpg',
                     duration: '18:45',
-                    accentColor: const Color(0xFF7FB069),
+                    accentColor: Color(0xFF7FB069),
                     tribalName: 'Mandaya',
                   ),
                 ),

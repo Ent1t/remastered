@@ -9,7 +9,7 @@ import 'mandaya_category_screens/mandaya_artifacts_screen.dart';
 import 'mandaya_category_screens/mandaya_images_screen.dart';
 
 class MandayaCulturalDetailScreen extends StatelessWidget {
-  const MandayaCulturalDetailScreen({Key? key}) : super(key: key);
+  const MandayaCulturalDetailScreen({super.key});
 
   // Navigation methods
  void _navigateToLearnMore(BuildContext context) {

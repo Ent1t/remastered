@@ -29,7 +29,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _isPlaying = false;
   bool _showControls = true;
   double _currentPosition = 0.0;
-  double _totalDuration = 100.0;
+  final double _totalDuration = 100.0;
   
   late AnimationController _controlsAnimationController;
   late AnimationController _playButtonController;

@@ -18,7 +18,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       title: 'Jewelry',
       subtitle: 'Sacred Beadwork',
       imagePath: 'assets/images/mansaka_jewelry.jpg',
-      gradientColors: [Color(0xFFB19CD9), Color(0xFF8B6DB0)],
+      gradientColors: [const Color(0xFFB19CD9), const Color(0xFF8B6DB0)],
       items: [
         'Tribal Necklaces',
         'Ceremonial Beads',
@@ -31,7 +31,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       title: 'Weapons',
       subtitle: 'Traditional Arms',
       imagePath: 'assets/images/mansaka_weapons.jpg',
-      gradientColors: [Color(0xFF9B59B6), Color(0xFF8E44AD)],
+      gradientColors: [const Color(0xFF9B59B6), const Color(0xFF8E44AD)],
       items: [
         'Battle Spears',
         'Ritual Swords',
@@ -44,7 +44,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       title: 'Ritual',
       subtitle: 'Ceremonial Objects',
       imagePath: 'assets/images/mansaka_ritual.jpg',
-      gradientColors: [Color(0xFF6C7B95), Color(0xFF5D4E75)],
+      gradientColors: [const Color(0xFF6C7B95), const Color(0xFF5D4E75)],
       items: [
         'Sacred Vessels',
         'Prayer Instruments',
@@ -57,7 +57,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       title: 'Tools',
       subtitle: 'Daily Use Items',
       imagePath: 'assets/images/mansaka_tools.jpg',
-      gradientColors: [Color(0xFFAB7BA5), Color(0xFF8B6098)],
+      gradientColors: [const Color(0xFFAB7BA5), const Color(0xFF8B6098)],
       items: [
         'Agricultural Tools',
         'Weaving Equipment',
@@ -288,7 +288,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
               HapticFeedback.mediumImpact();
               _showArtifactDetails(category);
             },
-            child: Container(
+            child: SizedBox(
               height: 200,
               child: Stack(
                 children: [
@@ -451,8 +451,8 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                         const SizedBox(height: 8),
                         Text(
                           category.subtitle,
-                          style: TextStyle(
-                            color: const Color(0xFFB19CD9),
+                          style: const TextStyle(
+                            color: Color(0xFFB19CD9),
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                           ),

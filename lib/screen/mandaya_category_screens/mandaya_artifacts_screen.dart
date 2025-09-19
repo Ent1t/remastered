@@ -18,7 +18,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
       title: 'Jewelry',
       subtitle: 'Sacred Beadwork',
       imagePath: 'assets/images/mandaya_jewelry.jpg',
-      gradientColors: [Color(0xFF7FB069), Color(0xFF5D8A47)],
+      gradientColors: [const Color(0xFF7FB069), const Color(0xFF5D8A47)],
       items: [
         'Intricate Necklaces',
         'Traditional Bracelets',
@@ -31,7 +31,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
       title: 'Weapons',
       subtitle: 'Traditional Arms',
       imagePath: 'assets/images/mandaya_weapons.jpg',
-      gradientColors: [Color(0xFF6B8E23), Color(0xFF556B2F)],
+      gradientColors: [const Color(0xFF6B8E23), const Color(0xFF556B2F)],
       items: [
         'Fighting Spears',
         'Ceremonial Blades',
@@ -44,7 +44,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
       title: 'Ritual',
       subtitle: 'Ceremonial Objects',
       imagePath: 'assets/images/mandaya_ritual.jpg',
-      gradientColors: [Color(0xFF8FBC8F), Color(0xFF6B8E6B)],
+      gradientColors: [const Color(0xFF8FBC8F), const Color(0xFF6B8E6B)],
       items: [
         'Ritual Bowls',
         'Sacred Vessels',
@@ -57,7 +57,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
       title: 'Tools',
       subtitle: 'Daily Use Items',
       imagePath: 'assets/images/mandaya_tools.jpg',
-      gradientColors: [Color(0xFF9ACD32), Color(0xFF7B9A2D)],
+      gradientColors: [const Color(0xFF9ACD32), const Color(0xFF7B9A2D)],
       items: [
         'Farming Implements',
         'Weaving Tools',
@@ -288,7 +288,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
               HapticFeedback.mediumImpact();
               _showArtifactDetails(category);
             },
-            child: Container(
+            child: SizedBox(
               height: 200,
               child: Stack(
                 children: [
@@ -451,8 +451,8 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
                         const SizedBox(height: 8),
                         Text(
                           category.subtitle,
-                          style: TextStyle(
-                            color: const Color(0xFF7FB069),
+                          style: const TextStyle(
+                            color: Color(0xFF7FB069),
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                           ),
