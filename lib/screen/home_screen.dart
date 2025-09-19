@@ -1142,49 +1142,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // FIXED: Removed dialog popup from explore more button
   void _exploreMore(String tribeName) {
-    // Navigate to tribes section or show detailed information
+    // Add haptic feedback for better UX
+    HapticFeedback.lightImpact();
+    
+    // Navigate directly to tribes section without showing dialog
     setState(() {
       _currentIndex = 1; // Switch to Tribes tab
     });
     
-    // You can also navigate to a detailed tribe screen
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF404040),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            tribeName,
-            style: const TextStyle(
-              color: Color(0xFFD4AF37),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            'Exploring detailed information about $tribeName tribe. This will navigate to the comprehensive tribe details page.',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Continue Exploring',
-                style: TextStyle(color: Color(0xFFD4AF37)),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+    // Optional: Add a brief delay to show the tab switch animation
+    // then scroll to the relevant tribe section if needed
+    Future.delayed(const Duration(milliseconds: 300), () {
+      // You can add logic here to scroll to specific tribe if the TribesScreen supports it
+      // For example, if TribesScreen has a method to focus on a specific tribe
+    });
   }
 
   // UPDATED QR Scanner method - now properly navigates to QR Scanner Screen
@@ -1273,4 +1246,3 @@ class TribalPatternPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
-                

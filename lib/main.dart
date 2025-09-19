@@ -2,6 +2,69 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
 import 'global.dart';
+
+// Custom input formatter to allow only letters, spaces, hyphens, apostrophes, and periods
+class NameInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Allow only letters (a-z, A-Z), spaces, hyphens, apostrophes, and periods
+    // This covers names like "Mary-Jane", "O'Connor", "Jr.", "St. Mary"
+    final RegExp regExp = RegExp(r"^[a-zA-Z\s\-'.]*$");
+    
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+    
+    // Check if the entire new text matches our pattern
+    if (regExp.hasMatch(newValue.text)) {
+      // Additional validation: prevent multiple consecutive spaces or special chars
+      // and ensure it doesn't start with special characters
+      if (!newValue.text.contains(RegExp(r'[\s\-''.]{2,}')) &&
+          !newValue.text.startsWith(RegExp(r'[\s\-''.]+')) &&
+          !newValue.text.endsWith('  ')) {
+        return newValue;
+      }
+    }
+    
+    // If validation fails, return the old value
+    return oldValue;
+  }
+}
+
+// Custom input formatter for school names (allows numbers for addresses)
+class SchoolInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Allow letters, numbers (for addresses like "School #1"), spaces, hyphens, 
+    // apostrophes, periods, parentheses, and hash symbol for school numbering
+    final RegExp regExp = RegExp(r"^[a-zA-Z0-9\s\-'.()#]*$");
+    
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+    
+    // Check if the entire new text matches our pattern
+    if (regExp.hasMatch(newValue.text)) {
+      // Additional validation: prevent multiple consecutive spaces or special chars
+      // and ensure it doesn't start with numbers or special characters
+      if (!newValue.text.contains(RegExp(r'[\s\-''.()#]{3,}')) &&
+          !newValue.text.startsWith(RegExp(r'[\s\-''.()#0-9]+')) &&
+          !newValue.text.endsWith('  ')) {
+        return newValue;
+      }
+    }
+    
+    // If validation fails, return the old value
+    return oldValue;
+  }
+}
+
 void main() {
   runApp(const MyApp());
 }
@@ -31,7 +94,7 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  State<WelcomeScreen> createState() => _WelcomeScreenState(); // Fixed: Modern syntax
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
@@ -45,6 +108,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Prevent automatic resizing when keyboard appears
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () {
           // Hide keyboard when tapping outside text fields
@@ -56,7 +121,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           decoration: const BoxDecoration(
             // Replace with your background image
             image: DecorationImage(
-              image: AssetImage('assets/images/login.jpg'), // Add your image here
+              image: AssetImage('assets/images/login.jpg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -64,300 +129,332 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             // Dark overlay for better text visibility
             color: Colors.black.withOpacity(0.6),
             child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Changed to start for left alignment
-                  children: [
-                    const SizedBox(height: 40),
-                    
-                    // Logo/Title Box - centered (REMOVED name and role display)
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'HUNI SA TRIBU',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 30),
-                    
-                    // Welcome Text - aligned to the left
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Welcome!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // Transparent container wrapping Name, Role, and School inputs
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3), // Transparent dark background
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+              child: SingleChildScrollView(
+                // Ensure the scroll view takes full height when keyboard is hidden
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 
+                               MediaQuery.of(context).padding.top - 
+                               MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Name Input Field with "Name" label in top-left
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.4), // More transparent
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Stack(
-                              children: [
-                                // "Name" label in top-left corner
-                                const Positioned(
-                                  top: 8,
-                                  left: 15,
-                                  child: Text(
-                                    'Name',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                  ),
+                          const SizedBox(height: 40),
+                          
+                          // Logo/Title Box - centered
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white, width: 2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'HUNI SA TRIBU',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
                                 ),
-                                // TextField with centered text and top padding
-                                TextField(
-                                  controller: _nameController,
-                                  focusNode: _nameFocusNode,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center, // Center the input text
-                                  keyboardType: TextInputType.text,
-                                  textInputAction: TextInputAction.next,
-                                  onTap: () {
-                                    _nameFocusNode.requestFocus();
-                                  },
-                                  onSubmitted: (value) {
-                                    if (_showSchoolField) {
-                                      _schoolFocusNode.requestFocus();
-                                    }
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: '', // Remove placeholder text
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.only(
-                                      left: 20, 
-                                      right: 20, 
-                                      top: 35, // Top padding for label
-                                      bottom: 15
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                           
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 30),
                           
-                          // Role Selection Dropdown with "Role" label in top-left - FIXED COLOR
-                          Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.4), // SAME COLOR AS NAME FIELD
-                              borderRadius: BorderRadius.circular(8),
+                          // Welcome Text - aligned to the left
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Welcome!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w300,
+                              ),
                             ),
-                            child: Stack(
+                          ),
+                          
+                          // Responsive spacing - reduced when keyboard is shown
+                          SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 40),
+                          
+                          // Transparent container wrapping Name, Role, and School inputs
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
                               children: [
-                                // "Role" label in top-left corner
-                                const Positioned(
-                                  top: 8,
-                                  left: 15,
-                                  child: Text(
-                                    'Role',
-                                    style: TextStyle(
-                                      color: Colors.white70, // CONSISTENT COLOR
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w300,
-                                    ),
+                                // Name Input Field with "Name" label in top-left
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      // "Name" label in top-left corner
+                                      const Positioned(
+                                        top: 8,
+                                        left: 15,
+                                        child: Text(
+                                          'Name',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      ),
+                                      // TextField with centered text and top padding
+                                      TextField(
+                                        controller: _nameController,
+                                        focusNode: _nameFocusNode,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.name,
+                                        textInputAction: TextInputAction.next,
+                                        textCapitalization: TextCapitalization.words,
+                                        inputFormatters: [
+                                          NameInputFormatter(), // Custom formatter
+                                          LengthLimitingTextInputFormatter(50), // Reasonable limit
+                                        ],
+                                        onTap: () {
+                                          _nameFocusNode.requestFocus();
+                                        },
+                                        onSubmitted: (value) {
+                                          if (_showSchoolField) {
+                                            _schoolFocusNode.requestFocus();
+                                          } else {
+                                            // If no school field, unfocus
+                                            FocusScope.of(context).unfocus();
+                                          }
+                                        },
+                                        decoration: const InputDecoration(
+                                          hintText: '',
+                                          border: InputBorder.none,
+                                          contentPadding: EdgeInsets.only(
+                                            left: 20, 
+                                            right: 20, 
+                                            top: 35,
+                                            bottom: 15
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                // Dropdown with padding for label
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 25, bottom: 8),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: _selectedRole,
-                                      isExpanded: true,
-                                      style: const TextStyle(
-                                        color: Colors.white, // CONSISTENT WHITE TEXT
-                                        fontSize: 18, // Increased font size
-                                        fontWeight: FontWeight.w500,
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Role Selection Dropdown with "Role" label in top-left
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      // "Role" label in top-left corner
+                                      const Positioned(
+                                        top: 8,
+                                        left: 15,
+                                        child: Text(
+                                          'Role',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
                                       ),
-                                      dropdownColor: Colors.white,
-                                      items: <String>['Visitor', 'Student'].map((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Center( // Center the dropdown text
-                                            child: Text(
-                                              value,
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18, // Increased font size
-                                                fontWeight: FontWeight.w500,
+                                      // Dropdown with padding for label
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 25, bottom: 8),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            value: _selectedRole,
+                                            isExpanded: true,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            dropdownColor: Colors.white,
+                                            items: <String>['Visitor', 'Student'].map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Center(
+                                                  child: Text(
+                                                    value,
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (String? newValue) {
+                                              setState(() {
+                                                _selectedRole = newValue!;
+                                                _showSchoolField = (_selectedRole == 'Student');
+                                                // Clear school field when switching to Visitor
+                                                if (!_showSchoolField) {
+                                                  _schoolController.clear();
+                                                }
+                                              });
+                                              FocusScope.of(context).unfocus();
+                                            },
+                                            selectedItemBuilder: (BuildContext context) {
+                                              return <String>['Visitor', 'Student'].map((String value) {
+                                                return Center(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                                    child: Text(
+                                                      value,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList();
+                                            },
+                                            icon: const Padding(
+                                              padding: EdgeInsets.only(right: 20),
+                                              child: Icon(
+                                                Icons.arrow_drop_down,
+                                                color: Colors.white,
+                                                size: 28,
                                               ),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          _selectedRole = newValue!;
-                                          _showSchoolField = (_selectedRole == 'Student');
-                                        });
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                      selectedItemBuilder: (BuildContext context) {
-                                        return <String>['Visitor', 'Student'].map((String value) {
-                                          return Center( // Center the selected item text
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(vertical: 4), // Add vertical padding
-                                              child: Text(
-                                                value,
-                                                style: const TextStyle(
-                                                  color: Colors.white, // CONSISTENT WHITE TEXT
-                                                  fontSize: 18, // Increased font size
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }).toList();
-                                      },
-                                      icon: const Padding(
-                                        padding: EdgeInsets.only(right: 20),
-                                        child: Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.white, // CONSISTENT WHITE ICON
-                                          size: 28, // Increased icon size
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
+                                
+                                // School Input Field (only for students)
+                                if (_showSchoolField) ...[
+                                  const SizedBox(height: 20),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        // "What School?" label in top-left corner
+                                        const Positioned(
+                                          top: 8,
+                                          left: 15,
+                                          child: Text(
+                                            'What School?',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                          ),
+                                        ),
+                                        // TextField with centered text and top padding
+                                        TextField(
+                                          controller: _schoolController,
+                                          focusNode: _schoolFocusNode,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          keyboardType: TextInputType.name,
+                                          textInputAction: TextInputAction.done,
+                                          textCapitalization: TextCapitalization.words,
+                                          inputFormatters: [
+                                            SchoolInputFormatter(), // Custom formatter for school names
+                                            LengthLimitingTextInputFormatter(100), // Reasonable limit
+                                          ],
+                                          onTap: () {
+                                            _schoolFocusNode.requestFocus();
+                                          },
+                                          onSubmitted: (value) {
+                                            FocusScope.of(context).unfocus();
+                                            _proceedToNext();
+                                          },
+                                          decoration: const InputDecoration(
+                                            hintText: 'Ex: STI College Tagum',
+                                            hintStyle: TextStyle(color: Colors.white54),
+                                            border: InputBorder.none,
+                                            contentPadding: EdgeInsets.only(
+                                              left: 20, 
+                                              right: 20, 
+                                              top: 35,
+                                              bottom: 15
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                           
-                          // School Input Field (only for students) - MOVED INSIDE CONTAINER AND FIXED STYLING
-                          if (_showSchoolField) ...[
-                            const SizedBox(height: 20),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.4), // SAME COLOR AS OTHER FIELDS
-                                borderRadius: BorderRadius.circular(8),
+                          // Responsive spacing
+                          SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 40),
+                          
+                          // Proceed Button - centered
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                                _proceedToNext();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFDF8D7),
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
-                              child: Stack(
-                                children: [
-                                  // "What School?" label in top-left corner
-                                  const Positioned(
-                                    top: 8,
-                                    left: 15,
-                                    child: Text(
-                                      'What School?',
-                                      style: TextStyle(
-                                        color: Colors.white70, // CONSISTENT COLOR
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                    ),
-                                  ),
-                                  // TextField with centered text and top padding
-                                  TextField(
-                                    controller: _schoolController,
-                                    focusNode: _schoolFocusNode,
-                                    style: const TextStyle(
-                                      color: Colors.white, // CONSISTENT WHITE TEXT
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    textAlign: TextAlign.center, // CENTER THE INPUT TEXT
-                                    keyboardType: TextInputType.text,
-                                    textInputAction: TextInputAction.done,
-                                    onTap: () {
-                                      // Explicitly request focus when tapped
-                                      _schoolFocusNode.requestFocus();
-                                    },
-                                    onSubmitted: (value) {
-                                      // Hide keyboard when done
-                                      FocusScope.of(context).unfocus();
-                                      _proceedToNext();
-                                    },
-                                    decoration: const InputDecoration(
-                                      hintText: 'Ex: STI College Tagum',
-                                      hintStyle: TextStyle(color: Colors.white54), // CONSISTENT HINT COLOR
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.only(
-                                        left: 20, 
-                                        right: 20, 
-                                        top: 35, // Top padding for label
-                                        bottom: 15
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: const Text(
+                                'PROCEED',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ],
+                          ),
+                          
+                          // Use Flexible Spacer that adapts to available space
+                          const Expanded(child: SizedBox()),
+                          
+                          // Add bottom padding when keyboard is visible
+                          SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 0),
                         ],
                       ),
                     ),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // Proceed Button - centered
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Hide keyboard before proceeding
-                          FocusScope.of(context).unfocus();
-                          _proceedToNext();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFDF8D7), // Updated to FDF8D7 color
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'PROCEED',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const Spacer(),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -368,8 +465,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _proceedToNext() {
-    // Validate inputs
-    if (_nameController.text.trim().isEmpty) {
+    // Trim whitespace and validate inputs
+    final String trimmedName = _nameController.text.trim();
+    final String trimmedSchool = _schoolController.text.trim();
+    
+    if (trimmedName.isEmpty) {
       _showCustomErrorDialog(
         'Name Required',
         'Please enter your name to continue.',
@@ -378,7 +478,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       return;
     }
     
-    if (_selectedRole == 'Student' && _schoolController.text.trim().isEmpty) {
+    // Additional validation: check if name has at least one letter
+    if (!RegExp(r'[a-zA-Z]').hasMatch(trimmedName)) {
+      _showCustomErrorDialog(
+        'Invalid Name',
+        'Please enter a valid name with letters.',
+        Icons.person_outline,
+      );
+      return;
+    }
+    
+    if (_selectedRole == 'Student' && trimmedSchool.isEmpty) {
       _showCustomErrorDialog(
         'School Information Required',
         'Please enter your school name to continue.',
@@ -386,16 +496,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       );
       return;
     }
+    
+    // Additional validation for school name if it's a student
+    if (_selectedRole == 'Student' && !RegExp(r'[a-zA-Z]').hasMatch(trimmedSchool)) {
+      _showCustomErrorDialog(
+        'Invalid School Name',
+        'Please enter a valid school name.',
+        Icons.school_outlined,
+      );
+      return;
+    }
 
     // Process the data and navigate to next screen
     Map<String, dynamic> userData = {
-      'name': _nameController.text.trim(),
+      'name': trimmedName,
       'role': _selectedRole,
-      if (_selectedRole == 'Student') 'school': _schoolController.text.trim(),
+      if (_selectedRole == 'Student') 'school': trimmedSchool,
     };
 
+    // Store user data globally
     GlobalData.userData = userData;
     Global.userData = userData;
+    
     // Navigate to home screen
     Navigator.pushReplacement(
       context,
@@ -406,11 +528,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _showCustomErrorDialog(String title, String message, IconData icon) {
-    HapticFeedback.lightImpact(); // Add haptic feedback for better UX
+    HapticFeedback.lightImpact();
     
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -418,7 +540,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              // Dark background with gradient similar to your app theme
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -513,7 +634,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFDF8D7), // Same as your proceed button
+                      backgroundColor: const Color(0xFFFDF8D7),
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
