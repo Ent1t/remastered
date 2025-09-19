@@ -1,6 +1,7 @@
 // lib/screen/ata_manobo_category_screens/ata_manobo_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../music_player_screen.dart'; // Import the music player screen
 
 class AtaManoboMusicScreen extends StatefulWidget {
   const AtaManoboMusicScreen({super.key});
@@ -20,36 +21,42 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
       description: 'Song sung during rice harvest celebrations',
       category: 'Traditional',
       imagePath: 'assets/images/ata_manobo_harvest.jpg',
+      artist: 'Matt Gamar',
     ),
     MusicTrack(
       title: 'War Chant',
       description: 'Ancient chant performed before battles',
       category: 'Ceremonial',
       imagePath: 'assets/images/ata_manobo_war_chant.jpg',
+      artist: 'Elder Manobo',
     ),
     MusicTrack(
       title: 'Lullaby',
       description: 'Traditional song for children',
       category: 'Folk',
       imagePath: 'assets/images/ata_manobo_lullaby.jpg',
+      artist: 'Maria Santos',
     ),
     MusicTrack(
       title: 'Spirit Dance',
       description: 'Sacred music for ancestral rituals',
       category: 'Spiritual',
       imagePath: 'assets/images/ata_manobo_spirit.jpg',
+      artist: 'Datu Lumad',
     ),
     MusicTrack(
       title: 'Wedding Song',
       description: 'Ceremonial music for marriage rituals',
       category: 'Ceremonial',
       imagePath: 'assets/images/ata_manobo_wedding.jpg',
+      artist: 'Tribal Ensemble',
     ),
     MusicTrack(
       title: 'Mountain Echo',
       description: 'Folk song about the sacred mountains',
       category: 'Folk',
       imagePath: 'assets/images/ata_manobo_mountain.jpg',
+      artist: 'Mountain Singers',
     ),
   ];
 
@@ -367,17 +374,23 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                 ),
                 
                 // Play Button
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD4A574),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _playTrack(track);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD4A574),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
@@ -389,11 +402,29 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
   }
 
   void _playTrack(MusicTrack track) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Playing: ${track.title}'),
-        backgroundColor: const Color(0xFFD4A574),
-        behavior: SnackBarBehavior.floating,
+    HapticFeedback.mediumImpact();
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => MusicPlayerScreen(
+          track: track,
+          themeColor: const Color(0xFFD4A574), // Ata Manobo theme color
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
       ),
     );
   }
@@ -403,18 +434,4 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
     _searchController.dispose();
     super.dispose();
   }
-}
-
-class MusicTrack {
-  final String title;
-  final String description;
-  final String category;
-  final String imagePath;
-
-  MusicTrack({
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.imagePath,
-  });
 }

@@ -1,6 +1,7 @@
 // lib/screen/mandaya_category_screens/mandaya_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../music_player_screen.dart'; // Import the music player screen
 
 class MandayaMusicScreen extends StatefulWidget {
   const MandayaMusicScreen({super.key});
@@ -20,36 +21,42 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       description: 'Epic chant telling ancient Mandaya legends',
       category: 'Traditional',
       imagePath: 'assets/images/mandaya_dagit.jpg',
+      artist: 'Elder Dagit',
     ),
     MusicTrack(
       title: 'Gimbal Dance',
       description: 'Rhythmic music for the traditional Mandaya dance',
       category: 'Ceremonial',
       imagePath: 'assets/images/mandaya_gimbal.jpg',
+      artist: 'Dance Troupe',
     ),
     MusicTrack(
       title: 'River Song',
       description: 'Folk song about the sacred rivers of Davao Oriental',
       category: 'Folk',
       imagePath: 'assets/images/mandaya_river.jpg',
+      artist: 'River Singers',
     ),
     MusicTrack(
       title: 'Ancestor Calling',
       description: 'Spiritual chant to communicate with ancestors',
       category: 'Spiritual',
       imagePath: 'assets/images/mandaya_ancestor.jpg',
+      artist: 'Spirit Caller',
     ),
     MusicTrack(
       title: 'Harvest Festival',
       description: 'Celebratory music for the annual harvest',
       category: 'Traditional',
       imagePath: 'assets/images/mandaya_festival.jpg',
+      artist: 'Festival Chorus',
     ),
     MusicTrack(
       title: 'Weaving Song',
       description: 'Work song sung while creating traditional textiles',
       category: 'Folk',
       imagePath: 'assets/images/mandaya_weaving.jpg',
+      artist: 'Weaver Women',
     ),
   ];
 
@@ -367,17 +374,23 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                 ),
                 
                 // Play Button
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF7FB069),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _playTrack(track);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7FB069),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
@@ -389,11 +402,29 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   void _playTrack(MusicTrack track) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Playing: ${track.title}'),
-        backgroundColor: const Color(0xFF7FB069),
-        behavior: SnackBarBehavior.floating,
+    HapticFeedback.mediumImpact();
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => MusicPlayerScreen(
+          track: track,
+          themeColor: const Color(0xFF7FB069), // Mandaya theme color
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
       ),
     );
   }
@@ -403,18 +434,4 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
     _searchController.dispose();
     super.dispose();
   }
-}
-
-class MusicTrack {
-  final String title;
-  final String description;
-  final String category;
-  final String imagePath;
-
-  MusicTrack({
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.imagePath,
-  });
 }

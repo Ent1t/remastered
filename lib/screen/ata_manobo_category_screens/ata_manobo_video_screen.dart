@@ -1,6 +1,7 @@
 // lib/screen/ata_manobo_category_screens/ata_manobo_video_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../shared/video_player_screen.dart';
 
 class AtaManoboVideoScreen extends StatefulWidget {
   const AtaManoboVideoScreen({super.key});
@@ -220,88 +221,109 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFD4A574),
-                    Color(0xFFB8956A),
-                  ],
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VideoPlayerScreen(
+                    videoTitle: 'Ata Manobo Heritage',
+                    videoDescription: 'A comprehensive look into the rich culture and traditions',
+                    thumbnailPath: 'assets/videos/thumbnails/ata_featured.jpg',
+                    duration: '15:30',
+                    accentColor: const Color(0xFFD4A574),
+                    tribalName: 'Ata Manobo',
+                  ),
                 ),
-              ),
-              child: Image.asset(
-                'assets/videos/thumbnails/ata_featured.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Icon(
-                      Icons.play_circle_outline,
-                      color: Colors.white,
-                      size: 60,
-                    ),
-                  );
-                },
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Featured: Ata Manobo Heritage',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              );
+            },
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFD4A574),
+                        Color(0xFFB8956A),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'A comprehensive look into the rich culture and traditions',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 14,
+                  child: Image.asset(
+                    'assets/videos/thumbnails/ata_featured.jpg',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(
+                          Icons.play_circle_outline,
+                          color: Colors.white,
+                          size: 60,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(50),
                 ),
-                child: const Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 40,
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Featured: Ata Manobo Heritage',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'A comprehensive look into the rich culture and traditions',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -540,11 +562,17 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
   }
 
   void _playVideo(VideoItem video) {
-    // TODO: Implement video player
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Playing: ${video.title}'),
-        backgroundColor: const Color(0xFFD4A574),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(
+          videoTitle: video.title,
+          videoDescription: 'Traditional Ata Manobo cultural content',
+          thumbnailPath: video.thumbnail,
+          duration: video.duration,
+          accentColor: const Color(0xFFD4A574),
+          tribalName: 'Ata Manobo',
+        ),
       ),
     );
   }

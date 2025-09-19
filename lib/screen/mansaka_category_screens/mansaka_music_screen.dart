@@ -1,6 +1,7 @@
 // lib/screen/mansaka_category_screens/mansaka_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../music_player_screen.dart'; // Import the music player screen
 
 class MansakaMusicScreen extends StatefulWidget {
   const MansakaMusicScreen({super.key});
@@ -20,42 +21,49 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
       description: 'Traditional courtship dance with intricate movements',
       category: 'Traditional',
       imagePath: 'assets/images/mansaka_pangalay.jpg',
+      artist: 'Dance Masters',
     ),
     MusicTrack(
       title: 'Healing Chant',
       description: 'Sacred song used in traditional healing rituals',
       category: 'Ceremonial',
       imagePath: 'assets/images/mansaka_healing.jpg',
+      artist: 'Healer Shaman',
     ),
     MusicTrack(
       title: 'Forest Whispers',
       description: 'Folk song celebrating the sacred forests of Compostela Valley',
       category: 'Folk',
       imagePath: 'assets/images/mansaka_forest.jpg',
+      artist: 'Forest Dwellers',
     ),
     MusicTrack(
       title: 'Spirit Calling',
       description: 'Mystical chant to invoke ancestral spirits',
       category: 'Spiritual',
       imagePath: 'assets/images/mansaka_spirits.jpg',
+      artist: 'Spirit Guide',
     ),
     MusicTrack(
       title: 'Mining Song',
       description: 'Work song from the gold mining traditions',
       category: 'Traditional',
       imagePath: 'assets/images/mansaka_mining.jpg',
+      artist: 'Gold Miners',
     ),
     MusicTrack(
       title: 'Children\'s Game',
       description: 'Playful song for traditional Mansaka games',
       category: 'Folk',
       imagePath: 'assets/images/mansaka_children.jpg',
+      artist: 'Village Children',
     ),
     MusicTrack(
       title: 'Wedding Blessing',
       description: 'Sacred music for marriage ceremonies',
       category: 'Ceremonial',
       imagePath: 'assets/images/mansaka_wedding.jpg',
+      artist: 'Wedding Singers',
     ),
   ];
 
@@ -373,17 +381,23 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                 ),
                 
                 // Play Button
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFB19CD9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _playTrack(track);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB19CD9),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
@@ -395,11 +409,29 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
   }
 
   void _playTrack(MusicTrack track) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Playing: ${track.title}'),
-        backgroundColor: const Color(0xFFB19CD9),
-        behavior: SnackBarBehavior.floating,
+    HapticFeedback.mediumImpact();
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => MusicPlayerScreen(
+          track: track,
+          themeColor: const Color(0xFFB19CD9), // Mansaka theme color
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
       ),
     );
   }
@@ -409,18 +441,4 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     _searchController.dispose();
     super.dispose();
   }
-}
-
-class MusicTrack {
-  final String title;
-  final String description;
-  final String category;
-  final String imagePath;
-
-  MusicTrack({
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.imagePath,
-  });
 }
