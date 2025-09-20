@@ -254,25 +254,15 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          const Text(
-            'Browse images',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.white.withOpacity(0.7),
-            size: 24,
-          ),
-        ],
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Browse images',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
