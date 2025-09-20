@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'ata_manobo_detail_screen.dart';
+import 'kagan_detail_screen.dart';
 import 'mansaka_detail_screen.dart';
 import 'mandaya_detail_screen.dart';
 
@@ -88,11 +88,11 @@ class _TribesScreenState extends State<TribesScreen> {
                 
                 // Tribe Cards
                 _buildTribeCard(
-                  tribeName: 'ATA MANOBO',
+                  tribeName: 'KAGAN',
                   description: 'Known for their rich oral tradition and intricate beadwork',
                   categories: '4 Categories',
                   imagePath: 'assets/images/ata_manobo_main.jpg',
-                  onTap: () => _navigateToAtaManoboDetail(), // UPDATED THIS LINE
+                  onTap: () => _navigateToKaganDetail(), // UPDATED THIS LINE
                 ),
                 
                 const SizedBox(height: 20),
@@ -352,12 +352,12 @@ class _TribesScreenState extends State<TribesScreen> {
   }
 
   // NEW METHOD: Navigate specifically to Kagan detail screen
-  void _navigateToAtaManoboDetail() {
+  void _navigateToKaganDetail() {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => 
-          const AtaManoboCulturalDetailScreen(),
+          const KaganCulturalDetailScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -687,8 +687,8 @@ class TribeDetailScreen extends StatelessWidget {
 
   String _getTribeDescription(String tribeName) {
     switch (tribeName.toLowerCase()) {
-      case 'ata manobo':
-        return 'The Ata-Manobo people are an indigenous group found in the mountainous regions of Mindanao. They are known for their rich oral traditions, intricate beadwork, and deep spiritual connection with nature. Their culture emphasizes community cooperation, respect for elders, and sustainable living practices that have been passed down through generations.';
+      case 'kagan':
+        return 'The Kagan people are an indigenous group found in the mountainous regions of Mindanao. They are known for their rich oral traditions, intricate beadwork, and deep spiritual connection with nature. Their culture emphasizes community cooperation, respect for elders, and sustainable living practices that have been passed down through generations.';
       case 'mansaka':
         return 'The Mansaka tribe is renowned for their exceptional weaving skills and agricultural practices. They inhabit the eastern part of Davao and are known for their colorful traditional clothing, particularly their beautifully woven fabrics. The Mansaka people maintain strong cultural traditions while adapting to modern life.';
       case 'mandaya':

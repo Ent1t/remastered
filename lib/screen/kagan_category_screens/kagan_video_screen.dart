@@ -1,20 +1,19 @@
-// lib/screen/ata_manobo_category_screens/ata_manobo_video_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../shared/video_player_screen.dart';
 
-class AtaManoboVideoScreen extends StatefulWidget {
-  const AtaManoboVideoScreen({super.key});
+class KaganVideoScreen extends StatefulWidget {
+  const KaganVideoScreen({super.key});
 
   @override
-  State<AtaManoboVideoScreen> createState() => _AtaManoboVideoScreenState();
+  State<KaganVideoScreen> createState() => _KaganVideoScreenState();
 }
 
-class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
+class _KaganVideoScreenState extends State<KaganVideoScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Sample video data for Ata Manobo
+  // Sample video data for kagan
   final List<VideoCategory> _videoCategories = [
     VideoCategory(
       title: 'Traditional Dances',
@@ -136,7 +135,7 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
           ),
           const Spacer(),
           const Text(
-            'ATA MANOBO VIDEOS',
+            'KAGAN VIDEOS',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -230,12 +229,12 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const VideoPlayerScreen(
-                    videoTitle: 'Ata Manobo Heritage',
+                    videoTitle: 'Kagan Heritage',
                     videoDescription: 'A comprehensive look into the rich culture and traditions',
                     thumbnailPath: 'assets/videos/thumbnails/ata_featured.jpg',
                     duration: '15:30',
                     accentColor: Color(0xFFD4A574),
-                    tribalName: 'Ata Manobo',
+                    tribalName: 'Kagan',
                   ),
                 ),
               );
@@ -289,7 +288,7 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Featured: Ata Manobo Heritage',
+                        'Featured: Kagan Heritage',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -567,11 +566,11 @@ class _AtaManoboVideoScreenState extends State<AtaManoboVideoScreen> {
       MaterialPageRoute(
         builder: (context) => VideoPlayerScreen(
           videoTitle: video.title,
-          videoDescription: 'Traditional Ata Manobo cultural content',
+          videoDescription: 'Traditional Kagan cultural content',
           thumbnailPath: video.thumbnail,
           duration: video.duration,
           accentColor: const Color(0xFFD4A574),
-          tribalName: 'Ata Manobo',
+          tribalName: 'Kagan',
         ),
       ),
     );

@@ -1,9 +1,8 @@
-// lib/screen/learn_more_screen/ata_manobo_learn_more_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
-  const AtaManoboCulturalLearnMoreScreen({super.key});
+class KaganCulturalLearnMoreScreen extends StatelessWidget {
+  const KaganCulturalLearnMoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +56,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/ata_manobo_learn_more.jpg',
+                'assets/images/kagan_learn_more.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -128,7 +127,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
                   
                   // Title
                   const Text(
-                    'ATA MANOBO',
+                    'KAGAN',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 32,
@@ -173,10 +172,10 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Introduction Section
-          _buildSectionTitle('ABOUT THE ATA MANOBO'),
+          _buildSectionTitle('ABOUT THE KAGAN'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Ata Manobo people are indigenous to the mountainous regions of Mindanao. They are known for their rich oral traditions, intricate beadwork, and deep spiritual connection to nature.',
+            'The Kagan people are indigenous to the mountainous regions of Mindanao. They are known for their rich oral traditions, intricate beadwork, and deep spiritual connection to nature.',
           ),
           
           const SizedBox(height: 32),
@@ -185,7 +184,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('ORIGINS & LEGEND'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'Legend tells that the Ata Manobo descended from the heavens, guided by spirits to settle in the mountains. Their ancestors were blessed with the knowledge of healing herbs and the ability to commune with nature spirits.',
+            'Legend tells that the Kagan descended from the heavens, guided by spirits to settle in the mountains. Their ancestors were blessed with the knowledge of healing herbs and the ability to commune with nature spirits.',
           ),
           
           const SizedBox(height: 32),
@@ -197,7 +196,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
           _buildPracticeItem(
             icon: Icons.spa,
             title: 'Traditional Healing',
-            description: 'The Ata Manobo are known for their extensive knowledge of medicinal plants and traditional healing practices passed down through generations.',
+            description: 'The Kagan are known for their extensive knowledge of medicinal plants and traditional healing practices passed down through generations.',
           ),
           
           const SizedBox(height: 16),
@@ -222,7 +221,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('TRADITIONAL LIFESTYLE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Ata Manobo traditionally live in harmony with their mountain environment, practicing sustainable agriculture and maintaining a deep respect for all living things. Their communities are organized around kinship groups, with elders serving as keepers of wisdom and tradition.',
+            'The Kagan traditionally live in harmony with their mountain environment, practicing sustainable agriculture and maintaining a deep respect for all living things. Their communities are organized around kinship groups, with elders serving as keepers of wisdom and tradition.',
           ),
           
           const SizedBox(height: 32),
@@ -231,7 +230,7 @@ class AtaManoboCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('PRESERVING CULTURE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'Today, the Ata Manobo face challenges in preserving their traditional way of life while adapting to modern society. Efforts are being made to document their languages, customs, and traditional knowledge for future generations.',
+            'Today, the Kagan face challenges in preserving their traditional way of life while adapting to modern society. Efforts are being made to document their languages, customs, and traditional knowledge for future generations.',
           ),
         ],
       ),

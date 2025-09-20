@@ -1,23 +1,21 @@
-// 2. Updated Ata Manobo Detail Screen with Navigation
-// lib/screen/ata_manobo_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // Import your future screens here
-import 'learn_more_screen/ata_manobo_learn_more_screen.dart';
-import 'ata_manobo_category_screens/ata_manobo_music_screen.dart';
-import 'ata_manobo_category_screens/ata_manobo_video_screen.dart';
-import 'ata_manobo_category_screens/ata_manobo_artifacts_screen.dart';
-import 'ata_manobo_category_screens/ata_manobo_images_screen.dart';
+import 'learn_more_screen/kagan_learn_more_screen.dart';
+import 'kagan_category_screens/kagan_music_screen.dart';
+import 'kagan_category_screens/kagan_video_screen.dart';
+import 'kagan_category_screens/kagan_artifacts_screen.dart';
+import 'kagan_category_screens/kagan_images_screen.dart';
 
-class AtaManoboCulturalDetailScreen extends StatelessWidget {
-  const AtaManoboCulturalDetailScreen({super.key});
+class KaganCulturalDetailScreen extends StatelessWidget {
+  const KaganCulturalDetailScreen({super.key});
 
   // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const AtaManoboCulturalLearnMoreScreen(),
+      builder: (context) => const KaganCulturalLearnMoreScreen(),
     ),
   );
 }
@@ -26,7 +24,7 @@ void _navigateToMusic(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const AtaManoboMusicScreen(),
+      builder: (context) => const KaganMusicScreen(),
     ),
   );
 }
@@ -35,7 +33,7 @@ void _navigateToVideo(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const AtaManoboVideoScreen(), // or respective screen
+      builder: (context) => const KaganVideoScreen(), // or respective screen
     ),
   );
 }
@@ -44,7 +42,7 @@ void _navigateToArtifacts(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const AtaManoboArtifactsScreen(),
+      builder: (context) => const KaganArtifactsScreen(),
     ),
   );
 }
@@ -53,7 +51,7 @@ void _navigateToImages(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const AtaManoboImagesScreen(), // Change for each tribe
+      builder: (context) => const KaganImagesScreen(), // Change for each tribe
     ),
   );
 }
@@ -186,7 +184,7 @@ void _navigateToImages(BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'ATA MANOBO',
+                        'KAGAN',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -370,28 +368,28 @@ void _navigateToImages(BuildContext context) {
         
         _buildCategoryCard(
           title: 'MUSIC',
-          imagePath: 'assets/images/ata_manobo_music.jpg',
+          imagePath: 'assets/images/kagan_music.jpg',
           gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
           onTap: () => _navigateToMusic(context),
         ),
         
         _buildCategoryCard(
           title: 'VIDEO',
-          imagePath: 'assets/images/ata_manobo_video.jpg',
+          imagePath: 'assets/images/kagan_video.jpg',
           gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
           onTap: () => _navigateToVideo(context),
         ),
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
-          imagePath: 'assets/images/ata_manobo_artifacts.jpg',
+          imagePath: 'assets/images/kagan_artifacts.jpg',
           gradientColors: const [Color(0xFF5A6B7A), Color(0xFF3D4A5C)],
           onTap: () => _navigateToArtifacts(context),
         ),
         
         _buildCategoryCard(
           title: 'IMAGES',
-          imagePath: 'assets/images/ata_manobo_images.jpg',
+          imagePath: 'assets/images/kagan_images.jpg',
           gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
           onTap: () => _navigateToImages(context),
         ),

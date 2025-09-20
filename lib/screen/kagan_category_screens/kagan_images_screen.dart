@@ -1,59 +1,58 @@
-// lib/screen/ata_manobo_category_screens/ata_manobo_images_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AtaManoboImagesScreen extends StatefulWidget {
-  const AtaManoboImagesScreen({super.key});
+class KaganImagesScreen extends StatefulWidget {
+  const KaganImagesScreen({super.key});
 
   @override
-  State<AtaManoboImagesScreen> createState() => _AtaManoboImagesScreenState();
+  State<KaganImagesScreen> createState() => _KaganImagesScreenState();
 }
 
-class _AtaManoboImagesScreenState extends State<AtaManoboImagesScreen> {
+class _KaganImagesScreenState extends State<KaganImagesScreen> {
   final TextEditingController _searchController = TextEditingController();
   final List<ImageCategory> _imageCategories = [
     ImageCategory(
       title: 'Traditional Ceremony',
       tag: 'Ceremony',
-      imagePath: 'assets/images/ata_manobo_ceremony.jpg',
+      imagePath: 'assets/images/kagan_ceremony.jpg',
       images: [
-        'assets/images/ata_manobo_ceremony_1.jpg',
-        'assets/images/ata_manobo_ceremony_2.jpg',
-        'assets/images/ata_manobo_ceremony_3.jpg',
-        'assets/images/ata_manobo_ceremony_4.jpg',
+        'assets/images/kagan_ceremony_1.jpg',
+        'assets/images/kagan_ceremony_2.jpg',
+        'assets/images/kagan_ceremony_3.jpg',
+        'assets/images/kagan_ceremony_4.jpg',
       ],
     ),
     ImageCategory(
       title: 'Village Life',
       tag: 'Lifestyle',
-      imagePath: 'assets/images/ata_manobo_village.jpg',
+      imagePath: 'assets/images/kagan_village.jpg',
       images: [
-        'assets/images/ata_manobo_village_1.jpg',
-        'assets/images/ata_manobo_village_2.jpg',
-        'assets/images/ata_manobo_village_3.jpg',
-        'assets/images/ata_manobo_village_4.jpg',
+        'assets/images/kagan_village_1.jpg',
+        'assets/images/kagan_village_2.jpg',
+        'assets/images/kagan_village_3.jpg',
+        'assets/images/kagan_village_4.jpg',
       ],
     ),
     ImageCategory(
       title: 'Traditional Clothing',
       tag: 'Fashion',
-      imagePath: 'assets/images/ata_manobo_clothing.jpg',
+      imagePath: 'assets/images/kagan_clothing.jpg',
       images: [
-        'assets/images/ata_manobo_clothing_1.jpg',
-        'assets/images/ata_manobo_clothing_2.jpg',
-        'assets/images/ata_manobo_clothing_3.jpg',
+        'assets/images/kagan_clothing_1.jpg',
+        'assets/images/kagan_clothing_2.jpg',
+        'assets/images/kagan_clothing_3.jpg',
       ],
     ),
     ImageCategory(
       title: 'Cultural Artifacts',
       tag: 'Heritage',
-      imagePath: 'assets/images/ata_manobo_artifacts_gallery.jpg',
+      imagePath: 'assets/images/kagan_artifacts_gallery.jpg',
       images: [
-        'assets/images/ata_manobo_artifact_1.jpg',
-        'assets/images/ata_manobo_artifact_2.jpg',
-        'assets/images/ata_manobo_artifact_3.jpg',
-        'assets/images/ata_manobo_artifact_4.jpg',
-        'assets/images/ata_manobo_artifact_5.jpg',
+        'assets/images/kagan_artifact_1.jpg',
+        'assets/images/kagan_artifact_2.jpg',
+        'assets/images/kagan_artifact_3.jpg',
+        'assets/images/kagan_artifact_4.jpg',
+        'assets/images/kagan_artifact_5.jpg',
       ],
     ),
   ];
@@ -135,7 +134,7 @@ class _AtaManoboImagesScreenState extends State<AtaManoboImagesScreen> {
           const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'ATA MANOBO IMAGES',
+              'KAGAN IMAGES',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -204,7 +203,7 @@ class _AtaManoboImagesScreenState extends State<AtaManoboImagesScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/ata_manobo_featured.jpg',
+            'assets/images/kagan_featured.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -241,7 +240,7 @@ class _AtaManoboImagesScreenState extends State<AtaManoboImagesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Browse through a collection of historical and contemporary photographs showcasing the Ata Manobo people, their customs, and cultural expressions through time.',
+            'Browse through a collection of historical and contemporary photographs showcasing the Kagan people, their customs, and cultural expressions through time.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 16,

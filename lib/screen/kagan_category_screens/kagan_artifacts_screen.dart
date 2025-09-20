@@ -1,15 +1,14 @@
-// lib/screen/ata_manobo_category_screens/ata_manobo_artifacts_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AtaManoboArtifactsScreen extends StatefulWidget {
-  const AtaManoboArtifactsScreen({super.key});
+class KaganArtifactsScreen extends StatefulWidget {
+  const KaganArtifactsScreen({super.key});
 
   @override
-  State<AtaManoboArtifactsScreen> createState() => _AtaManoboArtifactsScreenState();
+  State<KaganArtifactsScreen> createState() => _KaganArtifactsScreenState();
 }
 
-class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
+class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -17,7 +16,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
     ArtifactCategory(
       title: 'Jewelry',
       subtitle: 'Sacred Beadwork',
-      imagePath: 'assets/images/ata_manobo_jewelry.jpg',
+      imagePath: 'assets/images/kagan_jewelry.jpg',
       gradientColors: [const Color(0xFFD4A574), const Color(0xFFB8935F)],
       items: [
         'Traditional Necklaces',
@@ -30,7 +29,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
     ArtifactCategory(
       title: 'Weapons',
       subtitle: 'Traditional Arms',
-      imagePath: 'assets/images/ata_manobo_weapons.jpg',
+      imagePath: 'assets/images/kagan_weapons.jpg',
       gradientColors: [const Color(0xFF8B4513), const Color(0xFF654321)],
       items: [
         'Hunting Spears',
@@ -43,7 +42,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
     ArtifactCategory(
       title: 'Ritual',
       subtitle: 'Ceremonial Objects',
-      imagePath: 'assets/images/ata_manobo_ritual.jpg',
+      imagePath: 'assets/images/kagan_ritual.jpg',
       gradientColors: [const Color(0xFF654321), const Color(0xFF4A3728)],
       items: [
         'Prayer Bowls',
@@ -56,7 +55,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
     ArtifactCategory(
       title: 'Tools',
       subtitle: 'Daily Use Items',
-      imagePath: 'assets/images/ata_manobo_tools.jpg',
+      imagePath: 'assets/images/kagan_tools.jpg',
       gradientColors: [const Color(0xFF8B7355), const Color(0xFF6B5B47)],
       items: [
         'Farming Tools',
@@ -133,7 +132,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
           const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'Ata Manobo Artifacts',
+              'KAgan Artifacts',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -208,7 +207,7 @@ class _AtaManoboArtifactsScreenState extends State<AtaManoboArtifactsScreen> {
             if (_searchQuery.isEmpty) ...[
               const SizedBox(height: 20),
               Text(
-                'Explore the material culture of the Ata Manobo tribe through their handcrafted tools, ceremonial objects, and daily-use items that tell stories of their way of life.',
+                'Explore the material culture of the Kagan tribe through their handcrafted tools, ceremonial objects, and daily-use items that tell stories of their way of life.',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.8),
                   fontSize: 16,

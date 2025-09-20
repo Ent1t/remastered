@@ -1,61 +1,60 @@
-// lib/screen/ata_manobo_category_screens/ata_manobo_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../music_player_screen.dart'; // Import the music player screen
 
-class AtaManoboMusicScreen extends StatefulWidget {
-  const AtaManoboMusicScreen({super.key});
+class KaganMusicScreen extends StatefulWidget {
+  const KaganMusicScreen({super.key});
 
   @override
-  State<AtaManoboMusicScreen> createState() => _AtaManoboMusicScreenState();
+  State<KaganMusicScreen> createState() => _KaganMusicScreenState();
 }
 
-class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
+class _KaganMusicScreenState extends State<KaganMusicScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  // Sample data for Ata Manobo music
+  // Sample data for kagan music
   final List<MusicTrack> _allTracks = [
     MusicTrack(
       title: 'Harvest Song',
       description: 'Song sung during rice harvest celebrations',
       category: 'Traditional',
-      imagePath: 'assets/images/ata_manobo_harvest.jpg',
+      imagePath: 'assets/images/kagan_harvest.jpg',
       artist: 'Matt Gamar',
     ),
     MusicTrack(
       title: 'War Chant',
       description: 'Ancient chant performed before battles',
       category: 'Ceremonial',
-      imagePath: 'assets/images/ata_manobo_war_chant.jpg',
-      artist: 'Elder Manobo',
+      imagePath: 'assets/images/kagan_war_chant.jpg',
+      artist: 'Elder kagan',
     ),
     MusicTrack(
       title: 'Lullaby',
       description: 'Traditional song for children',
       category: 'Folk',
-      imagePath: 'assets/images/ata_manobo_lullaby.jpg',
+      imagePath: 'assets/images/kagan_lullaby.jpg',
       artist: 'Maria Santos',
     ),
     MusicTrack(
       title: 'Spirit Dance',
       description: 'Sacred music for ancestral rituals',
       category: 'Spiritual',
-      imagePath: 'assets/images/ata_manobo_spirit.jpg',
+      imagePath: 'assets/images/kagan_spirit.jpg',
       artist: 'Datu Lumad',
     ),
     MusicTrack(
       title: 'Wedding Song',
       description: 'Ceremonial music for marriage rituals',
       category: 'Ceremonial',
-      imagePath: 'assets/images/ata_manobo_wedding.jpg',
+      imagePath: 'assets/images/kagan_wedding.jpg',
       artist: 'Tribal Ensemble',
     ),
     MusicTrack(
       title: 'Mountain Echo',
       description: 'Folk song about the sacred mountains',
       category: 'Folk',
-      imagePath: 'assets/images/ata_manobo_mountain.jpg',
+      imagePath: 'assets/images/kagan_mountain.jpg',
       artist: 'Mountain Singers',
     ),
   ];
@@ -182,7 +181,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
           children: [
             // Background Image
             Image.asset(
-              'assets/images/ata_manobo_music_hero.jpg',
+              'assets/images/kagan_music_hero.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
@@ -225,7 +224,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Discover the traditional musical heritage of the Ata Manobo people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
+                    'Discover the traditional musical heritage of the Kagan people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.9),
                       fontSize: 14,
@@ -408,7 +407,7 @@ class _AtaManoboMusicScreenState extends State<AtaManoboMusicScreen> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => MusicPlayerScreen(
           track: track,
-          themeColor: const Color(0xFFD4A574), // Ata Manobo theme color
+          themeColor: const Color(0xFFD4A574), // kagan theme color
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
