@@ -926,9 +926,6 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
-      height: keyboardHeight > 0 
-          ? screenHeight * 0.95 - keyboardHeight 
-          : screenHeight * 0.8,
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -1007,45 +1004,70 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+          GestureDetector(
+            onTap: () => _showFullScreenImage(artifact),
+            child: Container(
+              height: 250,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      artifact.imagePath,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                widget.accentColor.withOpacity(0.7),
+                                widget.accentColor,
+                              ],
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.museum,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.fullscreen,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                artifact.imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          widget.accentColor.withOpacity(0.7),
-                          widget.accentColor,
-                        ],
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.museum,
-                        color: Colors.white,
-                        size: 60,
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
           ),
@@ -1091,6 +1113,24 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
           ),
           SizedBox(height: 30 + MediaQuery.of(context).viewInsets.bottom * 0.1),
         ],
+      ),
+    );
+  }
+
+  void _showFullScreenImage(ArtifactItem artifact) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (BuildContext context, _, __) {
+          return FullScreenImageViewer(
+            artifact: artifact,
+            accentColor: widget.accentColor,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
       ),
     );
   }
@@ -1141,6 +1181,206 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                 ? widget.accentColor
                 : Colors.white.withOpacity(0.3),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatefulWidget {
+  final ArtifactItem artifact;
+  final Color accentColor;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.artifact,
+    required this.accentColor,
+  });
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  bool _showControls = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _hideControlsAfterDelay();
+  }
+
+  void _hideControlsAfterDelay() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showControls = false;
+        });
+      }
+    });
+  }
+
+  void _toggleControls() {
+    setState(() {
+      _showControls = !_showControls;
+    });
+    if (_showControls) {
+      _hideControlsAfterDelay();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        onTap: _toggleControls,
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                panEnabled: true,
+                boundaryMargin: const EdgeInsets.all(20),
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Image.asset(
+                  widget.artifact.imagePath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            widget.accentColor.withOpacity(0.7),
+                            widget.accentColor,
+                          ],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.museum,
+                          color: Colors.white,
+                          size: 100,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.artifact.name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  widget.artifact.origin,
+                                  style: TextStyle(
+                                    color: widget.accentColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tap to zoom • Pinch to scale • Drag to pan',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                color: widget.accentColor,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.artifact.age,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
