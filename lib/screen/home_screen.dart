@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/home_png '), // Add your image path here
+                image: AssetImage('assets/images/circular_gradient_bg_png'),
                 fit: BoxFit.cover,
                 opacity: 0.3, // Adjust opacity as needed
               ),
@@ -392,8 +392,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(8), // Less rounded for more box-like
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
+                            color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
+                            blurRadius: 2,
                             offset: const Offset(0, 4),
                           ),
                         ],
