@@ -384,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       width: 280, // Same width
                       height: 280, // Increased height from 200 to 280
                       decoration: BoxDecoration(
-                        color: Colors.transparent, // Fully transparent background
+                        color: const Color.fromARGB(0, 255, 249, 249), // Fully transparent background
                         border: Border.all(
                           color: const Color(0xFFE0D4BE), // Border color as requested
                           width: 3,
