@@ -111,7 +111,7 @@ void _navigateToImages(BuildContext context) {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/mansaka_header.jpg',
+                'assets/images/mansaka.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

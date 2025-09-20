@@ -110,7 +110,7 @@ void _navigateToImages(BuildContext context) {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/ata_manobo_header.jpg',
+                'assets/images/kagan.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
