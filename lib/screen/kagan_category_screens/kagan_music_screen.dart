@@ -12,6 +12,9 @@ class KaganMusicScreen extends StatefulWidget {
 class _KaganMusicScreenState extends State<KaganMusicScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchFocused = false;
+  String? _selectedCategory; // Add selected category state
 
   // Sample data for kagan music
   final List<MusicTrack> _allTracks = [
@@ -59,20 +62,42 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     ),
   ];
 
-  List<String> get _categories => ['Traditional', 'Ceremonial', 'Folk', 'Spiritual'];
+  List<String> get _categories => ['All', 'Traditional', 'Ceremonial', 'Folk', 'Spiritual']; // Add "All" option
 
   List<MusicTrack> get _filteredTracks {
-    if (_searchQuery.isEmpty) {
-      return _allTracks;
+    List<MusicTrack> tracks = _allTracks;
+    
+    // Filter by category first
+    if (_selectedCategory != null && _selectedCategory != 'All') {
+      tracks = tracks.where((track) => track.category == _selectedCategory).toList();
     }
-    return _allTracks.where((track) =>
-        track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        track.description.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    
+    // Then filter by search query
+    if (_searchQuery.isNotEmpty) {
+      tracks = tracks.where((track) =>
+          track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          track.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          track.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    }
+    
+    return tracks;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = 'All'; // Initialize with "All" selected
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchFocused = _searchFocusNode.hasFocus;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // Handle keyboard properly
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -86,28 +111,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           ),
         ),
         child: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
+          child: Column(
+            children: [
+              // Fixed header that shows/hides based on search focus
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: _isSearchFocused ? 80 : 80, // Keep consistent height
                 child: _buildHeader(context),
               ),
-              SliverToBoxAdapter(
-                child: _buildHeroSection(),
-              ),
-              SliverToBoxAdapter(
-                child: _buildCategoriesFilter(),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final track = _filteredTracks[index];
-                    return _buildMusicCard(track);
-                  },
-                  childCount: _filteredTracks.length,
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 20), // Bottom padding
+              
+              // Flexible content area
+              Expanded(
+                child: _isSearchFocused 
+                    ? _buildSearchResults()
+                    : _buildMainContent(),
               ),
             ],
           ),
@@ -117,28 +134,42 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+          // Back button - hide when searching
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 0 : 48,
+            child: _isSearchFocused 
+                ? const SizedBox.shrink()
+                : Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
           ),
-          const SizedBox(width: 16),
+          
+          // Dynamic spacing
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 0 : 16,
+          ),
+          
+          // Search bar - expands when focused
           Expanded(
             child: Container(
               height: 48,
@@ -146,11 +177,15 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: const Color(0xFFD4A574).withOpacity(0.3),
+                  color: _isSearchFocused 
+                      ? const Color(0xFFD4A574) 
+                      : const Color(0xFFD4A574).withOpacity(0.3),
+                  width: _isSearchFocused ? 2 : 1,
                 ),
               ),
               child: TextField(
                 controller: _searchController,
+                focusNode: _searchFocusNode,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Search music tracks...',
@@ -160,8 +195,24 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   ),
                   prefixIcon: Icon(
                     Icons.search,
-                    color: Colors.white.withOpacity(0.6),
+                    color: _isSearchFocused 
+                        ? const Color(0xFFD4A574)
+                        : Colors.white.withOpacity(0.6),
                   ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                          icon: Icon(
+                            Icons.clear,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                        )
+                      : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
@@ -173,8 +224,137 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
               ),
             ),
           ),
+          
+          // Cancel button when searching
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 80 : 0,
+            child: _isSearchFocused
+                ? TextButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      _searchFocusNode.unfocus();
+                      setState(() {
+                        _searchQuery = '';
+                        _selectedCategory = 'All'; // Reset category filter too
+                      });
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Color(0xFFD4A574),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: _buildHeroSection(),
+        ),
+        SliverToBoxAdapter(
+          child: _buildCategoriesFilter(),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final track = _filteredTracks[index];
+              return _buildMusicCard(track);
+            },
+            childCount: _filteredTracks.length,
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 20),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return Column(
+      children: [
+        // Search results header
+        if (_searchQuery.isNotEmpty || _selectedCategory != 'All')
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  _buildResultsText(),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
+        // Search results list
+        Expanded(
+          child: _searchQuery.isEmpty && _selectedCategory == 'All'
+              ? Center(
+                  child: Text(
+                    'Start typing to search or select a category...',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              : _filteredTracks.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 48,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No tracks found',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _searchQuery.isNotEmpty 
+                                ? 'Try different keywords'
+                                : 'No tracks in this category',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.3),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      itemCount: _filteredTracks.length,
+                      itemBuilder: (context, index) {
+                        final track = _filteredTracks[index];
+                        return _buildMusicCard(track);
+                      },
+                    ),
+        ),
+      ],
     );
   }
 
@@ -286,21 +466,30 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+          
           return Container(
             margin: const EdgeInsets.only(right: 12),
             child: FilterChip(
               label: Text(category),
-              labelStyle: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+              selected: isSelected,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
               backgroundColor: const Color(0xFF2A2A2A),
               selectedColor: const Color(0xFFD4A574),
               side: BorderSide(
-                color: const Color(0xFFD4A574).withOpacity(0.3),
+                color: isSelected 
+                    ? const Color(0xFFD4A574)
+                    : const Color(0xFFD4A574).withOpacity(0.3),
+                width: isSelected ? 2 : 1,
               ),
               onSelected: (selected) {
-                // Add filter functionality here
+                HapticFeedback.lightImpact();
+                setState(() {
+                  _selectedCategory = selected ? category : 'All';
+                });
               },
             ),
           );
@@ -426,6 +615,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     );
   }
 
+  String _buildResultsText() {
+    String text = '${_filteredTracks.length} result${_filteredTracks.length == 1 ? '' : 's'}';
+    
+    if (_searchQuery.isNotEmpty && _selectedCategory != 'All') {
+      text += ' for "$_searchQuery" in $_selectedCategory';
+    } else if (_searchQuery.isNotEmpty) {
+      text += ' for "$_searchQuery"';
+    } else if (_selectedCategory != 'All') {
+      text += ' in $_selectedCategory';
+    }
+    
+    return text;
+  }
+
   void _playTrack(MusicTrack track) {
     HapticFeedback.mediumImpact();
     Navigator.push(
@@ -457,6 +660,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 }

@@ -111,7 +111,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -125,20 +130,32 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 20),
-              _buildAlbumArt(),
-              const SizedBox(height: 30),
-              _buildTrackInfo(),
-              const SizedBox(height: 40),
-              _buildProgressBar(),
-              const SizedBox(height: 40),
-              _buildControlButtons(),
-              const SizedBox(height: 30),
-              _buildBottomControls(),
-            ],
+          bottom: false, // We'll handle bottom padding manually
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewPadding.top,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 20),
+                    _buildAlbumArt(),
+                    const SizedBox(height: 30),
+                    _buildTrackInfo(),
+                    const SizedBox(height: 40),
+                    _buildProgressBar(),
+                    const SizedBox(height: 40),
+                    _buildControlButtons(),
+                    const Spacer(),
+                    _buildBottomControls(),
+                    SizedBox(height: bottomPadding > 0 ? bottomPadding + 20 : 40), // Safe bottom padding
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -294,7 +311,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'Matt Gamar', // Artist name from the image
+            widget.track.artist ?? 'Unknown Artist',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
               fontSize: 16,
@@ -362,101 +379,110 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
   }
 
   Widget _buildControlButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            setState(() {
-              _isShuffled = !_isShuffled;
-            });
-          },
-          child: Icon(
-            Icons.shuffle,
-            color: _isShuffled ? widget.themeColor : Colors.white.withOpacity(0.6),
-            size: 24,
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            // Previous track functionality
-          },
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              Icons.skip_previous,
-              color: Colors.white.withOpacity(0.8),
-              size: 32,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() {
+                _isShuffled = !_isShuffled;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                Icons.shuffle,
+                color: _isShuffled ? widget.themeColor : Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
             ),
           ),
-        ),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.heavyImpact();
-            _togglePlayPause();
-          },
-          child: Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: widget.themeColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: widget.themeColor.withOpacity(0.4),
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: AnimatedBuilder(
-              animation: _playButtonController,
-              builder: (context, child) {
-                return Icon(
-                  _isPlaying ? Icons.pause : Icons.play_arrow,
-                  color: Colors.white,
-                  size: 32,
-                );
-              },
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              // Previous track functionality
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.skip_previous,
+                color: Colors.white.withOpacity(0.8),
+                size: 32,
+              ),
             ),
           ),
-        ),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            // Next track functionality
-          },
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              Icons.skip_next,
-              color: Colors.white.withOpacity(0.8),
-              size: 32,
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.heavyImpact();
+              _togglePlayPause();
+            },
+            child: Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: widget.themeColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.themeColor.withOpacity(0.4),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: AnimatedBuilder(
+                animation: _playButtonController,
+                builder: (context, child) {
+                  return Icon(
+                    _isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
+                    size: 32,
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            setState(() {
-              _isRepeated = !_isRepeated;
-            });
-          },
-          child: Icon(
-            Icons.repeat,
-            color: _isRepeated ? widget.themeColor : Colors.white.withOpacity(0.6),
-            size: 24,
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              // Next track functionality
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.skip_next,
+                color: Colors.white.withOpacity(0.8),
+                size: 32,
+              ),
+            ),
           ),
-        ),
-      ],
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() {
+                _isRepeated = !_isRepeated;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                Icons.repeat,
+                color: _isRepeated ? widget.themeColor : Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildBottomControls() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -465,10 +491,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               HapticFeedback.lightImpact();
               // Share functionality
             },
-            child: Icon(
-              Icons.share_outlined,
-              color: Colors.white.withOpacity(0.6),
-              size: 24,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                Icons.share_outlined,
+                color: Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
             ),
           ),
           GestureDetector(
@@ -478,10 +507,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
                 _isFavorited = !_isFavorited;
               });
             },
-            child: Icon(
-              _isFavorited ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorited ? widget.themeColor : Colors.white.withOpacity(0.6),
-              size: 28,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                _isFavorited ? Icons.favorite : Icons.favorite_border,
+                color: _isFavorited ? widget.themeColor : Colors.white.withOpacity(0.6),
+                size: 28,
+              ),
             ),
           ),
           GestureDetector(
@@ -489,10 +521,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               HapticFeedback.lightImpact();
               // Add to playlist functionality
             },
-            child: Icon(
-              Icons.playlist_add,
-              color: Colors.white.withOpacity(0.6),
-              size: 24,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                Icons.playlist_add,
+                color: Colors.white.withOpacity(0.6),
+                size: 24,
+              ),
             ),
           ),
         ],
