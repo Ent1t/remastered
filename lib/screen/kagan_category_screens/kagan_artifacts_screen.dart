@@ -169,9 +169,31 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
     }).toList();
   }
 
+  List<ArtifactItem> get _searchResults {
+    if (_searchQuery.isEmpty) return [];
+    
+    List<ArtifactItem> results = [];
+    for (var category in _categories) {
+      for (var artifact in category.artifacts) {
+        if (artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            artifact.origin.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            artifact.age.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            artifact.significance.toLowerCase().contains(_searchQuery.toLowerCase())) {
+          results.add(artifact);
+        }
+      }
+    }
+    return results;
+  }
+
+  bool get _isSearching => _searchQuery.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -188,8 +210,32 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
           child: Column(
             children: [
               _buildHeader(),
-              _buildSearchBar(),
-              _buildCategoriesList(),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchBar(),
+                      if (_isSearching) ...[
+                        const SizedBox(height: 20),
+                        _buildSearchResults(),
+                      ] else ...[
+                        const SizedBox(height: 20),
+                        _buildFeaturedImage(),
+                        const SizedBox(height: 24),
+                        _buildDescription(),
+                        const SizedBox(height: 32),
+                        _buildBrowseSection(),
+                        const SizedBox(height: 20),
+                        _buildArtifactCategories(),
+                      ],
+                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -225,7 +271,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
               'KAGAN ARTIFACTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -238,7 +284,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
@@ -281,218 +327,346 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCategoriesList() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_searchQuery.isEmpty) ...[
-              const SizedBox(height: 20),
-              Text(
-                'Discover authentic Kagan artifacts - physical objects that tell the story of this indigenous tribe\'s rich cultural heritage, craftsmanship, and daily life.',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 16,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
-            Expanded(
-              child: _filteredCategories.isEmpty
-                  ? _buildNoResults()
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: _filteredCategories.length,
-                      itemBuilder: (context, index) {
-                        return _buildCategoryCard(_filteredCategories[index]);
-                      },
-                    ),
+  Widget _buildFeaturedImage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            'assets/images/kagan_artifacts_featured.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFD4A574),
+                      Color(0xFF8B4513),
+                      Color(0xFF654321),
+                    ],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.museum,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescription() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Discover authentic Kagan artifacts - physical objects that tell the story of this indigenous tribe\'s rich cultural heritage, craftsmanship, and daily life.',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 16,
+              height: 1.6,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBrowseSection() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Browse artifacts',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildArtifactCategories() {
+    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
+      return _buildNoResults();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: _filteredCategories.length,
+        itemBuilder: (context, index) {
+          return _buildCategoryCard(_filteredCategories[index]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoResults() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No artifacts found',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try searching with different keywords',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 60),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNoResults() {
-    return Center(
+  Widget _buildSearchResults() {
+    if (_searchResults.isEmpty) {
+      return _buildNoResults();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 64,
-            color: Colors.white.withOpacity(0.3),
-          ),
-          const SizedBox(height: 16),
           Text(
-            'No artifacts found',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+            'Search Results (${_searchResults.length})',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Try searching with different keywords',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
-              fontSize: 14,
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
             ),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              return _buildSearchResultCard(_searchResults[index], index);
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryCard(ArtifactCategory category) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              _showArtifactGallery(category);
-            },
-            child: SizedBox(
-              height: 200,
-              child: Stack(
-                children: [
-                  // Background Image
-                  Positioned.fill(
-                    child: Image.asset(
-                      category.imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: category.gradientColors,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              _getCategoryIcon(category.title),
-                              color: Colors.white.withOpacity(0.7),
-                              size: 48,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+  Widget _buildSearchResultCard(ArtifactItem artifact, int index) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showSearchResultViewer(artifact, index);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            artifact.imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFD4A574),
+                      Color(0xFF8B4513),
+                    ],
                   ),
-                  
-                  // Dark Overlay
-                  Positioned.fill(
-                    child: Container(
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.museum,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSearchResultViewer(ArtifactItem artifact, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ArtifactViewerBottomSheet(
+        artifacts: [artifact], // Show only the selected artifact
+        initialIndex: 0,
+        accentColor: const Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  Widget _buildCategoryCard(ArtifactCategory category) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showArtifactGallery(category);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Image.asset(
+                  category.imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.8),
-                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: category.gradientColors,
                         ),
                       ),
-                    ),
-                  ),
-                  
-                  // Content
-                  Positioned(
-                    left: 20,
-                    bottom: 20,
-                    right: 60,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          category.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
+                      child: Center(
+                        child: Icon(
+                          _getCategoryIcon(category.title),
+                          color: Colors.white.withOpacity(0.7),
+                          size: 40,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          category.subtitle,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD4A574).withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${category.artifacts.length} artifacts',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Arrow Icon
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: const Color(0xFF2A2A2A),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD4A574),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${category.artifacts.length} artifacts',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -589,6 +763,7 @@ class ArtifactGalleryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF1a1a1a),
       body: SafeArea(
         child: Column(
@@ -596,8 +771,14 @@ class ArtifactGalleryScreen extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
+                ),
                 child: GridView.builder(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
@@ -675,66 +856,30 @@ class ArtifactGalleryScreen extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Image.asset(
-                  artifact.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            accentColor.withOpacity(0.7),
-                            accentColor,
-                          ],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.museum,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
+          child: Image.asset(
+            artifact.imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      accentColor.withOpacity(0.7),
+                      accentColor,
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xFF2A2A2A),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      artifact.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      artifact.age,
-                      style: TextStyle(
-                        color: accentColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                child: const Center(
+                  child: Icon(
+                    Icons.museum,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -777,8 +922,13 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: keyboardHeight > 0 
+          ? screenHeight * 0.95 - keyboardHeight 
+          : screenHeight * 0.8,
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -805,7 +955,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
             ),
           ),
           _buildPageIndicator(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20 + keyboardHeight * 0.1),
         ],
       ),
     );
@@ -853,6 +1003,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   Widget _buildArtifactCard(ArtifactItem artifact) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -898,19 +1049,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          
-          Text(
-            artifact.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              height: 1.2,
-            ),
-          ),
           const SizedBox(height: 16),
-          
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -922,29 +1061,35 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  artifact.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
                   artifact.description,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 16,
+                    fontSize: 14,
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 20),
-                
+                const SizedBox(height: 12),
                 _buildMetadataRow(Icons.build, 'Material', artifact.material),
-                const SizedBox(height: 12),
-                
+                const SizedBox(height: 8),
                 _buildMetadataRow(Icons.location_on, 'Origin', artifact.origin),
-                const SizedBox(height: 12),
-                
+                const SizedBox(height: 8),
                 _buildMetadataRow(Icons.access_time, 'Age', artifact.age),
-                const SizedBox(height: 12),
-                
+                const SizedBox(height: 8),
                 _buildMetadataRow(Icons.star, 'Significance', artifact.significance),
               ],
             ),
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: 30 + MediaQuery.of(context).viewInsets.bottom * 0.1),
         ],
       ),
     );
@@ -957,31 +1102,24 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
         Icon(
           icon,
           color: widget.accentColor,
-          size: 18,
+          size: 16,
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: widget.accentColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: widget.accentColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-            ],
+          child: Text(
+            value,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 14,
+            ),
           ),
         ),
       ],
