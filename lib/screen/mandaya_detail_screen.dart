@@ -12,50 +12,50 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
   const MandayaCulturalDetailScreen({super.key});
 
   // Navigation methods
- void _navigateToLearnMore(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MandayaCulturalLearnMoreScreen(),
-    ),
-  );
-}
+  void _navigateToLearnMore(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MandayaCulturalLearnMoreScreen(),
+      ),
+    );
+  }
 
-void _navigateToMusic(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MandayaMusicScreen(),
-    ),
-  );
-}
+  void _navigateToMusic(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MandayaMusicScreen(),
+      ),
+    );
+  }
 
-void _navigateToVideo(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MandayaVideoScreen(), // or respective screen
-    ),
-  );
-}
+  void _navigateToVideo(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MandayaVideoScreen(),
+      ),
+    );
+  }
 
-void _navigateToArtifacts(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MandayaArtifactsScreen(),
-    ),
-  );
-}
+  void _navigateToArtifacts(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MandayaArtifactsScreen(),
+      ),
+    );
+  }
 
-void _navigateToImages(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MandayaImagesScreen(), // Change for each tribe
-    ),
-  );
-}
+  void _navigateToImages(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MandayaImagesScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,23 +92,21 @@ void _navigateToImages(BuildContext context) {
 
   Widget _buildHeaderSection(BuildContext context) {
     return SizedBox(
-      height: 350,
+      height: 280, // Reduced from 350
       child: Stack(
         children: [
           // Background Image
           Container(
-            height: 350,
+            height: 280, // Reduced from 350
             width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+            child: Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF8FC475), // Brighter green border
+                    width: 2,
+                  ),
+                ),
               ),
               child: Image.asset(
                 'assets/images/mandaya.jpg',
@@ -125,6 +123,12 @@ void _navigateToImages(BuildContext context) {
                           Color(0xFF1A2209),
                         ],
                       ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color(0xFF8FC475), // Brighter green border
+                          width: 2,
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -134,7 +138,7 @@ void _navigateToImages(BuildContext context) {
           
           // Dark Overlay
           Container(
-            height: 350,
+            height: 280, // Reduced from 350
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -144,10 +148,6 @@ void _navigateToImages(BuildContext context) {
                   Colors.black.withOpacity(0.4),
                   Colors.black.withOpacity(0.7),
                 ],
-              ),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
               ),
             ),
           ),
@@ -180,31 +180,48 @@ void _navigateToImages(BuildContext context) {
                   
                   const Spacer(),
                   
-                  // Title and Learn More
+                  // Title only (Learn More moved to bottom)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'MANDAYA',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              color: Colors.black54,
-                            ),
-                          ],
+                      // MANDAYA title with minimal container
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'MANDAYA',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                color: Colors.black54,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Learn More Button - NOW FUNCTIONAL
-                      GestureDetector(
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Learn More Button - moved to bottom left
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0), // Tab spacing like MS Word
+                      child: GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
                           _navigateToLearnMore(context);
@@ -233,10 +250,10 @@ void _navigateToImages(BuildContext context) {
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                   
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -285,52 +302,58 @@ void _navigateToImages(BuildContext context) {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      height: 120,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
+        color: const Color(0xFF2A2A2A), // Original color
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF7FB069).withOpacity(0.3),
+          color: const Color(0xFF8FC475).withOpacity(0.3), // Brighter green border
           width: 1,
         ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFF7FB069).withOpacity(0.2),
+              color: const Color(0xFF8FC475).withOpacity(0.2), // Brighter green accent
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF7FB069),
-              size: 24,
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF7FB069),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
+              color: const Color(0xFF8FC475), // Brighter green icon
+              size: 18,
             ),
           ),
           
           const SizedBox(height: 8),
           
           Text(
-            value,
-            textAlign: TextAlign.center,
+            label,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              height: 1.2,
+              color: Color(0xFF8FC475), // Brighter green label
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1,
+            ),
+          ),
+          
+          const SizedBox(height: 4),
+          
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -348,14 +371,14 @@ void _navigateToImages(BuildContext context) {
             children: [
               Icon(
                 Icons.explore,
-                color: Color(0xFF7FB069),
+                color: Color(0xFF8FC475), // Brighter green color
                 size: 20,
               ),
               SizedBox(width: 8),
               Text(
                 'EXPLORE CATEGORIES',
                 style: TextStyle(
-                  color: Color(0xFF7FB069),
+                  color: Color(0xFF8FC475), // Brighter green color
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,

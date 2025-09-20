@@ -12,49 +12,49 @@ class KaganCulturalDetailScreen extends StatelessWidget {
 
   // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const KaganCulturalLearnMoreScreen(),
-    ),
-  );
-}
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KaganCulturalLearnMoreScreen(),
+      ),
+    );
+  }
 
-void _navigateToMusic(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const KaganMusicScreen(),
-    ),
-  );
-}
+  void _navigateToMusic(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KaganMusicScreen(),
+      ),
+    );
+  }
 
-void _navigateToVideo(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const KaganVideoScreen(), // or respective screen
-    ),
-  );
-}
+  void _navigateToVideo(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KaganVideoScreen(),
+      ),
+    );
+  }
   
-void _navigateToArtifacts(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const KaganArtifactsScreen(),
-    ),
-  );
-}
+  void _navigateToArtifacts(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KaganArtifactsScreen(),
+      ),
+    );
+  }
 
-void _navigateToImages(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const KaganImagesScreen(), // Change for each tribe
-    ),
-  );
-}
+  void _navigateToImages(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KaganImagesScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,37 +98,41 @@ void _navigateToImages(BuildContext context) {
           Container(
             height: 350,
             width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+            child: Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFFE0D4BE),
+                    width: 2,
+                  ),
+                ),
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-              child: Image.asset(
-                'assets/images/kagan.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF8B4513),
-                          Color(0xFF654321),
-                          Color(0xFF2F1B14),
-                        ],
+                child: Image.asset(
+                  'assets/images/kagan_main.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF8B4513),
+                            Color(0xFF654321),
+                            Color(0xFF2F1B14),
+                          ],
+                        ),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Color(0xFFE0D4BE),
+                            width: 2,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
           ),
           
           // Dark Overlay
@@ -143,10 +147,6 @@ void _navigateToImages(BuildContext context) {
                   Colors.black.withOpacity(0.4),
                   Colors.black.withOpacity(0.7),
                 ],
-              ),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
               ),
             ),
           ),
@@ -179,30 +179,41 @@ void _navigateToImages(BuildContext context) {
                   
                   const Spacer(),
                   
-                  // Title and Learn More
+                  // Title and Learn More with Container Box
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'KAGAN',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              color: Colors.black54,
-                            ),
-                          ],
+                      // KAGAN title with minimal container
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'KAGAN',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                color: Colors.black54,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       
                       const SizedBox(height: 16),
                       
-                      // Learn More Button - NOW FUNCTIONAL
+                      // Learn More Button
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
@@ -211,7 +222,7 @@ void _navigateToImages(BuildContext context) {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 2,
-                            vertical: 4,
+                            vertical: 1,
                           ),
                           decoration: const BoxDecoration(
                             border: Border(
@@ -245,6 +256,8 @@ void _navigateToImages(BuildContext context) {
     );
   }
 
+  // Remove the divider method since it's no longer needed
+
   Widget _buildInfoSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -270,7 +283,7 @@ void _navigateToImages(BuildContext context) {
             child: _buildInfoCard(
               icon: Icons.language,
               label: 'LANGUAGE',
-              value: 'Ata\nManobo',
+              value: 'Kagan',
             ),
           ),
         ],
@@ -284,52 +297,58 @@ void _navigateToImages(BuildContext context) {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      height: 120, // Reduced height for smaller overall size
+      padding: const EdgeInsets.all(12), // Reduced padding
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
+        color: const Color(0xFF3A382F), // Fill color as specified
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD4A574).withOpacity(0.3),
+          color: const Color(0xFFE0D4BE).withOpacity(0.3), // New border color
           width: 1,
         ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6), // Reduced padding
             decoration: BoxDecoration(
-              color: const Color(0xFFD4A574).withOpacity(0.2),
+              color: const Color(0xFFE0D4BE).withOpacity(0.2), // New accent color
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFFD4A574),
-              size: 24,
+              color: const Color(0xFFE0D4BE), // New icon color
+              size: 18, // Reduced icon size
             ),
           ),
           
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // Reduced spacing
           
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFD4A574),
-              fontSize: 12,
+              color: Color(0xFFE0D4BE), // New label color
+              fontSize: 8, // Reduced label size
               fontWeight: FontWeight.w600,
               letterSpacing: 1,
             ),
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 4), // Reduced spacing
           
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              height: 1.2,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10, // Reduced value size
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -347,14 +366,14 @@ void _navigateToImages(BuildContext context) {
             children: [
               Icon(
                 Icons.explore,
-                color: Color(0xFFD4A574),
+                color: Color(0xFFE0D4BE), // Updated to new color
                 size: 20,
               ),
               SizedBox(width: 8),
               Text(
                 'EXPLORE CATEGORIES',
                 style: TextStyle(
-                  color: Color(0xFFD4A574),
+                  color: Color(0xFFE0D4BE), // Updated to new color
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
