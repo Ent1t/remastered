@@ -17,10 +17,30 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
       tag: 'Ceremony',
       imagePath: 'assets/images/mansaka_ceremony.jpg',
       images: [
-        'assets/images/mansaka_ceremony_1.jpg',
-        'assets/images/mansaka_ceremony_2.jpg',
-        'assets/images/mansaka_ceremony_3.jpg',
-        'assets/images/mansaka_ceremony_4.jpg',
+        ImageItem(
+          imagePath: 'assets/images/mansaka_ceremony_1.jpg',
+          description: 'Mansaka ritual ceremony honoring ancestral spirits with traditional offerings',
+          location: 'Compostela Valley, Monkayo',
+          date: 'March 22, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_ceremony_2.jpg',
+          description: 'Sacred blessing ritual performed by tribal elder using ancient chants',
+          location: 'Nabunturan Cultural Center',
+          date: 'April 28, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_ceremony_3.jpg',
+          description: 'Community thanksgiving ceremony for successful harvest season',
+          location: 'Barangay Mamangan, Compostela',
+          date: 'May 15, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_ceremony_4.jpg',
+          description: 'Traditional wedding ceremony with exchange of ancestral beads',
+          location: 'Mansaka Ancestral Territory',
+          date: 'June 12, 2023',
+        ),
       ],
     ),
     ImageCategory(
@@ -28,10 +48,30 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
       tag: 'Lifestyle',
       imagePath: 'assets/images/mansaka_village.jpg',
       images: [
-        'assets/images/mansaka_village_1.jpg',
-        'assets/images/mansaka_village_2.jpg',
-        'assets/images/mansaka_village_3.jpg',
-        'assets/images/mansaka_village_4.jpg',
+        ImageItem(
+          imagePath: 'assets/images/mansaka_village_1.jpg',
+          description: 'Daily life in traditional Mansaka mountain community',
+          location: 'Sitio Libcatan, New Bataan',
+          date: 'January 20, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_village_2.jpg',
+          description: 'Children participating in traditional cultural games and learning',
+          location: 'Barangay Andap, Monkayo',
+          date: 'February 25, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_village_3.jpg',
+          description: 'Tribal council meeting with elders sharing wisdom and traditions',
+          location: 'Community Hall, Pantukan',
+          date: 'April 3, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_village_4.jpg',
+          description: 'Traditional agriculture practices in mountainous terrain',
+          location: 'Highland Farms, Maragusan',
+          date: 'April 20, 2023',
+        ),
       ],
     ),
     ImageCategory(
@@ -39,9 +79,24 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
       tag: 'Handicraft',
       imagePath: 'assets/images/mansaka_crafts.jpg',
       images: [
-        'assets/images/mansaka_crafts_1.jpg',
-        'assets/images/mansaka_crafts_2.jpg',
-        'assets/images/mansaka_crafts_3.jpg',
+        ImageItem(
+          imagePath: 'assets/images/mansaka_crafts_1.jpg',
+          description: 'Intricate beadwork and jewelry crafting using traditional techniques',
+          location: 'Mansaka Craft Center, Pantukan',
+          date: 'July 25, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_crafts_2.jpg',
+          description: 'Master craftsman creating traditional weapons and ceremonial tools',
+          location: 'Heritage Workshop, Monkayo',
+          date: 'August 18, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_crafts_3.jpg',
+          description: 'Collection of handwoven baskets and traditional containers',
+          location: 'Cultural Arts Center',
+          date: 'September 8, 2023',
+        ),
       ],
     ),
     ImageCategory(
@@ -49,11 +104,36 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
       tag: 'Heritage',
       imagePath: 'assets/images/mansaka_heritage.jpg',
       images: [
-        'assets/images/mansaka_heritage_1.jpg',
-        'assets/images/mansaka_heritage_2.jpg',
-        'assets/images/mansaka_heritage_3.jpg',
-        'assets/images/mansaka_heritage_4.jpg',
-        'assets/images/mansaka_heritage_5.jpg',
+        ImageItem(
+          imagePath: 'assets/images/mansaka_heritage_1.jpg',
+          description: 'Ancient tribal artifacts including ceremonial daggers and ritual items',
+          location: 'Mansaka Heritage Museum',
+          date: 'October 15, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_heritage_2.jpg',
+          description: 'Traditional musical instruments used in spiritual and cultural ceremonies',
+          location: 'Cultural Heritage Center',
+          date: 'November 22, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_heritage_3.jpg',
+          description: 'Sacred ancestral totems and protective spiritual symbols',
+          location: 'Sacred Grove, Mt. Diwalwal',
+          date: 'December 30, 2023',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_heritage_4.jpg',
+          description: 'Historical documentation of tribal leaders and cultural practices',
+          location: 'Compostela Valley Archives',
+          date: 'January 18, 2024',
+        ),
+        ImageItem(
+          imagePath: 'assets/images/mansaka_heritage_5.jpg',
+          description: 'Traditional pottery and carved wooden vessels from ancestral times',
+          location: 'Craft Heritage Workshop',
+          date: 'February 25, 2024',
+        ),
       ],
     ),
   ];
@@ -255,25 +335,15 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          const Text(
-            'Browse images',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Spacer(),
-          Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.white.withOpacity(0.7),
-            size: 24,
-          ),
-        ],
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Browse images',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -399,13 +469,27 @@ class ImageCategory {
   final String title;
   final String tag;
   final String imagePath;
-  final List<String> images;
+  final List<ImageItem> images;
 
   ImageCategory({
     required this.title,
     required this.tag,
     required this.imagePath,
     required this.images,
+  });
+}
+
+class ImageItem {
+  final String imagePath;
+  final String description;
+  final String location;
+  final String date;
+
+  ImageItem({
+    required this.imagePath,
+    required this.description,
+    required this.location,
+    required this.date,
   });
 }
 
@@ -418,6 +502,19 @@ class ImageGalleryScreen extends StatelessWidget {
     required this.category,
     required this.accentColor,
   });
+
+  void _showImageViewer(BuildContext context, int initialIndex) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ImageViewerBottomSheet(
+        images: category.images,
+        initialIndex: initialIndex,
+        accentColor: accentColor,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -438,7 +535,7 @@ class ImageGalleryScreen extends StatelessWidget {
                 ),
                 itemCount: category.images.length,
                 itemBuilder: (context, index) {
-                  return _buildImageItem(category.images[index]);
+                  return _buildImageItem(category.images[index], index, context);
                 },
               ),
             ),
@@ -487,44 +584,292 @@ class ImageGalleryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildImageItem(String imagePath) {
+  Widget _buildImageItem(ImageItem imageItem, int index, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showImageViewer(context, index);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            imageItem.imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      accentColor.withOpacity(0.7),
+                      accentColor,
+                    ],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.image,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ImageViewerBottomSheet extends StatefulWidget {
+  final List<ImageItem> images;
+  final int initialIndex;
+  final Color accentColor;
+
+  const ImageViewerBottomSheet({
+    super.key,
+    required this.images,
+    required this.initialIndex,
+    required this.accentColor,
+  });
+
+  @override
+  State<ImageViewerBottomSheet> createState() => _ImageViewerBottomSheetState();
+}
+
+class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1a1a1a),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildHandle(),
+          _buildHeader(),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                HapticFeedback.selectionClick();
+              },
+              itemCount: widget.images.length,
+              itemBuilder: (context, index) {
+                return _buildImageCard(widget.images[index]);
+              },
+            ),
+          ),
+          _buildPageIndicator(),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHandle() {
+    return Container(
+      margin: const EdgeInsets.only(top: 12, bottom: 8),
+      width: 40,
+      height: 4,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+        color: Colors.white.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          const Text(
+            'Image Gallery',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.close,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.asset(
-          imagePath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
+    );
+  }
+
+  Widget _buildImageCard(ImageItem imageItem) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    accentColor.withOpacity(0.7),
-                    accentColor,
-                  ],
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  imageItem.imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            widget.accentColor.withOpacity(0.7),
+                            widget.accentColor,
+                          ],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image,
+                          color: Colors.white,
+                          size: 60,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.image,
-                  color: Colors.white,
-                  size: 30,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  imageItem.description,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
                 ),
-              ),
-            );
-          },
+                const SizedBox(height: 12),
+                _buildMetadataRow(Icons.location_on, 'Location', imageItem.location),
+                const SizedBox(height: 8),
+                _buildMetadataRow(Icons.calendar_today, 'Date', imageItem.date),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetadataRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          color: widget.accentColor,
+          size: 16,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: widget.accentColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        widget.images.length,
+        (index) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == _currentIndex
+                ? widget.accentColor
+                : Colors.white.withOpacity(0.3),
+          ),
         ),
       ),
     );

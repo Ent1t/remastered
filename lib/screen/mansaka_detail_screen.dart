@@ -96,7 +96,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
       child: Stack(
         children: [
           // Background Image
-          Container(
+          SizedBox(
             height: 280, // Reduced from 350
             width: double.infinity,
             child: Container(
