@@ -11,6 +11,8 @@ class MansakaImagesScreen extends StatefulWidget {
 
 class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   final List<ImageCategory> _imageCategories = [
     ImageCategory(
       title: 'Traditional Ceremony',
@@ -138,6 +140,41 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
     ),
   ];
 
+  // Search functionality
+  List<ImageCategory> get _filteredCategories {
+    if (_searchQuery.isEmpty) {
+      return _imageCategories;
+    }
+    return _imageCategories.where((category) {
+      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             category.tag.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             category.images.any((image) => 
+                image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                image.date.toLowerCase().contains(_searchQuery.toLowerCase()));
+    }).toList();
+  }
+
+  List<ImageItem> get _searchResults {
+    if (_searchQuery.isEmpty) return [];
+    
+    List<ImageItem> results = [];
+    for (var category in _imageCategories) {
+      for (var image in category.images) {
+        if (image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            image.date.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            category.tag.toLowerCase().contains(_searchQuery.toLowerCase())) {
+          results.add(image);
+        }
+      }
+    }
+    return results;
+  }
+
+  bool get _isSearching => _searchQuery.isNotEmpty;
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -159,32 +196,51 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSearchBar(),
-                    const SizedBox(height: 20),
-                    _buildFeaturedImage(),
-                    const SizedBox(height: 24),
-                    _buildDescription(),
-                    const SizedBox(height: 32),
-                    _buildBrowseSection(),
-                    const SizedBox(height: 20),
-                    _buildImageCategories(),
-                    const SizedBox(height: 40),
-                  ],
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1a1a1a),
+              Color(0xFF0d0d0d),
+              Colors.black,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchBar(),
+                      if (_isSearching) ...[
+                        const SizedBox(height: 20),
+                        _buildSearchResults(),
+                      ] else ...[
+                        const SizedBox(height: 20),
+                        _buildFeaturedImage(),
+                        const SizedBox(height: 24),
+                        _buildDescription(),
+                        const SizedBox(height: 32),
+                        _buildBrowseSection(),
+                        const SizedBox(height: 20),
+                        _buildImageCategories(),
+                      ],
+                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -243,9 +299,14 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
         ),
         child: TextField(
           controller: _searchController,
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value;
+            });
+          },
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: 'Search an Image',
+            hintText: 'Search images',
             hintStyle: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 16,
@@ -254,12 +315,163 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
               Icons.search,
               color: Colors.white.withOpacity(0.6),
             ),
+            suffixIcon: _searchQuery.isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _searchController.clear();
+                        _searchQuery = '';
+                      });
+                    },
+                    icon: Icon(
+                      Icons.clear,
+                      color: Colors.white.withOpacity(0.6),
+                    ),
+                  )
+                : null,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    if (_searchResults.isEmpty) {
+      return _buildNoResults();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Search Results (${_searchResults.length})',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
+            ),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              return _buildSearchResultCard(_searchResults[index], index);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResultCard(ImageItem image, int index) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showSearchResultViewer(image, index);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            image.imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFB19CD9),
+                      Color(0xFF5D4E75),
+                    ],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.image,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSearchResultViewer(ImageItem image, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ImageViewerBottomSheet(
+        images: [image], // Show only the selected image
+        initialIndex: 0,
+        accentColor: const Color(0xFFB19CD9),
+      ),
+    );
+  }
+
+  Widget _buildNoResults() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No images found',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try searching with different keywords',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 60),
+          ],
         ),
       ),
     );
@@ -349,6 +561,10 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
   }
 
   Widget _buildImageCategories() {
+    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
+      return _buildNoResults();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.builder(
@@ -360,9 +576,9 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 0.85,
         ),
-        itemCount: _imageCategories.length,
+        itemCount: _filteredCategories.length,
         itemBuilder: (context, index) {
-          final category = _imageCategories[index];
+          final category = _filteredCategories[index];
           return _buildCategoryCard(category);
         },
       ),
@@ -446,7 +662,7 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        category.tag,
+                        '${category.images.length} images',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -519,24 +735,33 @@ class ImageGalleryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF1a1a1a),
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(context),
             Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(20),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
                 ),
-                itemCount: category.images.length,
-                itemBuilder: (context, index) {
-                  return _buildImageItem(category.images[index], index, context);
-                },
+                child: GridView.builder(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: category.images.length,
+                  itemBuilder: (context, index) {
+                    return _buildImageItem(category.images[index], index, context);
+                  },
+                ),
               ),
             ),
           ],
@@ -669,8 +894,9 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -697,7 +923,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
             ),
           ),
           _buildPageIndicator(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20 + keyboardHeight * 0.1),
         ],
       ),
     );
@@ -743,14 +969,16 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
   }
 
   Widget _buildImageCard(ImageItem imageItem) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 3,
+          GestureDetector(
+            onTap: () => _showFullScreenImage(imageItem),
             child: Container(
+              height: 250,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -764,30 +992,52 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  imageItem.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            widget.accentColor.withOpacity(0.7),
-                            widget.accentColor,
-                          ],
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      imageItem.imagePath,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                widget.accentColor.withOpacity(0.7),
+                                widget.accentColor,
+                              ],
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.image,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
+                        child: const Icon(
+                          Icons.fullscreen,
                           color: Colors.white,
-                          size: 60,
+                          size: 16,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -819,7 +1069,26 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               ],
             ),
           ),
+          SizedBox(height: 30 + MediaQuery.of(context).viewInsets.bottom * 0.1),
         ],
+      ),
+    );
+  }
+
+  void _showFullScreenImage(ImageItem imageItem) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (BuildContext context, _, __) {
+          return FullScreenImageViewer(
+            image: imageItem,
+            accentColor: widget.accentColor,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
       ),
     );
   }
@@ -870,6 +1139,210 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                 ? widget.accentColor
                 : Colors.white.withOpacity(0.3),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatefulWidget {
+  final ImageItem image;
+  final Color accentColor;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.image,
+    required this.accentColor,
+  });
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  bool _showControls = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _hideControlsAfterDelay();
+  }
+
+  void _hideControlsAfterDelay() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showControls = false;
+        });
+      }
+    });
+  }
+
+  void _toggleControls() {
+    setState(() {
+      _showControls = !_showControls;
+    });
+    if (_showControls) {
+      _hideControlsAfterDelay();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        onTap: _toggleControls,
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                panEnabled: true,
+                boundaryMargin: const EdgeInsets.all(20),
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Image.asset(
+                  widget.image.imagePath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            widget.accentColor.withOpacity(0.7),
+                            widget.accentColor,
+                          ],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image,
+                          color: Colors.white,
+                          size: 100,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.image.description,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  widget.image.location,
+                                  style: TextStyle(
+                                    color: widget.accentColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Tap to zoom • Pinch to scale • Drag to pan',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: widget.accentColor,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.image.date,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -86,12 +86,29 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              _buildHeroSection(),
-              _buildCategoriesFilter(),
-              Expanded(child: _buildMusicList()),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: _buildHeader(context),
+              ),
+              SliverToBoxAdapter(
+                child: _buildHeroSection(),
+              ),
+              SliverToBoxAdapter(
+                child: _buildCategoriesFilter(),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final track = _filteredTracks[index];
+                    return _buildMusicCard(track);
+                  },
+                  childCount: _filteredTracks.length,
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 20), // Bottom padding
+              ),
             ],
           ),
         ),
@@ -136,7 +153,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 controller: _searchController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Search in playlist (Spotify ripoff)',
+                  hintText: 'Search music tracks...',
                   hintStyle: TextStyle(
                     color: Colors.white.withOpacity(0.6),
                     fontSize: 14,
@@ -202,36 +219,56 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
               },
             ),
             
-            // Dark Overlay
+            // Improved text overlay for better readability
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.3),
+                    Colors.black.withOpacity(0.1),
                     Colors.black.withOpacity(0.7),
                   ],
                 ),
               ),
             ),
             
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Discover the traditional musical heritage of the Kagan people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                      height: 1.4,
+            // Additional overlay for better text visibility
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.8),
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
                     ),
                   ),
-                ],
+                  child: Text(
+                    'Discover the traditional musical heritage of the Kagan people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.95),
+                      fontSize: 14,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -272,20 +309,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     );
   }
 
-  Widget _buildMusicList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _filteredTracks.length,
-      itemBuilder: (context, index) {
-        final track = _filteredTracks[index];
-        return _buildMusicCard(track);
-      },
-    );
-  }
-
   Widget _buildMusicCard(MusicTrack track) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
