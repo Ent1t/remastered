@@ -276,23 +276,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                             ],
                           ),
                           const Spacer(),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                // TODO: Add share functionality
-                              },
-                              icon: const Icon(
-                                Icons.share,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                          // Share button removed - this space is now empty
+                          const SizedBox(width: 48), // Maintains layout balance
                         ],
                       ),
                     ),
