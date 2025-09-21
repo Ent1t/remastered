@@ -21,21 +21,114 @@ class _TranslationScreenState extends State<TranslationScreen> {
   final List<String> _sourceLanguages = ['English', 'Cebuano'];
   final List<String> _targetLanguages = ['Kagan', 'Mansaka', 'Mandaya'];
 
-  // Language codes for TTS
-  final Map<String, String> _languageCodes = {
-    'English': 'en-US',
-    'Cebuano': 'fil-PH',
-    'Kagan': 'fil-PH',
-    'Mansaka': 'fil-PH',
-    'Mandaya': 'fil-PH',
+  // Audio file paths for each phrase and language combination
+  // Format: 'category_phrase_language.mp3'
+  final Map<String, String> _audioFilePaths = {
+    // Signature Phrase
+    'Mabuhay og Madayaw_English': 'assets/audio/signature_mabuhay_og_madayaw_english.mp3',
+    'Mabuhay og Madayaw_Cebuano': 'assets/audio/signature_mabuhay_og_madayaw_cebuano.mp3',
+    'Mabuhay og Madayaw_Kagan': 'assets/audio/signature_mabuhay_og_madayaw_kagan.mp3',
+    'Mabuhay og Madayaw_Mansaka': 'assets/audio/signature_mabuhay_og_madayaw_mansaka.mp3',
+    'Mabuhay og Madayaw_Mandaya': 'assets/audio/signature_mabuhay_og_madayaw_mandaya.mp3',
+    
+    // Greetings
+    'Hello_English': 'assets/audio/greetings_hello_english.mp3',
+    'Hello_Cebuano': 'assets/audio/greetings_hello_cebuano.mp3',
+    'Hello_Kagan': 'assets/audio/greetings_hello_kagan.mp3',
+    'Hello_Mansaka': 'assets/audio/greetings_hello_mansaka.mp3',
+    'Hello_Mandaya': 'assets/audio/greetings_hello_mandaya.mp3',
+    
+    'Good morning_English': 'assets/audio/greetings_goodmorning_english.mp3',
+    'Good morning_Cebuano': 'assets/audio/greetings_goodmorning_cebuano.mp3',
+    'Good morning_Kagan': 'assets/audio/greetings_goodmorning_kagan.mp3',
+    'Good morning_Mansaka': 'assets/audio/greetings_goodmorning_mansaka.mp3',
+    'Good morning_Mandaya': 'assets/audio/greetings_goodmorning_mandaya.mp3',
+    
+    'Good day_English': 'assets/audio/greetings_goodday_english.mp3',
+    'Good day_Cebuano': 'assets/audio/greetings_goodday_cebuano.mp3',
+    'Good day_Kagan': 'assets/audio/greetings_goodday_kagan.mp3',
+    'Good day_Mansaka': 'assets/audio/greetings_goodday_mansaka.mp3',
+    'Good day_Mandaya': 'assets/audio/greetings_goodday_mandaya.mp3',
+    
+    'How are you?_English': 'assets/audio/greetings_howareyou_english.mp3',
+    'How are you?_Cebuano': 'assets/audio/greetings_howareyou_cebuano.mp3',
+    'How are you?_Kagan': 'assets/audio/greetings_howareyou_kagan.mp3',
+    'How are you?_Mansaka': 'assets/audio/greetings_howareyou_mansaka.mp3',
+    'How are you?_Mandaya': 'assets/audio/greetings_howareyou_mandaya.mp3',
+    
+    // Basic Phrases
+    'Thank you_English': 'assets/audio/basic_thankyou_english.mp3',
+    'Thank you_Cebuano': 'assets/audio/basic_thankyou_cebuano.mp3',
+    'Thank you_Kagan': 'assets/audio/basic_thankyou_kagan.mp3',
+    'Thank you_Mansaka': 'assets/audio/basic_thankyou_mansaka.mp3',
+    'Thank you_Mandaya': 'assets/audio/basic_thankyou_mandaya.mp3',
+    
+    'Thank you very much_English': 'assets/audio/basic_thankyouverymuch_english.mp3',
+    'Thank you very much_Cebuano': 'assets/audio/basic_thankyouverymuch_cebuano.mp3',
+    'Thank you very much_Kagan': 'assets/audio/basic_thankyouverymuch_kagan.mp3',
+    'Thank you very much_Mansaka': 'assets/audio/basic_thankyouverymuch_mansaka.mp3',
+    'Thank you very much_Mandaya': 'assets/audio/basic_thankyouverymuch_mandaya.mp3',
+    
+    'Please_English': 'assets/audio/basic_please_english.mp3',
+    'Please_Cebuano': 'assets/audio/basic_please_cebuano.mp3',
+    'Please_Kagan': 'assets/audio/basic_please_kagan.mp3',
+    'Please_Mansaka': 'assets/audio/basic_please_mansaka.mp3',
+    'Please_Mandaya': 'assets/audio/basic_please_mandaya.mp3',
+    
+    'Excuse me_English': 'assets/audio/basic_excuseme_english.mp3',
+    'Excuse me_Cebuano': 'assets/audio/basic_excuseme_cebuano.mp3',
+    'Excuse me_Kagan': 'assets/audio/basic_excuseme_kagan.mp3',
+    'Excuse me_Mansaka': 'assets/audio/basic_excuseme_mansaka.mp3',
+    'Excuse me_Mandaya': 'assets/audio/basic_excuseme_mandaya.mp3',
+    
+    // Questions
+    'What is your name?_English': 'assets/audio/questions_whatisyourname_english.mp3',
+    'What is your name?_Cebuano': 'assets/audio/questions_whatisyourname_cebuano.mp3',
+    'What is your name?_Kagan': 'assets/audio/questions_whatisyourname_kagan.mp3',
+    'What is your name?_Mansaka': 'assets/audio/questions_whatisyourname_mansaka.mp3',
+    'What is your name?_Mandaya': 'assets/audio/questions_whatisyourname_mandaya.mp3',
+    
+    'Where are you from?_English': 'assets/audio/questions_whereareyoufrom_english.mp3',
+    'Where are you from?_Cebuano': 'assets/audio/questions_whereareyoufrom_cebuano.mp3',
+    'Where are you from?_Kagan': 'assets/audio/questions_whereareyoufrom_kagan.mp3',
+    'Where are you from?_Mansaka': 'assets/audio/questions_whereareyoufrom_mansaka.mp3',
+    'Where are you from?_Mandaya': 'assets/audio/questions_whereareyoufrom_mandaya.mp3',
+    
+    // Numbers
+    'One_English': 'assets/audio/numbers_one_english.mp3',
+    'One_Cebuano': 'assets/audio/numbers_one_cebuano.mp3',
+    'One_Kagan': 'assets/audio/numbers_one_kagan.mp3',
+    'One_Mansaka': 'assets/audio/numbers_one_mansaka.mp3',
+    'One_Mandaya': 'assets/audio/numbers_one_mandaya.mp3',
+    
+    'Two_English': 'assets/audio/numbers_two_english.mp3',
+    'Two_Cebuano': 'assets/audio/numbers_two_cebuano.mp3',
+    'Two_Kagan': 'assets/audio/numbers_two_kagan.mp3',
+    'Two_Mansaka': 'assets/audio/numbers_two_mansaka.mp3',
+    'Two_Mandaya': 'assets/audio/numbers_two_mandaya.mp3',
+    
+    'Three_English': 'assets/audio/numbers_three_english.mp3',
+    'Three_Cebuano': 'assets/audio/numbers_three_cebuano.mp3',
+    'Three_Kagan': 'assets/audio/numbers_three_kagan.mp3',
+    'Three_Mansaka': 'assets/audio/numbers_three_mansaka.mp3',
+    'Three_Mandaya': 'assets/audio/numbers_three_mandaya.mp3',
   };
 
-  // Local phrase data
+  // Local phrase data - optimized for offline use
   final Map<String, Map<String, Map<String, String>>> _phrases = {
+    'Signature Phrase': {
+      'Mabuhay og Madayaw': {
+        'English': 'Mabuhay og Madayaw',
+        'Cebuano': 'Mabuhay og Madayaw',
+        'Kagan': 'Mabuhay og Madayaw',
+        'Mansaka': 'Mabuhay og Madayaw',
+        'Mandaya': 'Mabuhay og Madayaw',
+      },
+    },
     'Greetings': {
       'Hello': {
         'English': 'Hello',
-        'Cebuano': 'Kumusta',
+        'Cebuano': 'Hello',
         'Kagan': 'Maayong adlaw',
         'Mansaka': 'Maayong adlaw',
         'Mandaya': 'Maayong adlaw',
@@ -46,6 +139,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'Kagan': 'Maayong ugma',
         'Mansaka': 'Maayong ugma',
         'Mandaya': 'Maayong ugma',
+      },
+      'Good day': {
+        'English': 'Good day',
+        'Cebuano': 'Maayong adlaw',
+        'Kagan': 'Maayong adlaw',
+        'Mansaka': 'Maayong adlaw',
+        'Mandaya': 'Maayong adlaw',
       },
       'How are you?': {
         'English': 'How are you?',
@@ -63,6 +163,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'Mansaka': 'Salamat',
         'Mandaya': 'Salamat',
       },
+      'Thank you very much': {
+        'English': 'Thank you very much',
+        'Cebuano': 'Salamat kaayo',
+        'Kagan': 'Salamat kaayo',
+        'Mansaka': 'Salamat kaayo',
+        'Mandaya': 'Salamat kaayo',
+      },
       'Please': {
         'English': 'Please',
         'Cebuano': 'Palihog',
@@ -72,7 +179,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
       },
       'Excuse me': {
         'English': 'Excuse me',
-        'Cebuano': 'Pasensya na',
+        'Cebuano': 'Excuse me',
         'Kagan': 'Pasaylua',
         'Mansaka': 'Pasaylua',
         'Mandaya': 'Pasaylua',
@@ -81,30 +188,23 @@ class _TranslationScreenState extends State<TranslationScreen> {
     'Questions': {
       'What is your name?': {
         'English': 'What is your name?',
-        'Cebuano': 'Unsa imong ngalan?',
+        'Cebuano': 'Unsa imo ngalan?',
         'Kagan': 'Anu su ngaran mo?',
         'Mansaka': 'Anu su ngaran mo?',
         'Mandaya': 'Anu su ngaran mo?',
       },
       'Where are you from?': {
         'English': 'Where are you from?',
-        'Cebuano': 'Asa ka gikan?',
+        'Cebuano': 'Taga asa ka?',
         'Kagan': 'Hain ka ginghalinan?',
         'Mansaka': 'Hain ka ginghalinan?',
         'Mandaya': 'Hain ka ginghalinan?',
-      },
-      'How much is this?': {
-        'English': 'How much is this?',
-        'Cebuano': 'Pila ni?',
-        'Kagan': 'Pira kini?',
-        'Mansaka': 'Pira kini?',
-        'Mandaya': 'Pira kini?',
       },
     },
     'Numbers': {
       'One': {
         'English': 'One',
-        'Cebuano': 'Usa',
+        'Cebuano': 'Isa',
         'Kagan': 'Isa',
         'Mansaka': 'Isa',
         'Mandaya': 'Isa',
@@ -123,20 +223,6 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'Mansaka': 'Tulu',
         'Mandaya': 'Tulu',
       },
-      'Four': {
-        'English': 'Four',
-        'Cebuano': 'Upat',
-        'Kagan': 'Upat',
-        'Mansaka': 'Upat',
-        'Mandaya': 'Upat',
-      },
-      'Five': {
-        'English': 'Five',
-        'Cebuano': 'Lima',
-        'Kagan': 'Lima',
-        'Mansaka': 'Lima',
-        'Mandaya': 'Lima',
-      },
     },
   };
 
@@ -151,17 +237,35 @@ class _TranslationScreenState extends State<TranslationScreen> {
     await _audioService.initialize();
   }
 
-  Future<void> _speakText(String text, String language, String phraseKey) async {
+  // Check if audio file exists for the given phrase and language
+  bool _hasAudioFile(String phraseKey, String language) {
+    final audioKey = '${phraseKey}_$language';
+    return _audioFilePaths.containsKey(audioKey);
+  }
+
+  // Get audio file path for the given phrase and language
+  String? _getAudioFilePath(String phraseKey, String language) {
+    final audioKey = '${phraseKey}_$language';
+    return _audioFilePaths[audioKey];
+  }
+
+  Future<void> _playLocalAudio(String phraseKey, String language) async {
     try {
+      final audioPath = _getAudioFilePath(phraseKey, language);
+      if (audioPath == null) {
+        _showAudioNotAvailableMessage(phraseKey, language);
+        return;
+      }
+
       setState(() {
-        currentlyPlayingPhrase = phraseKey;
+        currentlyPlayingPhrase = '${phraseKey}_$language';
         isPlaying = true;
       });
 
-      bool success = await _audioService.playPhrase(
-        text: text,
-        language: language,
-        phraseKey: phraseKey,
+      // Play local audio file
+      bool success = await _audioService.playLocalAudio(
+        audioPath: audioPath,
+        phraseKey: '${phraseKey}_$language',
       );
 
       if (!success) {
@@ -173,7 +277,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Unable to play audio'),
+              content: Text('Unable to play audio file'),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ),
@@ -185,11 +289,24 @@ class _TranslationScreenState extends State<TranslationScreen> {
       _updatePlayingStatus();
       
     } catch (e) {
-      print('Error playing audio: $e');
+      print('Error playing local audio: $e');
       setState(() {
         currentlyPlayingPhrase = null;
         isPlaying = false;
       });
+    }
+  }
+
+  void _showAudioNotAvailableMessage(String phraseKey, String language) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Audio not available for "$phraseKey" in $language'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -232,6 +349,396 @@ class _TranslationScreenState extends State<TranslationScreen> {
           children: [
             // Main scrollable content with background
             _buildScrollableContent(),
+            
+            // Show offline indicator if needed
+            if (!_isConnectedToInternet()) _buildOfflineIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Special signature welcome section with unique styling
+  Widget _buildSignatureWelcomeSection(MapEntry<String, Map<String, Map<String, String>>> categoryEntry) {
+    final phraseEntry = categoryEntry.value.entries.first;
+    final phraseKey = phraseEntry.key;
+    
+    return Column(
+      children: [
+        // Signature Welcome Card with unique design
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFFEADCB6).withOpacity(0.3),
+                const Color(0xFFD4AF37).withOpacity(0.2),
+                const Color(0xFFEADCB6).withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFEADCB6).withOpacity(0.6),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFEADCB6).withOpacity(0.15),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Header with cultural pattern
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEADCB6).withOpacity(0.15),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10.5)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.celebration,
+                          color: Color(0xFFEADCB6),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Signature Phrase',
+                          style: TextStyle(
+                            color: const Color(0xFFEADCB6),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.celebration,
+                          color: Color(0xFFEADCB6),
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      width: 60,
+                      height: 1.5,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            const Color(0xFFEADCB6),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Main content area - single centered phrase
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: _buildSignatureCatchPhrase(phraseKey),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignatureCatchPhrase(String phraseKey) {
+    final isCurrentlyPlaying = currentlyPlayingPhrase == '${phraseKey}_${_selectedTargetLanguage}';
+    final hasAudio = _hasAudioFile(phraseKey, _selectedTargetLanguage);
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                'CATCH PHRASE',
+                style: TextStyle(
+                  fontSize: 9,
+                  color: const Color(0xFFEADCB6).withOpacity(0.8),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                phraseKey,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Color(0xFFEADCB6),
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
+                ),
+              ),
+              if (!hasAudio) ...[
+                const SizedBox(height: 4),
+                Icon(
+                  Icons.volume_off,
+                  size: 12,
+                  color: Colors.orange.withOpacity(0.7),
+                ),
+              ],
+            ],
+          ),
+        ),
+        
+        const SizedBox(width: 12),
+        
+        GestureDetector(
+          onTap: hasAudio ? () {
+            if (isCurrentlyPlaying) {
+              _stopAudio();
+            } else {
+              _playLocalAudio(phraseKey, _selectedTargetLanguage);
+            }
+          } : () {
+            _showAudioNotAvailableMessage(phraseKey, _selectedTargetLanguage);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isCurrentlyPlaying
+                  ? Colors.red.withOpacity(0.2)
+                  : hasAudio
+                      ? const Color(0xFFEADCB6).withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: isCurrentlyPlaying
+                    ? Colors.red.withOpacity(0.5)
+                    : hasAudio
+                        ? const Color(0xFFEADCB6).withOpacity(0.6)
+                        : Colors.grey.withOpacity(0.3),
+                width: 1.5,
+              ),
+              boxShadow: hasAudio ? [
+                BoxShadow(
+                  color: isCurrentlyPlaying
+                      ? Colors.red.withOpacity(0.2)
+                      : const Color(0xFFEADCB6).withOpacity(0.2),
+                  blurRadius: 6,
+                  spreadRadius: 1,
+                ),
+              ] : null,
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: isCurrentlyPlaying
+                  ? const Icon(
+                      Icons.stop_rounded,
+                      color: Colors.red,
+                      size: 20,
+                      key: ValueKey('stop_signature'),
+                    )
+                  : hasAudio
+                      ? const Icon(
+                          Icons.play_arrow_rounded,
+                          color: Color(0xFFEADCB6),
+                          size: 20,
+                          key: ValueKey('play_signature'),
+                        )
+                      : Icon(
+                          Icons.volume_off_rounded,
+                          color: Colors.grey,
+                          size: 20,
+                          key: const ValueKey('no_audio_signature'),
+                        ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignatureLanguageRow({
+    required String language,
+    required String text,
+    required String phraseKey,
+    required bool isMainLanguage,
+  }) {
+    final isCurrentlyPlaying = currentlyPlayingPhrase == '${phraseKey}_$language';
+    final hasAudio = _hasAudioFile(phraseKey, language);
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isMainLanguage 
+            ? const Color(0xFFEADCB6).withOpacity(0.1)
+            : Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isMainLanguage
+              ? const Color(0xFFEADCB6).withOpacity(0.4)
+              : Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  language.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isMainLanguage
+                        ? const Color(0xFFEADCB6)
+                        : Colors.white.withOpacity(0.7),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: isMainLanguage ? 22 : 16,
+                    color: isMainLanguage
+                        ? const Color(0xFFEADCB6)
+                        : Colors.white.withOpacity(0.9),
+                    fontWeight: isMainLanguage ? FontWeight.bold : FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+                if (!hasAudio) ...[
+                  const SizedBox(height: 4),
+                  Icon(
+                    Icons.volume_off,
+                    size: 14,
+                    color: Colors.orange.withOpacity(0.7),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          GestureDetector(
+            onTap: hasAudio ? () {
+              if (isCurrentlyPlaying) {
+                _stopAudio();
+              } else {
+                _playLocalAudio(phraseKey, language);
+              }
+            } : () {
+              _showAudioNotAvailableMessage(phraseKey, language);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isCurrentlyPlaying
+                    ? Colors.red.withOpacity(0.2)
+                    : hasAudio
+                        ? const Color(0xFFEADCB6).withOpacity(0.2)
+                        : Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: isCurrentlyPlaying
+                      ? Colors.red.withOpacity(0.5)
+                      : hasAudio
+                          ? const Color(0xFFEADCB6).withOpacity(0.6)
+                          : Colors.grey.withOpacity(0.3),
+                  width: 2,
+                ),
+                boxShadow: hasAudio ? [
+                  BoxShadow(
+                    color: isCurrentlyPlaying
+                        ? Colors.red.withOpacity(0.3)
+                        : const Color(0xFFEADCB6).withOpacity(0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ] : null,
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: isCurrentlyPlaying
+                    ? const Icon(
+                        Icons.stop_rounded,
+                        color: Colors.red,
+                        size: 28,
+                        key: ValueKey('stop_signature'),
+                      )
+                    : hasAudio
+                        ? const Icon(
+                            Icons.play_arrow_rounded,
+                            color: Color(0xFFEADCB6),
+                            size: 28,
+                            key: ValueKey('play_signature'),
+                          )
+                        : Icon(
+                            Icons.volume_off_rounded,
+                            color: Colors.grey,
+                            size: 28,
+                            key: const ValueKey('no_audio_signature'),
+                          ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Placeholder for internet connectivity check
+  bool _isConnectedToInternet() {
+    // You can implement proper connectivity checking here
+    // For offline-first app, this might always return false or check actual connectivity
+    return false; // Assuming offline-first approach
+  }
+
+  Widget _buildOfflineIndicator() {
+    return Positioned(
+      top: 10,
+      right: 10,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.offline_bolt,
+              color: Colors.white,
+              size: 16,
+            ),
+            SizedBox(width: 4),
+            Text(
+              'Offline',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -269,20 +776,30 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 40), // Reduced top spacing
+                    const SizedBox(height: 40),
                     
                     // Title Section
                     _buildTitleSection(),
                     
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
+                    
+                    // Signature Phrase Section
+                    _buildSignatureWelcomeSection(_phrases.entries.firstWhere((entry) => entry.key == 'Signature Phrase')),
+                    
+                    const SizedBox(height: 30),
                     
                     // Language Selection Section
                     _buildLanguageSelectionSection(),
                     
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     
-                    // Phrases Section
-                    _buildPhrasesSection(),
+                    // Audio Status Indicator (only when playing)
+                    if (isPlaying) _buildAudioStatusIndicator(),
+                    
+                    // Rest of the Phrases
+                    ..._phrases.entries.where((entry) => entry.key != 'Signature Phrase').map((categoryEntry) {
+                      return _buildCategorySection(categoryEntry);
+                    }),
                     
                     const SizedBox(height: 100), // Bottom padding
                   ],
@@ -291,54 +808,6 @@ class _TranslationScreenState extends State<TranslationScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTopAppBar() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          border: Border(
-            bottom: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
-          ),
-        ),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'PHRASE TRANSLATOR',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ),
-            if (isPlaying)
-              GestureDetector(
-                onTap: _stopAudio,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.stop,
-                    color: Colors.red,
-                    size: 20,
-                  ),
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }
@@ -363,11 +832,30 @@ class _TranslationScreenState extends State<TranslationScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 12),
-        Container(
-          width: 80,
-          height: 3,
-          color: const Color(0xFFEADCB6),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Container(
+              width: 80,
+              height: 3,
+              color: const Color(0xFFEADCB6),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.offline_bolt,
+              color: Color(0xFFEADCB6),
+              size: 16,
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Works Offline',
+              style: TextStyle(
+                color: Color(0xFFEADCB6),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -519,7 +1007,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Playing: ${currentlyPlayingPhrase ?? 'Audio'}',
+              'Playing: ${currentlyPlayingPhrase?.replaceAll('_', ' - ') ?? 'Audio'}',
               style: const TextStyle(
                 color: Color(0xFFEADCB6),
                 fontWeight: FontWeight.w500,
@@ -543,18 +1031,10 @@ class _TranslationScreenState extends State<TranslationScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Common Phrases',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 20),
-        
         ..._phrases.entries.map((categoryEntry) {
-          return _buildCategorySection(categoryEntry);
+          return categoryEntry.key == 'Signature Phrase'
+              ? _buildSignatureWelcomeSection(categoryEntry)
+              : _buildCategorySection(categoryEntry);
         }),
       ],
     );
@@ -645,6 +1125,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     required Color textColor,
   }) {
     final isCurrentlyPlaying = currentlyPlayingPhrase == '${phraseKey}_$language';
+    final hasAudio = _hasAudioFile(phraseKey, language);
     
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -654,13 +1135,24 @@ class _TranslationScreenState extends State<TranslationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  language,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.white.withOpacity(0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      language,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.white.withOpacity(0.6),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (!hasAudio)
+                      Icon(
+                        Icons.volume_off,
+                        size: 12,
+                        color: Colors.orange.withOpacity(0.7),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4.0),
                 Text(
@@ -676,12 +1168,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
           ),
           
           GestureDetector(
-            onTap: () {
+            onTap: hasAudio ? () {
               if (isCurrentlyPlaying) {
                 _stopAudio();
               } else {
-                _speakText(text, language, '${phraseKey}_$language');
+                _playLocalAudio(phraseKey, language);
               }
+            } : () {
+              _showAudioNotAvailableMessage(phraseKey, language);
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -689,7 +1183,9 @@ class _TranslationScreenState extends State<TranslationScreen> {
               decoration: BoxDecoration(
                 color: isCurrentlyPlaying 
                     ? Colors.red.withOpacity(0.2)
-                    : textColor.withOpacity(0.1),
+                    : hasAudio 
+                        ? textColor.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: AnimatedSwitcher(
@@ -701,12 +1197,19 @@ class _TranslationScreenState extends State<TranslationScreen> {
                         size: 24,
                         key: ValueKey('stop'),
                       )
-                    : Icon(
-                        isSource ? Icons.play_circle_outline : Icons.play_circle_filled,
-                        color: textColor,
-                        size: 24,
-                        key: const ValueKey('play'),
-                      ),
+                    : hasAudio
+                        ? Icon(
+                            isSource ? Icons.play_circle_outline : Icons.play_circle_filled,
+                            color: textColor,
+                            size: 24,
+                            key: const ValueKey('play'),
+                          )
+                        : Icon(
+                            Icons.volume_off,
+                            color: Colors.grey,
+                            size: 24,
+                            key: const ValueKey('no_audio'),
+                          ),
               ),
             ),
           ),
@@ -717,6 +1220,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
+      case 'cultural welcome':
+        return Icons.celebration;
       case 'greetings':
         return Icons.waving_hand;
       case 'basic phrases':
