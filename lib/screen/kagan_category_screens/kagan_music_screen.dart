@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../music_player_screen.dart'; // Import the music player screen
+import 'package:audioplayers/audioplayers.dart'; // Add this dependency
 
 class KaganMusicScreen extends StatefulWidget {
   const KaganMusicScreen({super.key});
@@ -14,7 +14,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
-  String? _selectedCategory; // Add selected category state
+  String? _selectedCategory;
+  
+  // Scroll controller and visibility state
+  final ScrollController _scrollController = ScrollController();
+  bool _isHeaderVisible = true;
+  double _lastScrollOffset = 0;
+
+  // Audio player related variables
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  MusicTrack? _currentTrack;
+  bool _isPlaying = false;
+  Duration _currentPosition = Duration.zero;
+  Duration _totalDuration = Duration.zero;
+  bool _isLoading = false;
 
   // Sample data for kagan music
   final List<MusicTrack> _allTracks = [
@@ -24,6 +37,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Traditional',
       imagePath: 'assets/images/kagan_harvest.jpg',
       artist: 'Matt Gamar',
+      audioPath: 'audio/kagan_harvest.mp3',
     ),
     MusicTrack(
       title: 'War Chant',
@@ -31,6 +45,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Ceremonial',
       imagePath: 'assets/images/kagan_war_chant.jpg',
       artist: 'Elder kagan',
+      audioPath: 'audio/kagan_war_chant.mp3',
     ),
     MusicTrack(
       title: 'Lullaby',
@@ -38,6 +53,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Folk',
       imagePath: 'assets/images/kagan_lullaby.jpg',
       artist: 'Maria Santos',
+      audioPath: 'audio/kagan_lullaby.mp3',
     ),
     MusicTrack(
       title: 'Spirit Dance',
@@ -45,6 +61,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Spiritual',
       imagePath: 'assets/images/kagan_spirit.jpg',
       artist: 'Datu Lumad',
+      audioPath: 'audio/kagan_spirit.mp3',
     ),
     MusicTrack(
       title: 'Wedding Song',
@@ -52,6 +69,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Ceremonial',
       imagePath: 'assets/images/kagan_wedding.jpg',
       artist: 'Tribal Ensemble',
+      audioPath: 'audio/kagan_wedding.mp3',
     ),
     MusicTrack(
       title: 'Mountain Echo',
@@ -59,20 +77,19 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       category: 'Folk',
       imagePath: 'assets/images/kagan_mountain.jpg',
       artist: 'Mountain Singers',
+      audioPath: 'audio/kagan_mountain.mp3',
     ),
   ];
 
-  List<String> get _categories => ['All', 'Traditional', 'Ceremonial', 'Folk', 'Spiritual']; // Add "All" option
+  List<String> get _categories => ['All', 'Traditional', 'Ceremonial', 'Folk', 'Spiritual'];
 
   List<MusicTrack> get _filteredTracks {
     List<MusicTrack> tracks = _allTracks;
     
-    // Filter by category first
     if (_selectedCategory != null && _selectedCategory != 'All') {
       tracks = tracks.where((track) => track.category == _selectedCategory).toList();
     }
     
-    // Then filter by search query
     if (_searchQuery.isNotEmpty) {
       tracks = tracks.where((track) =>
           track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -86,7 +103,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = 'All'; // Initialize with "All" selected
+    _selectedCategory = 'All';
+    _setupAudioPlayer();
+    _setupScrollController();
     _searchFocusNode.addListener(() {
       setState(() {
         _isSearchFocused = _searchFocusNode.hasFocus;
@@ -94,10 +113,59 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     });
   }
 
+  void _setupScrollController() {
+    _scrollController.addListener(() {
+      final currentOffset = _scrollController.offset;
+      final isScrollingDown = currentOffset > _lastScrollOffset;
+      final shouldHideHeader = isScrollingDown && currentOffset > 100;
+      final shouldShowHeader = !isScrollingDown || currentOffset <= 50;
+
+      if (_isHeaderVisible && shouldHideHeader && !_isSearchFocused) {
+        setState(() {
+          _isHeaderVisible = false;
+        });
+      } else if (!_isHeaderVisible && shouldShowHeader) {
+        setState(() {
+          _isHeaderVisible = true;
+        });
+      }
+
+      _lastScrollOffset = currentOffset;
+    });
+  }
+
+  void _setupAudioPlayer() {
+    _audioPlayer.onPositionChanged.listen((position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    });
+
+    _audioPlayer.onDurationChanged.listen((duration) {
+      setState(() {
+        _totalDuration = duration;
+      });
+    });
+
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        _isPlaying = state == PlayerState.playing;
+        _isLoading = state == PlayerState.playing && _currentPosition == Duration.zero;
+      });
+    });
+
+    _audioPlayer.onPlayerComplete.listen((_) {
+      setState(() {
+        _isPlaying = false;
+        _currentPosition = Duration.zero;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Handle keyboard properly
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -113,11 +181,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Fixed header that shows/hides based on search focus
+              // Header that shows/hides based on scroll and search focus
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                height: _isSearchFocused ? 80 : 80, // Keep consistent height
-                child: _buildHeader(context),
+                height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
+                child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
               ),
               
               // Flexible content area
@@ -126,6 +194,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                     ? _buildSearchResults()
                     : _buildMainContent(),
               ),
+              
+              // Inline Music Player at the bottom
+              if (_currentTrack != null) _buildInlineMusicPlayer(),
             ],
           ),
         ),
@@ -187,6 +258,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 controller: _searchController,
                 focusNode: _searchFocusNode,
                 style: const TextStyle(color: Colors.white),
+                scrollPhysics: const BouncingScrollPhysics(),
                 decoration: InputDecoration(
                   hintText: 'Search music tracks...',
                   hintStyle: TextStyle(
@@ -236,7 +308,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                       _searchFocusNode.unfocus();
                       setState(() {
                         _searchQuery = '';
-                        _selectedCategory = 'All'; // Reset category filter too
+                        _selectedCategory = 'All';
+                        _isHeaderVisible = true;
                       });
                     },
                     child: const Text(
@@ -256,6 +329,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
   Widget _buildMainContent() {
     return CustomScrollView(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: [
         SliverToBoxAdapter(
           child: _buildHeroSection(),
@@ -272,8 +347,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             childCount: _filteredTracks.length,
           ),
         ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
+        SliverToBoxAdapter(
+          child: SizedBox(height: _currentTrack != null ? 120 : 20),
         ),
       ],
     );
@@ -282,7 +357,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   Widget _buildSearchResults() {
     return Column(
       children: [
-        // Search results header
         if (_searchQuery.isNotEmpty || _selectedCategory != 'All')
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -299,7 +373,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             ),
           ),
         
-        // Search results list
         Expanded(
           child: _searchQuery.isEmpty && _selectedCategory == 'All'
               ? Center(
@@ -344,8 +417,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                       ),
                     )
                   : ListView.builder(
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 120 : 20),
                       ),
                       itemCount: _filteredTracks.length,
                       itemBuilder: (context, index) {
@@ -376,7 +450,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
-            // Background Image
             Image.asset(
               'assets/images/kagan_music_hero.jpg',
               fit: BoxFit.cover,
@@ -399,7 +472,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
               },
             ),
             
-            // Improved text overlay for better readability
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -413,7 +485,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
               ),
             ),
             
-            // Additional overlay for better text visibility
             Positioned(
               bottom: 0,
               left: 0,
@@ -462,6 +533,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       height: 50,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
         itemBuilder: (context, index) {
@@ -499,13 +571,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildMusicCard(MusicTrack track) {
+    final isCurrentTrack = _currentTrack?.title == track.title;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
+        color: isCurrentTrack 
+            ? const Color(0xFFD4A574).withOpacity(0.1)
+            : const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD4A574).withOpacity(0.2),
+          color: isCurrentTrack 
+              ? const Color(0xFFD4A574)
+              : const Color(0xFFD4A574).withOpacity(0.2),
+          width: isCurrentTrack ? 2 : 1,
         ),
       ),
       child: Material(
@@ -514,13 +593,12 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: () {
             HapticFeedback.mediumImpact();
-            _playTrack(track);
+            _togglePlayPause(track);
           },
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Track Image
                 Container(
                   width: 60,
                   height: 60,
@@ -546,15 +624,16 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 
                 const SizedBox(width: 16),
                 
-                // Track Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         track.title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: isCurrentTrack 
+                              ? const Color(0xFFD4A574)
+                              : Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -587,11 +666,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   ),
                 ),
                 
-                // Play Button
                 GestureDetector(
                   onTap: () {
                     HapticFeedback.mediumImpact();
-                    _playTrack(track);
+                    _togglePlayPause(track);
                   },
                   child: Container(
                     width: 40,
@@ -600,17 +678,204 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                       color: const Color(0xFFD4A574),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    child: _isLoading && isCurrentTrack
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Icon(
+                            isCurrentTrack && _isPlaying 
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInlineMusicPlayer() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1F1F1F),
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFFD4A574),
+            width: 2,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Track info with close button
+          Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFD4A574).withOpacity(0.2),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    _currentTrack!.imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.music_note,
+                        color: Color(0xFFD4A574),
+                        size: 25,
+                      );
+                    },
+                  ),
+                ),
+              ),
+              
+              const SizedBox(width: 12),
+              
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _currentTrack!.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      _currentTrack!.artist,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Control buttons
+              IconButton(
+                onPressed: () {
+                  _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
+                },
+                icon: const Icon(Icons.replay_10, color: Colors.white, size: 20),
+              ),
+              
+              IconButton(
+                onPressed: () => _togglePlayPause(_currentTrack!),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD4A574),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+              
+              IconButton(
+                onPressed: () {
+                  _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
+                },
+                icon: const Icon(Icons.forward_30, color: Colors.white, size: 20),
+              ),
+              
+              // Close button
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _closeMusicPlayer();
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          
+          // Progress bar
+          Column(
+            children: [
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: const Color(0xFFD4A574),
+                  inactiveTrackColor: const Color(0xFFD4A574).withOpacity(0.3),
+                  thumbColor: const Color(0xFFD4A574),
+                  overlayColor: const Color(0xFFD4A574).withOpacity(0.3),
+                  trackHeight: 4,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                ),
+                child: Slider(
+                  value: _totalDuration.inMilliseconds > 0 
+                      ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
+                      : 0.0,
+                  onChanged: (value) {
+                    final position = Duration(
+                      milliseconds: (value * _totalDuration.inMilliseconds).round(),
+                    );
+                    _seekTo(position);
+                  },
+                ),
+              ),
+              
+              // Time labels
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDuration(_currentPosition),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      _formatDuration(_totalDuration),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -629,38 +894,83 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     return text;
   }
 
-  void _playTrack(MusicTrack track) {
-    HapticFeedback.mediumImpact();
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => MusicPlayerScreen(
-          track: track,
-          themeColor: const Color(0xFFD4A574), // kagan theme color
+  Future<void> _togglePlayPause(MusicTrack track) async {
+    try {
+      if (_currentTrack?.title != track.title) {
+        // Play new track
+        setState(() {
+          _currentTrack = track;
+          _isLoading = true;
+        });
+        
+        await _audioPlayer.stop();
+        await _audioPlayer.play(AssetSource(track.audioPath));
+      } else {
+        // Toggle play/pause for current track
+        if (_isPlaying) {
+          await _audioPlayer.pause();
+        } else {
+          await _audioPlayer.resume();
+        }
+      }
+    } catch (e) {
+      // Handle error - maybe show a snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error playing audio: ${e.toString()}'),
+          backgroundColor: Colors.red,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
+      );
+    }
+  }
 
-          var tween = Tween(begin: begin, end: end).chain(
-            CurveTween(curve: curve),
-          );
+  Future<void> _seekTo(Duration position) async {
+    await _audioPlayer.seek(position);
+  }
 
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 600),
-      ),
-    );
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _closeMusicPlayer() async {
+    await _audioPlayer.stop();
+    setState(() {
+      _currentTrack = null;
+      _isPlaying = false;
+      _currentPosition = Duration.zero;
+      _totalDuration = Duration.zero;
+      _isLoading = false;
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _scrollController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
+}
+
+// MusicTrack model with audio path
+class MusicTrack {
+  final String title;
+  final String description;
+  final String category;
+  final String imagePath;
+  final String artist;
+  final String audioPath;
+
+  MusicTrack({
+    required this.title,
+    required this.description,
+    required this.category,
+    required this.imagePath,
+    required this.artist,
+    required this.audioPath,
+  });
 }
