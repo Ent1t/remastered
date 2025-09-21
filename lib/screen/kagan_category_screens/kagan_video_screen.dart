@@ -10,8 +10,16 @@ class KaganVideoScreen extends StatefulWidget {
 }
 
 class _KaganVideoScreenState extends State<KaganVideoScreen> {
-  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchFocused = false;
+  String? _selectedCategory;
+  
+  // Scroll controller and visibility state
+  final ScrollController _scrollController = ScrollController();
+  bool _isHeaderVisible = true;
+  double _lastScrollOffset = 0;
 
   // Sample video data for kagan
   final List<VideoCategory> _videoCategories = [
@@ -65,25 +73,71 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     ),
   ];
 
+  List<String> get _categories => ['All', 'Dance', 'Ceremony', 'Lifestyle'];
+
   List<VideoCategory> get _filteredCategories {
-    if (_searchQuery.isEmpty) return _videoCategories;
+    List<VideoCategory> categories = _videoCategories;
     
-    return _videoCategories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.videos.any((video) => 
-               video.title.toLowerCase().contains(_searchQuery.toLowerCase()));
-    }).toList();
+    if (_selectedCategory != null && _selectedCategory != 'All') {
+      categories = categories.where((category) => category.tag == _selectedCategory).toList();
+    }
+    
+    if (_searchQuery.isNotEmpty) {
+      categories = categories.where((category) {
+        return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+               category.videos.any((video) => 
+                 video.title.toLowerCase().contains(_searchQuery.toLowerCase()));
+      }).toList();
+    }
+    
+    return categories;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = 'All';
+    _setupScrollController();
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchFocused = _searchFocusNode.hasFocus;
+      });
+    });
+  }
+
+  void _setupScrollController() {
+    _scrollController.addListener(() {
+      final currentOffset = _scrollController.offset;
+      final isScrollingDown = currentOffset > _lastScrollOffset;
+      final shouldHideHeader = isScrollingDown && currentOffset > 100;
+      final shouldShowHeader = !isScrollingDown || currentOffset <= 50;
+
+      if (_isHeaderVisible && shouldHideHeader && !_isSearchFocused) {
+        setState(() {
+          _isHeaderVisible = false;
+        });
+      } else if (!_isHeaderVisible && shouldShowHeader) {
+        setState(() {
+          _isHeaderVisible = true;
+        });
+      }
+
+      _lastScrollOffset = currentOffset;
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -99,11 +153,19 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(),
-              _buildSearchSection(),
-              _buildFeaturedVideo(),
-              _buildBrowseSection(),
-              Expanded(child: _buildVideoCategories()),
+              // Header that shows/hides based on scroll and search focus
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
+                child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
+              ),
+              
+              // Flexible content area
+              Expanded(
+                child: _isSearchFocused 
+                    ? _buildSearchResults()
+                    : _buildMainContent(),
+              ),
             ],
           ),
         ),
@@ -111,96 +173,234 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
+          // Back button - hide when searching
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 0 : 48,
+            child: _isSearchFocused 
+                ? const SizedBox.shrink()
+                : Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+          ),
+          
+          // Dynamic spacing
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 0 : 16,
+          ),
+          
+          // Search bar - expands when focused
+          Expanded(
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2A2A),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: _isSearchFocused 
+                      ? const Color(0xFFD4A574) 
+                      : const Color(0xFFD4A574).withOpacity(0.3),
+                  width: _isSearchFocused ? 2 : 1,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                style: const TextStyle(color: Colors.white),
+                scrollPhysics: const BouncingScrollPhysics(),
+                decoration: InputDecoration(
+                  hintText: 'Search videos...',
+                  hintStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: _isSearchFocused 
+                        ? const Color(0xFFD4A574)
+                        : Colors.white.withOpacity(0.6),
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                          icon: Icon(
+                            Icons.clear,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
               ),
             ),
           ),
-          const Spacer(),
-          const Text(
-            'KAGAN VIDEOS',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFD4A574).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                // TODO: Add filter functionality
-              },
-              icon: const Icon(
-                Icons.tune,
-                color: Color(0xFFD4A574),
-                size: 20,
-              ),
-            ),
+          
+          // Cancel button when searching
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: _isSearchFocused ? 80 : 0,
+            child: _isSearchFocused
+                ? TextButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      _searchFocusNode.unfocus();
+                      setState(() {
+                        _searchQuery = '';
+                        _selectedCategory = 'All';
+                        _isHeaderVisible = true;
+                      });
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Color(0xFFD4A574),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A2A2A),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFD4A574).withOpacity(0.3),
-            width: 1,
+  Widget _buildMainContent() {
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        SliverToBoxAdapter(
+          child: _buildFeaturedVideo(),
+        ),
+        SliverToBoxAdapter(
+          child: _buildCategoriesFilter(),
+        ),
+        SliverToBoxAdapter(
+          child: _buildBrowseSection(),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final category = _filteredCategories[index];
+              return _buildCategorySection(category);
+            },
+            childCount: _filteredCategories.length,
           ),
         ),
-        child: TextField(
-          controller: _searchController,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: 'Search videos',
-            hintStyle: TextStyle(
-              color: Colors.white.withOpacity(0.5),
-              fontSize: 16,
-            ),
-            prefixIcon: Icon(
-              Icons.search,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          onChanged: (value) {
-            setState(() {
-              _searchQuery = value;
-            });
-          },
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 20),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return Column(
+      children: [
+        if (_searchQuery.isNotEmpty || _selectedCategory != 'All')
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  _buildResultsText(),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
+        Expanded(
+          child: _searchQuery.isEmpty && _selectedCategory == 'All'
+              ? Center(
+                  child: Text(
+                    'Start typing to search or select a category...',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              : _filteredCategories.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 48,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No videos found',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _searchQuery.isNotEmpty 
+                                ? 'Try different keywords'
+                                : 'No videos in this category',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.3),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                      ),
+                      itemCount: _filteredCategories.length,
+                      itemBuilder: (context, index) {
+                        final category = _filteredCategories[index];
+                        return _buildCategorySection(category);
+                      },
+                    ),
+        ),
+      ],
     );
   }
 
@@ -328,9 +528,51 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
+  Widget _buildCategoriesFilter() {
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+          
+          return Container(
+            margin: const EdgeInsets.only(right: 12),
+            child: FilterChip(
+              label: Text(category),
+              selected: isSelected,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+              backgroundColor: const Color(0xFF2A2A2A),
+              selectedColor: const Color(0xFFD4A574),
+              side: BorderSide(
+                color: isSelected 
+                    ? const Color(0xFFD4A574)
+                    : const Color(0xFFD4A574).withOpacity(0.3),
+                width: isSelected ? 2 : 1,
+              ),
+              onSelected: (selected) {
+                HapticFeedback.lightImpact();
+                setState(() {
+                  _selectedCategory = selected ? category : 'All';
+                });
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildBrowseSection() {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
           Icon(
@@ -353,84 +595,52 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildVideoCategories() {
-    final filteredCategories = _filteredCategories;
-    
-    if (filteredCategories.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              color: Colors.white.withOpacity(0.5),
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No videos found',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: filteredCategories.length,
-      itemBuilder: (context, index) {
-        final category = filteredCategories[index];
-        return _buildCategorySection(category);
-      },
-    );
-  }
-
   Widget _buildCategorySection(VideoCategory category) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              category.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD4A574).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFD4A574).withOpacity(0.5),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                category.tag,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Text(
+                category.title,
                 style: const TextStyle(
-                  color: Color(0xFFD4A574),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          ],
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4A574).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFD4A574).withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  category.tag,
+                  style: const TextStyle(
+                    color: Color(0xFFD4A574),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
           child: ListView.builder(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: category.videos.length,
             itemBuilder: (context, index) {
               final video = category.videos[index];
@@ -558,6 +768,21 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         ),
       ),
     );
+  }
+
+  String _buildResultsText() {
+    int totalVideos = _filteredCategories.fold(0, (sum, category) => sum + category.videos.length);
+    String text = '$totalVideos result${totalVideos == 1 ? '' : 's'}';
+    
+    if (_searchQuery.isNotEmpty && _selectedCategory != 'All') {
+      text += ' for "$_searchQuery" in $_selectedCategory';
+    } else if (_searchQuery.isNotEmpty) {
+      text += ' for "$_searchQuery"';
+    } else if (_selectedCategory != 'All') {
+      text += ' in $_selectedCategory';
+    }
+    
+    return text;
   }
 
   void _playVideo(VideoItem video) {
