@@ -200,96 +200,86 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ZONE 1 - Top content section with background image
+          // ZONE 1 - Top content section with solid black background
           Container(
             height: zone1Height - 50, // Leave space for the divider
             width: double.infinity,
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/circular_gradient_bg_png'),
-                fit: BoxFit.cover,
-                opacity: 0.3, // Adjust opacity as needed
-              ),
+              color: Colors.black, // Changed to solid black background
             ),
-            child: Container(
-              // Optional: Add overlay for better text readability
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3), // Adjust overlay opacity as needed
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 15), // Reduced from 20
-                    
-                    // Main Title Box
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18), // Reduced from 20
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'HUNI SA TRIBU',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Padding(
-                              padding: EdgeInsets.only(left: 28),
-                              child: Text(
-                                'Cultural Heritage Museum',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                  letterSpacing: 1,
-                                ),
-                              ),  
-                            ),
-                          ],
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 15), // Reduced from 20
+                  
+                  // Main Title Box
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18), // Reduced from 20
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 25), // Reduced from 30
-                    
-                    // Portal Text
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your Portal to a',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                          Text(
-                            'Rich Heritage.',
+                            'HUNI SA TRIBU',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
                             ),
+                          ),
+                          SizedBox(height: 8),
+                          Padding(
+                            padding: EdgeInsets.only(left: 28),
+                            child: Text(
+                              'Cultural Heritage Museum',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                                letterSpacing: 1,
+                              ),
+                            ),  
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  
+                  const SizedBox(height: 25), // Reduced from 30
+                  
+                  // Portal Text
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Your Portal to a',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        Text(
+                          'Rich Heritage.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
