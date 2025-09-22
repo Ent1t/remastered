@@ -34,37 +34,6 @@ class NameInputFormatter extends TextInputFormatter {
   }
 }
 
-// Custom input formatter for school names (allows numbers for addresses)
-class SchoolInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    // Allow letters, numbers (for addresses like "School #1"), spaces, hyphens, 
-    // apostrophes, periods, parentheses, and hash symbol for school numbering
-    final RegExp regExp = RegExp(r"^[a-zA-Z0-9\s\-'.()#]*$");
-    
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-    
-    // Check if the entire new text matches our pattern
-    if (regExp.hasMatch(newValue.text)) {
-      // Additional validation: prevent multiple consecutive spaces or special chars
-      // and ensure it doesn't start with numbers or special characters
-      if (!newValue.text.contains(RegExp(r'[\s\-''.()#]{3,}')) &&
-          !newValue.text.startsWith(RegExp(r'[\s\-''.()#0-9]+')) &&
-          !newValue.text.endsWith('  ')) {
-        return newValue;
-      }
-    }
-    
-    // If validation fails, return the old value
-    return oldValue;
-  }
-}
-
 void main() {
   runApp(const MyApp());
 }
@@ -94,16 +63,38 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState(); // Fixed: Modern syntax
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _schoolController = TextEditingController();
+  final TextEditingController _customSchoolController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
-  final FocusNode _schoolFocusNode = FocusNode();
+  final FocusNode _customSchoolFocusNode = FocusNode();
   String _selectedRole = 'Visitor';
+  String? _selectedSchool;
   bool _showSchoolField = false;
+  bool _showCustomSchoolField = false;
+
+  // List of available schools
+  final List<String> _schoolOptions = [
+    'STI College Tagum',
+    'University of Mindanao Tagum',
+    'Ateneo de Davao University',
+    'University of the Philippines Mindanao',
+    'Davao Medical School Foundation',
+    'Holy Cross of Davao College',
+    'Philippine Women\'s College of Davao',
+    'Assumption College of Davao',
+    'Cor Jesu College',
+    'University of Southeastern Philippines',
+    'Davao Central College',
+    'Brokenshire College',
+    'John Paul II College of Davao',
+    'San Pedro College',
+    'University of Immaculate Conception',
+    'Others' // Option for schools not in the list
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -235,12 +226,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           _nameFocusNode.requestFocus();
                                         },
                                         onSubmitted: (value) {
-                                          if (_showSchoolField) {
-                                            _schoolFocusNode.requestFocus();
-                                          } else {
-                                            // If no school field, unfocus
-                                            FocusScope.of(context).unfocus();
-                                          }
+                                          FocusScope.of(context).unfocus();
                                         },
                                         decoration: const InputDecoration(
                                           hintText: '',
@@ -313,9 +299,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                               setState(() {
                                                 _selectedRole = newValue!;
                                                 _showSchoolField = (_selectedRole == 'Student');
-                                                // Clear school field when switching to Visitor
+                                                // Clear school selection when switching to Visitor
                                                 if (!_showSchoolField) {
-                                                  _schoolController.clear();
+                                                  _selectedSchool = null;
                                                 }
                                               });
                                               FocusScope.of(context).unfocus();
@@ -352,10 +338,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   ),
                                 ),
                                 
-                                // School Input Field (only for students)
+                                // School Selection Dropdown (only for students)
                                 if (_showSchoolField) ...[
                                   const SizedBox(height: 20),
                                   Container(
+                                    width: double.infinity,
                                     decoration: BoxDecoration(
                                       color: Colors.grey.withOpacity(0.4),
                                       borderRadius: BorderRadius.circular(8),
@@ -375,10 +362,120 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                             ),
                                           ),
                                         ),
+                                        // School dropdown with padding for label
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 25, bottom: 8),
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: _selectedSchool,
+                                              hint: const Center(
+                                                child: Text(
+                                                  'Select your school',
+                                                  style: TextStyle(
+                                                    color: Colors.white54,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                              isExpanded: true,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              dropdownColor: Colors.white,
+                                              menuMaxHeight: 300,
+                                              items: _schoolOptions.map((String school) {
+                                                return DropdownMenuItem<String>(
+                                                  value: school,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                    child: Text(
+                                                      school,
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  _selectedSchool = newValue;
+                                                  _showCustomSchoolField = (newValue == 'Others');
+                                                  // Clear custom school field when switching away from Others
+                                                  if (!_showCustomSchoolField) {
+                                                    _customSchoolController.clear();
+                                                  }
+                                                });
+                                                FocusScope.of(context).unfocus();
+                                              },
+                                              selectedItemBuilder: (BuildContext context) {
+                                                return _schoolOptions.map((String school) {
+                                                  return Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.symmetric(vertical: 4),
+                                                      child: Text(
+                                                        school,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList();
+                                              },
+                                              icon: const Padding(
+                                                padding: EdgeInsets.only(right: 20),
+                                                child: Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                
+                                // Custom School Input Field (only when "Others" is selected AND role is Student)
+                                if (_showSchoolField && _showCustomSchoolField) ...[
+                                  const SizedBox(height: 20),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        // "Please specify your school" label in top-left corner
+                                        const Positioned(
+                                          top: 8,
+                                          left: 15,
+                                          child: Text(
+                                            'Please specify your school',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                          ),
+                                        ),
                                         // TextField with centered text and top padding
                                         TextField(
-                                          controller: _schoolController,
-                                          focusNode: _schoolFocusNode,
+                                          controller: _customSchoolController,
+                                          focusNode: _customSchoolFocusNode,
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -389,18 +486,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           textInputAction: TextInputAction.done,
                                           textCapitalization: TextCapitalization.words,
                                           inputFormatters: [
-                                            SchoolInputFormatter(), // Custom formatter for school names
-                                            LengthLimitingTextInputFormatter(100), // Reasonable limit
+                                            // Reuse the school input formatter from original code
+                                            LengthLimitingTextInputFormatter(100),
+                                            // Allow letters, numbers, spaces, and common punctuation for school names
+                                            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9\s\-'.()#&,]")),
                                           ],
                                           onTap: () {
-                                            _schoolFocusNode.requestFocus();
+                                            _customSchoolFocusNode.requestFocus();
                                           },
                                           onSubmitted: (value) {
                                             FocusScope.of(context).unfocus();
                                             _proceedToNext();
                                           },
                                           decoration: const InputDecoration(
-                                            hintText: 'Ex: STI College Tagum',
+                                            hintText: 'Enter your school name',
                                             hintStyle: TextStyle(color: Colors.white54),
                                             border: InputBorder.none,
                                             contentPadding: EdgeInsets.only(
@@ -468,7 +567,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _proceedToNext() {
     // Trim whitespace and validate inputs
     final String trimmedName = _nameController.text.trim();
-    final String trimmedSchool = _schoolController.text.trim();
     
     if (trimmedName.isEmpty) {
       _showCustomErrorDialog(
@@ -489,30 +587,49 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       return;
     }
     
-    if (_selectedRole == 'Student' && trimmedSchool.isEmpty) {
+    if (_selectedRole == 'Student' && _selectedSchool == null) {
       _showCustomErrorDialog(
-        'School Information Required',
-        'Please enter your school name to continue.',
+        'School Selection Required',
+        'Please select your school to continue.',
         Icons.school_outlined,
       );
       return;
     }
     
-    // Additional validation for school name if it's a student
-    if (_selectedRole == 'Student' && !RegExp(r'[a-zA-Z]').hasMatch(trimmedSchool)) {
+    if (_selectedRole == 'Student' && _selectedSchool == 'Others' && _customSchoolController.text.trim().isEmpty) {
       _showCustomErrorDialog(
-        'Invalid School Name',
-        'Please enter a valid school name.',
+        'Custom School Required',
+        'Please enter your school name.',
         Icons.school_outlined,
       );
       return;
+    }
+    
+    // Additional validation for custom school name
+    if (_selectedRole == 'Student' && _selectedSchool == 'Others' && !RegExp(r'[a-zA-Z]').hasMatch(_customSchoolController.text.trim())) {
+      _showCustomErrorDialog(
+        'Invalid School Name',
+        'Please enter a valid school name with letters.',
+        Icons.school_outlined,
+      );
+      return;
+    }
+
+    // Determine the final school name to save
+    String finalSchoolName = '';
+    if (_selectedRole == 'Student') {
+      if (_selectedSchool == 'Others') {
+        finalSchoolName = _customSchoolController.text.trim();
+      } else {
+        finalSchoolName = _selectedSchool!;
+      }
     }
 
     // Process the data and navigate to next screen
     Map<String, dynamic> userData = {
       'name': trimmedName,
       'role': _selectedRole,
-      if (_selectedRole == 'Student') 'school': trimmedSchool,
+      if (_selectedRole == 'Student') 'school': finalSchoolName,
     };
 
     // Store user data globally
@@ -628,9 +745,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         Future.delayed(const Duration(milliseconds: 100), () {
                           _nameFocusNode.requestFocus();
                         });
-                      } else if (title.contains('School')) {
+                      } else if (title.contains('Custom School') || (title.contains('School') && _selectedSchool == 'Others')) {
                         Future.delayed(const Duration(milliseconds: 100), () {
-                          _schoolFocusNode.requestFocus();
+                          _customSchoolFocusNode.requestFocus();
                         });
                       }
                     },
@@ -664,9 +781,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _schoolController.dispose();
+    _customSchoolController.dispose();
     _nameFocusNode.dispose();
-    _schoolFocusNode.dispose();
+    _customSchoolFocusNode.dispose();
     super.dispose();
   }
 }
