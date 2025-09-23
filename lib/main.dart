@@ -81,7 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     'Aces Polytechnic College',
     'Arriesgado College Foundation, Inc',
     'Assumpta School of Tagum',
-    'CARD-MRI Development Institute Inc. CMDI Tagum',
+    'CARD-MRI Development Institute Inc.',
     'La Filipina National Highschool',
     'Laureta National Highschool',
     'Letran De Davao Inc.',
