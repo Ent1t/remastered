@@ -53,7 +53,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         fontFamily: 'Regular',
       ),
-      home: const WelcomeScreen(),
+      // Set up proper routing
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomeScreen(),
+        '/home': (context) {
+          // Get arguments passed to the route
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return HomeScreen(userData: args ?? {});
+        },
+      },
       debugShowCheckedModeBanner: false,
     );
   }
@@ -639,16 +648,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       if (_selectedRole == 'Student') 'school': finalSchoolName,
     };
 
-    // Store user data globally
-    GlobalData.userData = userData;
-    Global.userData = userData;
+    // Store user data globally - use consistent global storage
+    try {
+      GlobalData.userData = userData;
+      Global.userData = userData;
+    } catch (e) {
+      // Handle any potential errors when setting global data
+      debugPrint('Error setting global data: $e');
+      // Continue with navigation even if global storage fails
+    }
     
-    // Navigate to home screen
-    Navigator.pushReplacement(
+    // Navigate to home screen using named route with arguments
+    Navigator.pushReplacementNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => HomeScreen(userData: userData),
-      ),
+      '/home',
+      arguments: userData,
     );
   }
 
