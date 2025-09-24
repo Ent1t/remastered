@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:audioplayers/audioplayers.dart'; // Add this dependency
+import 'package:audioplayers/audioplayers.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class KaganMusicScreen extends StatefulWidget {
   const KaganMusicScreen({super.key});
@@ -14,7 +16,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
-  String? _selectedCategory;
   
   // Scroll controller and visibility state
   final ScrollController _scrollController = ScrollController();
@@ -27,83 +28,30 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   bool _isPlaying = false;
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
-  bool _isLoading = false;
+  bool _isLoadingAudio = false;
 
-  // Sample data for kagan music
-  final List<MusicTrack> _allTracks = [
-    MusicTrack(
-      title: 'Harvest Song',
-      description: 'Song sung during rice harvest celebrations',
-      category: 'Traditional',
-      imagePath: 'assets/images/kagan_harvest.jpg',
-      artist: 'Matt Gamar',
-      audioPath: 'audio/kagan_harvest.mp3',
-    ),
-    MusicTrack(
-      title: 'War Chant',
-      description: 'Ancient chant performed before battles',
-      category: 'Ceremonial',
-      imagePath: 'assets/images/kagan_war_chant.jpg',
-      artist: 'Elder kagan',
-      audioPath: 'audio/kagan_war_chant.mp3',
-    ),
-    MusicTrack(
-      title: 'Lullaby',
-      description: 'Traditional song for children',
-      category: 'Folk',
-      imagePath: 'assets/images/kagan_lullaby.jpg',
-      artist: 'Maria Santos',
-      audioPath: 'audio/kagan_lullaby.mp3',
-    ),
-    MusicTrack(
-      title: 'Spirit Dance',
-      description: 'Sacred music for ancestral rituals',
-      category: 'Spiritual',
-      imagePath: 'assets/images/kagan_spirit.jpg',
-      artist: 'Datu Lumad',
-      audioPath: 'audio/kagan_spirit.mp3',
-    ),
-    MusicTrack(
-      title: 'Wedding Song',
-      description: 'Ceremonial music for marriage rituals',
-      category: 'Ceremonial',
-      imagePath: 'assets/images/kagan_wedding.jpg',
-      artist: 'Tribal Ensemble',
-      audioPath: 'audio/kagan_wedding.mp3',
-    ),
-    MusicTrack(
-      title: 'Mountain Echo',
-      description: 'Folk song about the sacred mountains',
-      category: 'Folk',
-      imagePath: 'assets/images/kagan_mountain.jpg',
-      artist: 'Mountain Singers',
-      audioPath: 'audio/kagan_mountain.mp3',
-    ),
-  ];
-
-  List<String> get _categories => ['All', 'Traditional', 'Ceremonial', 'Folk', 'Spiritual'];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<MusicTrack> _allTracks = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  MusicTrack? _featuredTrack;
 
   List<MusicTrack> get _filteredTracks {
-    List<MusicTrack> tracks = _allTracks;
-    
-    if (_selectedCategory != null && _selectedCategory != 'All') {
-      tracks = tracks.where((track) => track.category == _selectedCategory).toList();
+    if (_searchQuery.isEmpty) {
+      return _allTracks;
     }
     
-    if (_searchQuery.isNotEmpty) {
-      tracks = tracks.where((track) =>
-          track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          track.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          track.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
-    }
-    
-    return tracks;
+    return _allTracks.where((track) =>
+        track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        track.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        track.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
   @override
   void initState() {
     super.initState();
-    _selectedCategory = 'All';
     _setupAudioPlayer();
     _setupScrollController();
     _searchFocusNode.addListener(() {
@@ -111,6 +59,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         _isSearchFocused = _searchFocusNode.hasFocus;
       });
     });
+    _fetchMusicTracks();
   }
 
   void _setupScrollController() {
@@ -150,7 +99,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     _audioPlayer.onPlayerStateChanged.listen((state) {
       setState(() {
         _isPlaying = state == PlayerState.playing;
-        _isLoading = state == PlayerState.playing && _currentPosition == Duration.zero;
+        _isLoadingAudio = state == PlayerState.playing && _currentPosition == Duration.zero;
       });
     });
 
@@ -160,6 +109,264 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         _currentPosition = Duration.zero;
       });
     });
+  }
+
+  Future<void> _fetchMusicTracks() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching Kagan music tracks from: $_baseUrl');
+      
+      // Correct API call according to documentation - using query parameters
+      final String apiUrl = '$_baseUrl?tribe=kagan';
+      debugPrint('API URL: $apiUrl');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+      
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      
+      // Check for API error response
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      // Extract data according to API documentation
+      if (!jsonData.containsKey('data')) {
+        throw Exception('API response missing "data" field');
+      }
+
+      final dynamic rawData = jsonData['data'];
+      List<dynamic> contentItems = [];
+      
+      if (rawData is List) {
+        contentItems = rawData;
+      } else if (rawData is Map) {
+        contentItems = [rawData];
+      } else {
+        throw Exception('Unexpected data format in API response');
+      }
+
+      debugPrint('Found ${contentItems.length} content items');
+
+      final List<MusicTrack> musicTracks = [];
+
+      for (var item in contentItems) {
+        if (item == null || item is! Map<String, dynamic>) {
+          debugPrint('Skipping invalid item: $item');
+          continue;
+        }
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // Extract and validate required fields according to API schema
+        final dynamic id = item['id'];
+        final dynamic userId = item['user_id'];
+        final String? title = item['title']?.toString();
+        final String? category = item['category']?.toString();
+        final String? tribe = item['tribe']?.toString();
+        final String? description = item['description']?.toString();
+        final String? file = item['file']?.toString();
+        final dynamic isArchived = item['is_archived'];
+        final String? time = item['time']?.toString();
+        
+        // Validate required fields
+        if (id == null || 
+            userId == null || 
+            title == null || title.isEmpty ||
+            category == null || category.isEmpty ||
+            tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty ||
+            isArchived == null ||
+            time == null || time.isEmpty) {
+          debugPrint('Skipping item with missing required fields');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // Filter: Must be Kagan tribe
+        if (tribe.toLowerCase() != 'kagan') {
+          debugPrint('Skipping non-Kagan item: $tribe');
+          continue;
+        }
+
+        // Filter: Must not be archived (is_archived should be 0)
+        if (isArchived != 0) {
+          debugPrint('Skipping archived item: $title');
+          continue;
+        }
+
+        // Determine if this is audio/video content
+        final fileType = _determineFileType(file);
+        
+        // Only include audio files and videos (which might contain audio)
+        if (!_isAudioContent(file, category)) {
+          debugPrint('Skipping non-audio content: $file (category: $category, type: $fileType)');
+          continue;
+        }
+
+        // Create music track
+        final musicTrack = MusicTrack(
+          id: id.toString(),
+          title: title,
+          description: description ?? 'No description available',
+          category: _mapCategory(category),
+          imagePath: _buildThumbnailUrl(file, category),
+          artist: _extractArtist(description, title),
+          audioPath: '$_uploadsBaseUrl$file',
+          file: file,
+          fileType: fileType,
+          isNetworkSource: true,
+        );
+        
+        debugPrint('✅ Added music track: $title (ID: $id, Category: $category)');
+        musicTracks.add(musicTrack);
+      }
+
+      debugPrint('Final music track count: ${musicTracks.length}');
+
+      setState(() {
+        _allTracks = musicTracks;
+        _featuredTrack = musicTracks.isNotEmpty ? musicTracks.first : null;
+        _isLoading = false;
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching music tracks: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load music tracks: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _isAudioContent(String filename, String category) {
+    final String lowerFilename = filename.toLowerCase();
+    final String lowerCategory = category.toLowerCase();
+    
+    // Audio file extensions
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac'];
+    
+    // Video file extensions (might contain audio)
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv'];
+    
+    // Check file extension
+    final hasAudioExtension = audioExtensions.any((ext) => lowerFilename.endsWith(ext));
+    final hasVideoExtension = videoExtensions.any((ext) => lowerFilename.endsWith(ext));
+    
+    // Check category hints
+    const musicCategories = ['audio', 'music', 'song', 'instrument', 'ceremony'];
+    final isMusicCategory = musicCategories.any((cat) => lowerCategory.contains(cat));
+    
+    return hasAudioExtension || (hasVideoExtension && isMusicCategory);
+  }
+
+  String _buildThumbnailUrl(String filename, String category) {
+    // For audio files, use a default music thumbnail
+    if (_isAudioContent(filename, category)) {
+      // You could potentially extract thumbnails from the API if they exist
+      // For now, use default asset
+      return 'assets/images/kagan_default_music.jpg';
+    }
+    
+    // For image files, use the actual file
+    final String lowerFilename = filename.toLowerCase();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    
+    if (imageExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return '$_uploadsBaseUrl$filename';
+    }
+    
+    return 'assets/images/kagan_default_music.jpg';
+  }
+
+  FileType _determineFileType(String filename) {
+    final String lowerFilename = filename.toLowerCase();
+    
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv', '.flv', '.wmv'];
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac'];
+    
+    if (audioExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.audio;
+    } else if (videoExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.video;
+    } else if (imageExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.image;
+    }
+    
+    return FileType.unknown;
+  }
+
+  String _mapCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'audio':
+        return 'Traditional Music';
+      case 'instrument':
+        return 'Instrumental';
+      case 'ceremony':
+        return 'Ceremonial';
+      case 'video':
+        return 'Audio/Video';
+      case 'music':
+        return 'Music';
+      case 'song':
+        return 'Song';
+      default:
+        return category; // Keep original category if no mapping found
+    }
+  }
+
+  String _extractArtist(String? description, String title) {
+    // Try to extract artist name from description
+    if (description != null && description.isNotEmpty) {
+      // Look for common patterns
+      final RegExp artistPattern = RegExp(r'(?:by|artist|performed by|sung by)\s+([^,\.\-\n]+)', caseSensitive: false);
+      final match = artistPattern.firstMatch(description);
+      if (match != null && match.group(1) != null) {
+        return match.group(1)!.trim();
+      }
+      
+      // If description is short and doesn't contain common words, it might be the artist name
+      if (description.length < 50 && 
+          !description.toLowerCase().contains(RegExp(r'\b(the|a|an|and|or|but|in|on|at|to|for|of|with|by)\b'))) {
+        return description.trim();
+      }
+    }
+    
+    // Generate contextual artist names based on title
+    final lowerTitle = title.toLowerCase();
+    if (lowerTitle.contains(RegExp(r'\b(elder|traditional|ancestral|ancient)\b'))) {
+      return 'Kagan Elders';
+    } else if (lowerTitle.contains(RegExp(r'\b(ritual|ceremony|ceremonial|sacred)\b'))) {
+      return 'Tribal Ensemble';
+    } else if (lowerTitle.contains(RegExp(r'\b(instrument|instrumental|music)\b'))) {
+      return 'Kagan Musicians';
+    }
+    
+    return 'Kagan Artist';
+  }
+
+  Future<void> _refreshMusicTracks() async {
+    await _fetchMusicTracks();
   }
 
   @override
@@ -308,7 +515,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                       _searchFocusNode.unfocus();
                       setState(() {
                         _searchQuery = '';
-                        _selectedCategory = 'All';
                         _isHeaderVisible = true;
                       });
                     },
@@ -328,42 +534,150 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildMainContent() {
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      slivers: [
-        SliverToBoxAdapter(
-          child: _buildHeroSection(),
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Loading Kagan music tracks...',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
-        SliverToBoxAdapter(
-          child: _buildCategoriesFilter(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load music tracks',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshMusicTracks,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final track = _filteredTracks[index];
-              return _buildMusicCard(track);
-            },
-            childCount: _filteredTracks.length,
+      );
+    }
+
+    if (_allTracks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.music_note_outlined,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Kagan music tracks available',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for new music content',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshMusicTracks,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Refresh'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshMusicTracks,
+      color: const Color(0xFFD4A574),
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverToBoxAdapter(
+            child: _buildHeroSection(),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(height: _currentTrack != null ? 120 : 20),
-        ),
-      ],
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final track = _filteredTracks[index];
+                return _buildMusicCard(track);
+              },
+              childCount: _filteredTracks.length,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: _currentTrack != null ? 120 : 20),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSearchResults() {
     return Column(
       children: [
-        if (_searchQuery.isNotEmpty || _selectedCategory != 'All')
+        if (_searchQuery.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Text(
-                  _buildResultsText(),
+                  '${_filteredTracks.length} result${_filteredTracks.length == 1 ? '' : 's'} for "$_searchQuery"',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 14,
@@ -374,10 +688,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           ),
         
         Expanded(
-          child: _searchQuery.isEmpty && _selectedCategory == 'All'
+          child: _searchQuery.isEmpty
               ? Center(
                   child: Text(
-                    'Start typing to search or select a category...',
+                    'Start typing to search...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 16,
@@ -405,9 +719,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _searchQuery.isNotEmpty 
-                                ? 'Try different keywords'
-                                : 'No tracks in this category',
+                            'Try different keywords',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
                               fontSize: 14,
@@ -528,50 +840,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     );
   }
 
-  Widget _buildCategoriesFilter() {
-    return Container(
-      height: 50,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          final isSelected = _selectedCategory == category;
-          
-          return Container(
-            margin: const EdgeInsets.only(right: 12),
-            child: FilterChip(
-              label: Text(category),
-              selected: isSelected,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-              backgroundColor: const Color(0xFF2A2A2A),
-              selectedColor: const Color(0xFFD4A574),
-              side: BorderSide(
-                color: isSelected 
-                    ? const Color(0xFFD4A574)
-                    : const Color(0xFFD4A574).withOpacity(0.3),
-                width: isSelected ? 2 : 1,
-              ),
-              onSelected: (selected) {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _selectedCategory = selected ? category : 'All';
-                });
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildMusicCard(MusicTrack track) {
-    final isCurrentTrack = _currentTrack?.title == track.title;
+    final isCurrentTrack = _currentTrack?.id == track.id;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -608,17 +878,38 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      track.imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.music_note,
-                          color: Color(0xFFD4A574),
-                          size: 30,
-                        );
-                      },
-                    ),
+                    child: track.imagePath.startsWith('http')
+                        ? Image.network(
+                            track.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.music_note,
+                                color: Color(0xFFD4A574),
+                                size: 30,
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                                  strokeWidth: 2,
+                                ),
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            track.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.music_note,
+                                color: Color(0xFFD4A574),
+                                size: 30,
+                              );
+                            },
+                          ),
                   ),
                 ),
                 
@@ -645,22 +936,39 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           color: Colors.white.withOpacity(0.7),
                           fontSize: 14,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD4A574).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          track.category,
-                          style: const TextStyle(
-                            color: Color(0xFFD4A574),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD4A574).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              track.category,
+                              style: const TextStyle(
+                                color: Color(0xFFD4A574),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '• ${track.artist}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -678,7 +986,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                       color: const Color(0xFFD4A574),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: _isLoading && isCurrentTrack
+                    child: _isLoadingAudio && isCurrentTrack
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -731,17 +1039,29 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    _currentTrack!.imagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.music_note,
-                        color: Color(0xFFD4A574),
-                        size: 25,
-                      );
-                    },
-                  ),
+                  child: _currentTrack!.imagePath.startsWith('http')
+                      ? Image.network(
+                          _currentTrack!.imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.music_note,
+                              color: Color(0xFFD4A574),
+                              size: 25,
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          _currentTrack!.imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.music_note,
+                              color: Color(0xFFD4A574),
+                              size: 25,
+                            );
+                          },
+                        ),
                 ),
               ),
               
@@ -758,6 +1078,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _currentTrack!.artist,
@@ -765,6 +1087,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -880,31 +1204,24 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     );
   }
 
-  String _buildResultsText() {
-    String text = '${_filteredTracks.length} result${_filteredTracks.length == 1 ? '' : 's'}';
-    
-    if (_searchQuery.isNotEmpty && _selectedCategory != 'All') {
-      text += ' for "$_searchQuery" in $_selectedCategory';
-    } else if (_searchQuery.isNotEmpty) {
-      text += ' for "$_searchQuery"';
-    } else if (_selectedCategory != 'All') {
-      text += ' in $_selectedCategory';
-    }
-    
-    return text;
-  }
-
   Future<void> _togglePlayPause(MusicTrack track) async {
     try {
-      if (_currentTrack?.title != track.title) {
+      if (_currentTrack?.id != track.id) {
         // Play new track
         setState(() {
           _currentTrack = track;
-          _isLoading = true;
+          _isLoadingAudio = true;
         });
         
         await _audioPlayer.stop();
-        await _audioPlayer.play(AssetSource(track.audioPath));
+        
+        if (track.isNetworkSource) {
+          // Play from network URL
+          await _audioPlayer.play(UrlSource(track.audioPath));
+        } else {
+          // Play from assets
+          await _audioPlayer.play(AssetSource(track.audioPath));
+        }
       } else {
         // Toggle play/pause for current track
         if (_isPlaying) {
@@ -914,13 +1231,27 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         }
       }
     } catch (e) {
-      // Handle error - maybe show a snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error playing audio: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      debugPrint('Error playing audio: $e');
+      
+      // Show error message to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unable to play audio: ${track.title}'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: () => _togglePlayPause(track),
+            ),
+          ),
+        );
+      }
+      
+      // Reset loading state on error
+      setState(() {
+        _isLoadingAudio = false;
+      });
     }
   }
 
@@ -932,7 +1263,12 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    
+    if (duration.inHours > 0) {
+      return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    } else {
+      return "$twoDigitMinutes:$twoDigitSeconds";
+    }
   }
 
   void _closeMusicPlayer() async {
@@ -942,7 +1278,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       _isPlaying = false;
       _currentPosition = Duration.zero;
       _totalDuration = Duration.zero;
-      _isLoading = false;
+      _isLoadingAudio = false;
     });
   }
 
@@ -956,21 +1292,37 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 }
 
-// MusicTrack model with audio path
+// Enum for file types
+enum FileType {
+  video,
+  audio,
+  image,
+  unknown,
+}
+
+// Enhanced MusicTrack model with API support
 class MusicTrack {
+  final String id;
   final String title;
   final String description;
   final String category;
   final String imagePath;
   final String artist;
   final String audioPath;
+  final String file;
+  final FileType fileType;
+  final bool isNetworkSource;
 
   MusicTrack({
+    required this.id,
     required this.title,
     required this.description,
     required this.category,
     required this.imagePath,
     required this.artist,
     required this.audioPath,
+    required this.file,
+    required this.fileType,
+    this.isNetworkSource = false,
   });
 }

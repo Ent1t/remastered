@@ -12,183 +12,135 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<ArtifactCategory> _categories = [
-    ArtifactCategory(
-      title: 'Jewelry & Adornments',
-      subtitle: 'Sacred Beadwork & Personal Items',
-      imagePath: 'assets/images/kagan_jewelry.jpg',
-      gradientColors: [const Color(0xFFD4A574), const Color(0xFFB8935F)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Tubà Sacred Necklace',
-          description: 'Multi-layered brass and gold bead necklace worn by tribal leaders during important ceremonies',
-          material: 'Brass beads, gold accents, cotton thread',
-          origin: 'Tugbok Village, Davao City',
-          age: 'Circa 1890-1920',
-          significance: 'Symbol of leadership and spiritual authority',
-          imagePath: 'assets/artifacts/kagan_tuba_necklace.jpg',
-        ),
-        ArtifactItem(
-          name: 'Ceremonial Ear Weights',
-          description: 'Heavy brass ear ornaments that gradually stretch the earlobes as a sign of beauty and status',
-          material: 'Hammered brass, silver inlay',
-          origin: 'Calinan District, Davao City',
-          age: 'Late 19th century',
-          significance: 'Marker of social status and tribal identity',
-          imagePath: 'assets/artifacts/kagan_ear_weights.jpg',
-        ),
-        ArtifactItem(
-          name: 'Wedding Anklet Set',
-          description: 'Intricate silver anklets with traditional geometric patterns, worn during marriage ceremonies',
-          material: 'Sterling silver, brass bells',
-          origin: 'Marilog District, Davao City',
-          age: 'Early 20th century',
-          significance: 'Symbol of marital commitment and fertility',
-          imagePath: 'assets/artifacts/kagan_wedding_anklets.jpg',
-        ),
-      ],
+  // All artifacts in a single list (removed from categories)
+  final List<ArtifactItem> _allArtifacts = [
+    // Jewelry & Adornments
+    ArtifactItem(
+      name: 'Tubà Sacred Necklace',
+      description: 'Multi-layered brass and gold bead necklace worn by tribal leaders during important ceremonies',
+      material: 'Brass beads, gold accents, cotton thread',
+      origin: 'Tugbok Village, Davao City',
+      age: 'Circa 1890-1920',
+      significance: 'Symbol of leadership and spiritual authority',
+      imagePath: 'assets/artifacts/kagan_tuba_necklace.jpg',
     ),
-    ArtifactCategory(
-      title: 'Traditional Weapons',
-      subtitle: 'Hunting & Ceremonial Arms',
-      imagePath: 'assets/images/kagan_weapons.jpg',
-      gradientColors: [const Color(0xFF8B4513), const Color(0xFF654321)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Bangkaw War Spear',
-          description: 'Long ceremonial spear with iron tip, used in tribal warfare and hunting large game',
-          material: 'Bamboo shaft, forged iron tip, rattan binding',
-          origin: 'Mt. Apo Foothills',
-          age: 'Mid-19th century',
-          significance: 'Symbol of warrior status and tribal protection',
-          imagePath: 'assets/artifacts/kagan_bangkaw_spear.jpg',
-        ),
-        ArtifactItem(
-          name: 'Kris Ceremonial Dagger',
-          description: 'Wavy-bladed ritual dagger with carved wooden handle, used in spiritual ceremonies',
-          material: 'Damascus steel blade, kamagong wood handle',
-          origin: 'Tribal Blacksmith, Tugbok',
-          age: 'Circa 1880',
-          significance: 'Spiritual protection and ancestral connection',
-          imagePath: 'assets/artifacts/kagan_kris_dagger.jpg',
-        ),
-        ArtifactItem(
-          name: 'Hunting Bow and Arrows',
-          description: 'Traditional bow with poison-tipped arrows used for hunting wild boar and deer',
-          material: 'Bamboo bow, rattan string, wooden arrows',
-          origin: 'Highland Hunting Grounds',
-          age: 'Early 1900s',
-          significance: 'Essential tool for survival and food procurement',
-          imagePath: 'assets/artifacts/kagan_bow_arrows.jpg',
-        ),
-      ],
+    ArtifactItem(
+      name: 'Ceremonial Ear Weights',
+      description: 'Heavy brass ear ornaments that gradually stretch the earlobes as a sign of beauty and status',
+      material: 'Hammered brass, silver inlay',
+      origin: 'Calinan District, Davao City',
+      age: 'Late 19th century',
+      significance: 'Marker of social status and tribal identity',
+      imagePath: 'assets/artifacts/kagan_ear_weights.jpg',
     ),
-    ArtifactCategory(
-      title: 'Ritual Objects',
-      subtitle: 'Ceremonial & Spiritual Items',
-      imagePath: 'assets/images/kagan_ritual.jpg',
-      gradientColors: [const Color(0xFF654321), const Color(0xFF4A3728)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Baylan Prayer Bowl',
-          description: 'Sacred wooden bowl used by shamans for water rituals and ancestor communication',
-          material: 'Carved narra wood, brass inlay',
-          origin: 'Sacred Grove, Mt. Apo',
-          age: 'Late 19th century',
-          significance: 'Bridge between physical and spiritual worlds',
-          imagePath: 'assets/artifacts/kagan_prayer_bowl.jpg',
-        ),
-        ArtifactItem(
-          name: 'Ancestral Spirit Mask',
-          description: 'Carved wooden mask representing tribal ancestors, worn during spiritual ceremonies',
-          material: 'Kamagong wood, natural pigments, animal hair',
-          origin: 'Ritual Workshop, Calinan',
-          age: 'Circa 1870-1900',
-          significance: 'Channels ancestral spirits during ceremonies',
-          imagePath: 'assets/artifacts/kagan_spirit_mask.jpg',
-        ),
-        ArtifactItem(
-          name: 'Incense Burner Staff',
-          description: 'Wooden staff with metal bowl for burning sacred herbs during healing rituals',
-          material: 'Bamboo shaft, brass bowl, carved decorations',
-          origin: 'Tribal Healer Collection',
-          age: 'Early 20th century',
-          significance: 'Purification and healing ceremonies',
-          imagePath: 'assets/artifacts/kagan_incense_staff.jpg',
-        ),
-      ],
+    ArtifactItem(
+      name: 'Wedding Anklet Set',
+      description: 'Intricate silver anklets with traditional geometric patterns, worn during marriage ceremonies',
+      material: 'Sterling silver, brass bells',
+      origin: 'Marilog District, Davao City',
+      age: 'Early 20th century',
+      significance: 'Symbol of marital commitment and fertility',
+      imagePath: 'assets/artifacts/kagan_wedding_anklets.jpg',
     ),
-    ArtifactCategory(
-      title: 'Daily Use Tools',
-      subtitle: 'Agricultural & Household Items',
-      imagePath: 'assets/images/kagan_tools.jpg',
-      gradientColors: [const Color(0xFF8B7355), const Color(0xFF6B5B47)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Rice Terracing Hoe',
-          description: 'Iron-bladed hoe with wooden handle, used for cultivating mountain rice terraces',
-          material: 'Forged iron blade, hardwood handle',
-          origin: 'Highland Farms, Marilog',
-          age: 'Late 19th century',
-          significance: 'Essential tool for rice cultivation and survival',
-          imagePath: 'assets/artifacts/kagan_rice_hoe.jpg',
-        ),
-        ArtifactItem(
-          name: 'Traditional Weaving Loom',
-          description: 'Wooden frame loom used for weaving traditional textiles and ceremonial cloths',
-          material: 'Bamboo frame, wooden heddles, cotton strings',
-          origin: 'Weaving Center, Tugbok',
-          age: 'Early 1900s',
-          significance: 'Creation of cultural identity through textiles',
-          imagePath: 'assets/artifacts/kagan_weaving_loom.jpg',
-        ),
-        ArtifactItem(
-          name: 'Coconut Grater Stool',
-          description: 'Low wooden stool with metal grater blade for processing coconut meat',
-          material: 'Narra wood, iron grater blade',
-          origin: 'Village Craftsman, Calinan',
-          age: 'Mid-20th century',
-          significance: 'Daily food preparation and community gathering',
-          imagePath: 'assets/artifacts/kagan_coconut_grater.jpg',
-        ),
-      ],
+    // Traditional Weapons
+    ArtifactItem(
+      name: 'Bangkaw War Spear',
+      description: 'Long ceremonial spear with iron tip, used in tribal warfare and hunting large game',
+      material: 'Bamboo shaft, forged iron tip, rattan binding',
+      origin: 'Mt. Apo Foothills',
+      age: 'Mid-19th century',
+      significance: 'Symbol of warrior status and tribal protection',
+      imagePath: 'assets/artifacts/kagan_bangkaw_spear.jpg',
+    ),
+    ArtifactItem(
+      name: 'Kris Ceremonial Dagger',
+      description: 'Wavy-bladed ritual dagger with carved wooden handle, used in spiritual ceremonies',
+      material: 'Damascus steel blade, kamagong wood handle',
+      origin: 'Tribal Blacksmith, Tugbok',
+      age: 'Circa 1880',
+      significance: 'Spiritual protection and ancestral connection',
+      imagePath: 'assets/artifacts/kagan_kris_dagger.jpg',
+    ),
+    ArtifactItem(
+      name: 'Hunting Bow and Arrows',
+      description: 'Traditional bow with poison-tipped arrows used for hunting wild boar and deer',
+      material: 'Bamboo bow, rattan string, wooden arrows',
+      origin: 'Highland Hunting Grounds',
+      age: 'Early 1900s',
+      significance: 'Essential tool for survival and food procurement',
+      imagePath: 'assets/artifacts/kagan_bow_arrows.jpg',
+    ),
+    // Ritual Objects
+    ArtifactItem(
+      name: 'Baylan Prayer Bowl',
+      description: 'Sacred wooden bowl used by shamans for water rituals and ancestor communication',
+      material: 'Carved narra wood, brass inlay',
+      origin: 'Sacred Grove, Mt. Apo',
+      age: 'Late 19th century',
+      significance: 'Bridge between physical and spiritual worlds',
+      imagePath: 'assets/artifacts/kagan_prayer_bowl.jpg',
+    ),
+    ArtifactItem(
+      name: 'Ancestral Spirit Mask',
+      description: 'Carved wooden mask representing tribal ancestors, worn during spiritual ceremonies',
+      material: 'Kamagong wood, natural pigments, animal hair',
+      origin: 'Ritual Workshop, Calinan',
+      age: 'Circa 1870-1900',
+      significance: 'Channels ancestral spirits during ceremonies',
+      imagePath: 'assets/artifacts/kagan_spirit_mask.jpg',
+    ),
+    ArtifactItem(
+      name: 'Incense Burner Staff',
+      description: 'Wooden staff with metal bowl for burning sacred herbs during healing rituals',
+      material: 'Bamboo shaft, brass bowl, carved decorations',
+      origin: 'Tribal Healer Collection',
+      age: 'Early 20th century',
+      significance: 'Purification and healing ceremonies',
+      imagePath: 'assets/artifacts/kagan_incense_staff.jpg',
+    ),
+    // Daily Use Tools
+    ArtifactItem(
+      name: 'Rice Terracing Hoe',
+      description: 'Iron-bladed hoe with wooden handle, used for cultivating mountain rice terraces',
+      material: 'Forged iron blade, hardwood handle',
+      origin: 'Highland Farms, Marilog',
+      age: 'Late 19th century',
+      significance: 'Essential tool for rice cultivation and survival',
+      imagePath: 'assets/artifacts/kagan_rice_hoe.jpg',
+    ),
+    ArtifactItem(
+      name: 'Traditional Weaving Loom',
+      description: 'Wooden frame loom used for weaving traditional textiles and ceremonial cloths',
+      material: 'Bamboo frame, wooden heddles, cotton strings',
+      origin: 'Weaving Center, Tugbok',
+      age: 'Early 1900s',
+      significance: 'Creation of cultural identity through textiles',
+      imagePath: 'assets/artifacts/kagan_weaving_loom.jpg',
+    ),
+    ArtifactItem(
+      name: 'Coconut Grater Stool',
+      description: 'Low wooden stool with metal grater blade for processing coconut meat',
+      material: 'Narra wood, iron grater blade',
+      origin: 'Village Craftsman, Calinan',
+      age: 'Mid-20th century',
+      significance: 'Daily food preparation and community gathering',
+      imagePath: 'assets/artifacts/kagan_coconut_grater.jpg',
     ),
   ];
 
-  List<ArtifactCategory> get _filteredCategories {
+  List<ArtifactItem> get _filteredArtifacts {
     if (_searchQuery.isEmpty) {
-      return _categories;
+      return _allArtifacts;
     }
-    return _categories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.subtitle.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.artifacts.any((artifact) => 
-                artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return _allArtifacts.where((artifact) {
+      return artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.origin.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.age.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.significance.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
-
-  List<ArtifactItem> get _searchResults {
-    if (_searchQuery.isEmpty) return [];
-    
-    List<ArtifactItem> results = [];
-    for (var category in _categories) {
-      for (var artifact in category.artifacts) {
-        if (artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.origin.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.age.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.significance.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          results.add(artifact);
-        }
-      }
-    }
-    return results;
-  }
-
-  bool get _isSearching => _searchQuery.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -218,19 +170,14 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSearchBar(),
-                      if (_isSearching) ...[
-                        const SizedBox(height: 20),
-                        _buildSearchResults(),
-                      ] else ...[
-                        const SizedBox(height: 20),
-                        _buildFeaturedImage(),
-                        const SizedBox(height: 24),
-                        _buildDescription(),
-                        const SizedBox(height: 32),
-                        _buildBrowseSection(),
-                        const SizedBox(height: 20),
-                        _buildArtifactCategories(),
-                      ],
+                      const SizedBox(height: 20),
+                      _buildFeaturedImage(),
+                      const SizedBox(height: 24),
+                      _buildDescription(),
+                      const SizedBox(height: 32),
+                      _buildBrowseSection(),
+                      const SizedBox(height: 20),
+                      _buildArtifactsGrid(),
                       SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
                     ],
                   ),
@@ -407,11 +354,11 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
-        'Browse artifacts',
-        style: TextStyle(
+        'Browse artifacts (${_filteredArtifacts.length})',
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -420,8 +367,8 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
     );
   }
 
-  Widget _buildArtifactCategories() {
-    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
+  Widget _buildArtifactsGrid() {
+    if (_filteredArtifacts.isEmpty) {
       return _buildNoResults();
     }
 
@@ -436,9 +383,9 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 0.85,
         ),
-        itemCount: _filteredCategories.length,
+        itemCount: _filteredArtifacts.length,
         itemBuilder: (context, index) {
-          return _buildCategoryCard(_filteredCategories[index]);
+          return _buildArtifactCard(_filteredArtifacts[index], index);
         },
       ),
     );
@@ -481,111 +428,11 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_searchResults.isEmpty) {
-      return _buildNoResults();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Search Results (${_searchResults.length})',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-            ),
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return _buildSearchResultCard(_searchResults[index], index);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResultCard(ArtifactItem artifact, int index) {
+  Widget _buildArtifactCard(ArtifactItem artifact, int index) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        _showSearchResultViewer(artifact, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            artifact.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFD4A574),
-                      Color(0xFF8B4513),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.museum,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showSearchResultViewer(ArtifactItem artifact, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ArtifactViewerBottomSheet(
-        artifacts: [artifact], // Show only the selected artifact
-        initialIndex: 0,
-        accentColor: const Color(0xFFD4A574),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(ArtifactCategory category) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showArtifactGallery(category);
+        _showArtifactViewer(artifact, index);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -606,21 +453,24 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
               Expanded(
                 flex: 3,
                 child: Image.asset(
-                  category.imagePath,
+                  artifact.imagePath,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: category.gradientColors,
+                          colors: [
+                            Color(0xFFD4A574),
+                            Color(0xFF8B4513),
+                          ],
                         ),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(
-                          _getCategoryIcon(category.title),
-                          color: Colors.white.withOpacity(0.7),
+                          Icons.museum,
+                          color: Colors.white,
                           size: 40,
                         ),
                       ),
@@ -635,7 +485,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      category.title,
+                      artifact.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -655,7 +505,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '${category.artifacts.length} artifacts',
+                        artifact.age,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -673,48 +523,18 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String title) {
-    switch (title.toLowerCase()) {
-      case 'jewelry & adornments':
-        return Icons.diamond;
-      case 'traditional weapons':
-        return Icons.security;
-      case 'ritual objects':
-        return Icons.auto_awesome;
-      case 'daily use tools':
-        return Icons.build;
-      default:
-        return Icons.museum;
-    }
-  }
-
-  void _showArtifactGallery(ArtifactCategory category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ArtifactGalleryScreen(
-          category: category,
-          accentColor: const Color(0xFFD4A574),
-        ),
+  void _showArtifactViewer(ArtifactItem artifact, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ArtifactViewerBottomSheet(
+        artifacts: _filteredArtifacts,
+        initialIndex: index,
+        accentColor: const Color(0xFFD4A574),
       ),
     );
   }
-}
-
-class ArtifactCategory {
-  final String title;
-  final String subtitle;
-  final String imagePath;
-  final List<Color> gradientColors;
-  final List<ArtifactItem> artifacts;
-
-  ArtifactCategory({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-    required this.gradientColors,
-    required this.artifacts,
-  });
 }
 
 class ArtifactItem {
@@ -735,156 +555,6 @@ class ArtifactItem {
     required this.significance,
     required this.imagePath,
   });
-}
-
-class ArtifactGalleryScreen extends StatelessWidget {
-  final ArtifactCategory category;
-  final Color accentColor;
-
-  const ArtifactGalleryScreen({
-    super.key,
-    required this.category,
-    required this.accentColor,
-  });
-
-  void _showArtifactViewer(BuildContext context, int initialIndex) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ArtifactViewerBottomSheet(
-        artifacts: category.artifacts,
-        initialIndex: initialIndex,
-        accentColor: accentColor,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: GridView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: category.artifacts.length,
-                  itemBuilder: (context, index) {
-                    return _buildArtifactCard(category.artifacts[index], index, context);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              category.title.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildArtifactCard(ArtifactItem artifact, int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showArtifactViewer(context, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            artifact.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accentColor.withOpacity(0.7),
-                      accentColor,
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.museum,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class ArtifactViewerBottomSheet extends StatefulWidget {
@@ -923,7 +593,6 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
       decoration: const BoxDecoration(

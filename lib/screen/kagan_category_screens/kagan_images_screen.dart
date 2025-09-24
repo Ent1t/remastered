@@ -12,164 +12,120 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<ImageCategory> _imageCategories = [
-    ImageCategory(
-      title: 'Traditional Ceremony',
-      tag: 'Ceremony',
-      imagePath: 'assets/images/kagan_ceremony.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/kagan_ceremony_1.jpg',
-          description: 'Traditional Kagan wedding ceremony with elders performing ancient rituals',
-          location: 'Barangay Tugbok, Davao City',
-          date: 'March 15, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_ceremony_2.jpg',
-          description: 'Sacred blessing ritual conducted by tribal elder',
-          location: 'Mt. Apo Cultural Center',
-          date: 'April 20, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_ceremony_3.jpg',
-          description: 'Community gathering for harvest thanksgiving ceremony',
-          location: 'Marilog District, Davao City',
-          date: 'May 10, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_ceremony_4.jpg',
-          description: 'Traditional dance performance during cultural festival',
-          location: 'Tribal Cultural Center',
-          date: 'June 5, 2023',
-        ),
-      ],
+  // All images in a flat list
+  final List<ImageItem> _allImages = [
+    // Traditional Ceremony images
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_1.jpg',
+      description: 'Traditional Kagan wedding ceremony with elders performing ancient rituals',
+      location: 'Barangay Tugbok, Davao City',
+      date: 'March 15, 2023',
     ),
-    ImageCategory(
-      title: 'Village Life',
-      tag: 'Lifestyle',
-      imagePath: 'assets/images/kagan_village.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/kagan_village_1.jpg',
-          description: 'Daily life in traditional Kagan village settlement',
-          location: 'Calinan District, Davao City',
-          date: 'January 12, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_village_2.jpg',
-          description: 'Children playing traditional games in the village',
-          location: 'Barangay Wangan, Calinan',
-          date: 'February 18, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_village_3.jpg',
-          description: 'Village elders sharing stories and wisdom',
-          location: 'Tribal Council Hall',
-          date: 'March 22, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_village_4.jpg',
-          description: 'Traditional farming practices in terraced fields',
-          location: 'Highland Village, Marilog',
-          date: 'April 8, 2023',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_2.jpg',
+      description: 'Sacred blessing ritual conducted by tribal elder',
+      location: 'Mt. Apo Cultural Center',
+      date: 'April 20, 2023',
     ),
-    ImageCategory(
-      title: 'Traditional Textiles',
-      tag: 'Handicraft',
-      imagePath: 'assets/images/kagan_textiles.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/kagan_textiles_1.jpg',
-          description: 'Intricate handwoven textiles with traditional patterns',
-          location: 'Weaving Center, Tugbok',
-          date: 'July 14, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_textiles_2.jpg',
-          description: 'Master weaver creating ceremonial cloth',
-          location: 'Heritage Craft Workshop',
-          date: 'August 3, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_textiles_3.jpg',
-          description: 'Collection of traditional Kagan garments and accessories',
-          location: 'Cultural Heritage Museum',
-          date: 'September 11, 2023',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_3.jpg',
+      description: 'Community gathering for harvest thanksgiving ceremony',
+      location: 'Marilog District, Davao City',
+      date: 'May 10, 2023',
     ),
-    ImageCategory(
-      title: 'Cultural Heritage',
-      tag: 'Heritage',
-      imagePath: 'assets/images/kagan_heritage.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/kagan_heritage_1.jpg',
-          description: 'Ancient tribal artifacts and ceremonial tools',
-          location: 'Heritage Collection Center',
-          date: 'October 5, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_heritage_2.jpg',
-          description: 'Traditional musical instruments used in rituals',
-          location: 'Cultural Arts Center',
-          date: 'November 12, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_heritage_3.jpg',
-          description: 'Sacred tribal totems and spiritual symbols',
-          location: 'Sacred Grove, Mt. Apo',
-          date: 'December 20, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_heritage_4.jpg',
-          description: 'Historical photographs of tribal leaders',
-          location: 'Archive Documentation Center',
-          date: 'January 8, 2024',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/kagan_heritage_5.jpg',
-          description: 'Traditional pottery and crafted vessels',
-          location: 'Pottery Workshop, Calinan',
-          date: 'February 15, 2024',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_4.jpg',
+      description: 'Traditional dance performance during cultural festival',
+      location: 'Tribal Cultural Center',
+      date: 'June 5, 2023',
+    ),
+    // Village Life images
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_1.jpg',
+      description: 'Daily life in traditional Kagan village settlement',
+      location: 'Calinan District, Davao City',
+      date: 'January 12, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_2.jpg',
+      description: 'Children playing traditional games in the village',
+      location: 'Barangay Wangan, Calinan',
+      date: 'February 18, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_3.jpg',
+      description: 'Village elders sharing stories and wisdom',
+      location: 'Tribal Council Hall',
+      date: 'March 22, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_4.jpg',
+      description: 'Traditional farming practices in terraced fields',
+      location: 'Highland Village, Marilog',
+      date: 'April 8, 2023',
+    ),
+    // Traditional Textiles images
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_1.jpg',
+      description: 'Intricate handwoven textiles with traditional patterns',
+      location: 'Weaving Center, Tugbok',
+      date: 'July 14, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_2.jpg',
+      description: 'Master weaver creating ceremonial cloth',
+      location: 'Heritage Craft Workshop',
+      date: 'August 3, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_3.jpg',
+      description: 'Collection of traditional Kagan garments and accessories',
+      location: 'Cultural Heritage Museum',
+      date: 'September 11, 2023',
+    ),
+    // Cultural Heritage images
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_1.jpg',
+      description: 'Ancient tribal artifacts and ceremonial tools',
+      location: 'Heritage Collection Center',
+      date: 'October 5, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_2.jpg',
+      description: 'Traditional musical instruments used in rituals',
+      location: 'Cultural Arts Center',
+      date: 'November 12, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_3.jpg',
+      description: 'Sacred tribal totems and spiritual symbols',
+      location: 'Sacred Grove, Mt. Apo',
+      date: 'December 20, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_4.jpg',
+      description: 'Historical photographs of tribal leaders',
+      location: 'Archive Documentation Center',
+      date: 'January 8, 2024',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_5.jpg',
+      description: 'Traditional pottery and crafted vessels',
+      location: 'Pottery Workshop, Calinan',
+      date: 'February 15, 2024',
     ),
   ];
 
-  // Search functionality
-  List<ImageCategory> get _filteredCategories {
+  // Search functionality for all images
+  List<ImageItem> get _filteredImages {
     if (_searchQuery.isEmpty) {
-      return _imageCategories;
+      return _allImages;
     }
-    return _imageCategories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.tag.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.images.any((image) => 
-                image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.date.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return _allImages.where((image) {
+      return image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             image.date.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
-  }
-
-  List<ImageItem> get _searchResults {
-    if (_searchQuery.isEmpty) return [];
-    
-    List<ImageItem> results = [];
-    for (var category in _imageCategories) {
-      for (var image in category.images) {
-        if (image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.date.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.tag.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          results.add(image);
-        }
-      }
-    }
-    return results;
   }
 
   bool get _isSearching => _searchQuery.isNotEmpty;
@@ -180,14 +136,15 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
     super.dispose();
   }
 
-  void _openImageGallery(ImageCategory category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageGalleryScreen(
-          category: category,
-          accentColor: const Color(0xFFD4A574),
-        ),
+  void _showImageViewer(ImageItem image, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ImageViewerBottomSheet(
+        images: [image], // Show only the selected image
+        initialIndex: 0,
+        accentColor: const Color(0xFFD4A574),
       ),
     );
   }
@@ -220,19 +177,18 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSearchBar(),
-                      if (_isSearching) ...[
-                        const SizedBox(height: 20),
-                        _buildSearchResults(),
-                      ] else ...[
-                        const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                      if (!_isSearching) ...[
                         _buildFeaturedImage(),
                         const SizedBox(height: 24),
                         _buildDescription(),
                         const SizedBox(height: 32),
-                        _buildBrowseSection(),
-                        const SizedBox(height: 20),
-                        _buildImageCategories(),
+                        _buildAllImagesSection(),
+                      ] else ...[
+                        _buildSearchResultsHeader(),
                       ],
+                      const SizedBox(height: 20),
+                      _buildImageGrid(),
                       SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
                     ],
                   ),
@@ -339,143 +295,6 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_searchResults.isEmpty) {
-      return _buildNoResults();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Search Results (${_searchResults.length})',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-            ),
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return _buildSearchResultCard(_searchResults[index], index);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResultCard(ImageItem image, int index) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showSearchResultViewer(image, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            image.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFD4A574),
-                      Color(0xFF8B4513),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showSearchResultViewer(ImageItem image, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: [image], // Show only the selected image
-        initialIndex: 0,
-        accentColor: const Color(0xFFD4A574),
-      ),
-    );
-  }
-
-  Widget _buildNoResults() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 60),
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: Colors.white.withOpacity(0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No images found',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Try searching with different keywords',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 60),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildFeaturedImage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -545,12 +364,12 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
     );
   }
 
-  Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+  Widget _buildAllImagesSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
-        'Browse images',
-        style: TextStyle(
+        'All Images (${_allImages.length})',
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -559,8 +378,22 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
     );
   }
 
-  Widget _buildImageCategories() {
-    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
+  Widget _buildSearchResultsHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Search Results (${_filteredImages.length})',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageGrid() {
+    if (_filteredImages.isEmpty) {
       return _buildNoResults();
     }
 
@@ -571,248 +404,23 @@ class _KaganImagesScreenState extends State<KaganImagesScreen> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1,
         ),
-        itemCount: _filteredCategories.length,
+        itemCount: _filteredImages.length,
         itemBuilder: (context, index) {
-          final category = _filteredCategories[index];
-          return _buildCategoryCard(category);
+          return _buildImageCard(_filteredImages[index], index);
         },
       ),
     );
   }
 
-  Widget _buildCategoryCard(ImageCategory category) {
+  Widget _buildImageCard(ImageItem image, int index) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        _openImageGallery(category);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Image.asset(
-                  category.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFD4A574),
-                            Color(0xFF8B4513),
-                          ],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xFF2A2A2A),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD4A574),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${category.images.length} images',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ImageCategory {
-  final String title;
-  final String tag;
-  final String imagePath;
-  final List<ImageItem> images;
-
-  ImageCategory({
-    required this.title,
-    required this.tag,
-    required this.imagePath,
-    required this.images,
-  });
-}
-
-class ImageItem {
-  final String imagePath;
-  final String description;
-  final String location;
-  final String date;
-
-  ImageItem({
-    required this.imagePath,
-    required this.description,
-    required this.location,
-    required this.date,
-  });
-}
-
-class ImageGalleryScreen extends StatelessWidget {
-  final ImageCategory category;
-  final Color accentColor;
-
-  const ImageGalleryScreen({
-    super.key,
-    required this.category,
-    required this.accentColor,
-  });
-
-  void _showImageViewer(BuildContext context, int initialIndex) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: category.images,
-        initialIndex: initialIndex,
-        accentColor: accentColor,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: GridView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: category.images.length,
-                  itemBuilder: (context, index) {
-                    return _buildImageItem(category.images[index], index, context);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              category.title.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageItem(ImageItem imageItem, int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showImageViewer(context, index);
+        _showImageViewer(image, index);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -828,17 +436,17 @@ class ImageGalleryScreen extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image.asset(
-            imageItem.imagePath,
+            image.imagePath,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      accentColor.withOpacity(0.7),
-                      accentColor,
+                      Color(0xFFD4A574),
+                      Color(0xFF8B4513),
                     ],
                   ),
                 ),
@@ -856,6 +464,57 @@ class ImageGalleryScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildNoResults() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No images found',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try searching with different keywords',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 60),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ImageItem {
+  final String imagePath;
+  final String description;
+  final String location;
+  final String date;
+
+  ImageItem({
+    required this.imagePath,
+    required this.description,
+    required this.location,
+    required this.date,
+  });
 }
 
 class ImageViewerBottomSheet extends StatefulWidget {
@@ -921,7 +580,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               },
             ),
           ),
-          _buildPageIndicator(),
+          if (widget.images.length > 1) _buildPageIndicator(),
           SizedBox(height: 20 + keyboardHeight * 0.1),
         ],
       ),

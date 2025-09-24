@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../shared/video_player_screen.dart';
 
 class KaganVideoScreen extends StatefulWidget {
@@ -14,95 +16,41 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
-  String? _selectedCategory;
   
   // Scroll controller and visibility state
   final ScrollController _scrollController = ScrollController();
   bool _isHeaderVisible = true;
   double _lastScrollOffset = 0;
 
-  // Sample video data for kagan
-  final List<VideoCategory> _videoCategories = [
-    VideoCategory(
-      title: 'Traditional Dances',
-      tag: 'Dance',
-      videos: [
-        VideoItem(
-          title: 'Sayaw sa Bukid',
-          thumbnail: 'assets/videos/thumbnails/ata_dance1.jpg',
-          duration: '3:45',
-        ),
-        VideoItem(
-          title: 'Harvest Festival Dance',
-          thumbnail: 'assets/videos/thumbnails/ata_dance2.jpg',
-          duration: '5:12',
-        ),
-      ],
-    ),
-    VideoCategory(
-      title: 'Cultural Ceremonies',
-      tag: 'Ceremony',
-      videos: [
-        VideoItem(
-          title: 'Ritual Blessing',
-          thumbnail: 'assets/videos/thumbnails/ata_ceremony1.jpg',
-          duration: '8:30',
-        ),
-        VideoItem(
-          title: 'Coming of Age',
-          thumbnail: 'assets/videos/thumbnails/ata_ceremony2.jpg',
-          duration: '12:45',
-        ),
-      ],
-    ),
-    VideoCategory(
-      title: 'Daily Life',
-      tag: 'Lifestyle',
-      videos: [
-        VideoItem(
-          title: 'Traditional Farming',
-          thumbnail: 'assets/videos/thumbnails/ata_farming.jpg',
-          duration: '6:18',
-        ),
-        VideoItem(
-          title: 'Craft Making',
-          thumbnail: 'assets/videos/thumbnails/ata_crafts.jpg',
-          duration: '4:52',
-        ),
-      ],
-    ),
-  ];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<VideoItem> _allVideos = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  VideoItem? _featuredVideo;
 
-  List<String> get _categories => ['All', 'Dance', 'Ceremony', 'Lifestyle'];
-
-  List<VideoCategory> get _filteredCategories {
-    List<VideoCategory> categories = _videoCategories;
-    
-    if (_selectedCategory != null && _selectedCategory != 'All') {
-      categories = categories.where((category) => category.tag == _selectedCategory).toList();
+  List<VideoItem> get _filteredVideos {
+    if (_searchQuery.isEmpty) {
+      return _allVideos;
     }
     
-    if (_searchQuery.isNotEmpty) {
-      categories = categories.where((category) {
-        return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               category.videos.any((video) => 
-                 video.title.toLowerCase().contains(_searchQuery.toLowerCase()));
-      }).toList();
-    }
-    
-    return categories;
+    return _allVideos.where((video) =>
+        video.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        video.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
   @override
   void initState() {
     super.initState();
-    _selectedCategory = 'All';
     _setupScrollController();
     _searchFocusNode.addListener(() {
       setState(() {
         _isSearchFocused = _searchFocusNode.hasFocus;
       });
     });
+    _fetchVideos();
   }
 
   void _setupScrollController() {
@@ -124,6 +72,254 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
 
       _lastScrollOffset = currentOffset;
     });
+  }
+
+  Future<void> _fetchVideos() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching videos from: $_baseUrl');
+      debugPrint('Attempting URL: ${_baseUrl}category=video&tribe=kagan');
+
+      // Try multiple approaches to get data
+      List<http.Response> responses = [];
+      List<String> urls = [
+        '${_baseUrl}category=video&tribe=kagan',  // Original attempt
+        '$_baseUrl?category=video&tribe=kagan', // With query parameter format
+        '$_baseUrl?tribe=kagan',                // Just tribe filter
+        _baseUrl,                              // All content
+      ];
+
+      http.Response? successResponse;
+      
+      for (String url in urls) {
+        try {
+          debugPrint('Trying URL: $url');
+          final response = await http.get(
+            Uri.parse(url),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          ).timeout(const Duration(seconds: 15));
+          
+          debugPrint('Response status for $url: ${response.statusCode}');
+          debugPrint('Response body preview: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}...');
+          
+          if (response.statusCode == 200) {
+            successResponse = response;
+            break;
+          }
+        } catch (e) {
+          debugPrint('Error with URL $url: $e');
+          continue;
+        }
+      }
+
+      if (successResponse == null) {
+        throw Exception('All API endpoints failed to respond');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(successResponse.body);
+      debugPrint('Parsed JSON keys: ${jsonData.keys.toList()}');
+      
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      dynamic videoDataRaw = jsonData['data'];
+      List<dynamic> videoData = [];
+      
+      if (videoDataRaw is List) {
+        videoData = videoDataRaw;
+      } else if (videoDataRaw != null) {
+        videoData = [videoDataRaw];
+      }
+
+      debugPrint('Found ${videoData.length} items in response');
+
+      final List<VideoItem> fetchedVideos = [];
+
+      for (var item in videoData) {
+        if (item == null) continue;
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // STRICT VALIDATION - Only include items that have ALL required fields from the API spec:
+        
+        // 1. Validate all required fields exist
+        final id = item['id'];
+        final userId = item['user_id'];
+        final title = item['title']?.toString();
+        final category = item['category']?.toString();
+        final tribe = item['tribe']?.toString();
+        final description = item['description']?.toString();
+        final file = item['file']?.toString();
+        final isArchived = item['is_archived'];
+        final time = item['time']?.toString();
+        
+        // Check if any required field is missing
+        if (id == null || userId == null || title == null || title.isEmpty ||
+            category == null || category.isEmpty || tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty || isArchived == null || time == null) {
+          debugPrint('Skipping item - missing required fields:');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // 2. Must be Kagan tribe
+        if (tribe.toLowerCase() != 'kagan') {
+          debugPrint('Skipping item - not Kagan tribe: $tribe');
+          continue;
+        }
+
+        // 3. Must NOT be archived
+        if (isArchived != 0) {
+          debugPrint('Skipping item - is archived: $title');
+          continue;
+        }
+
+        // 4. Determine file type
+        final fileType = _determineFileType(file);
+        
+        // 5. Optional: Uncomment to only include video files
+        // if (fileType != FileType.video) {
+        //   debugPrint('Skipping item - not a video file: $file (type: $fileType)');
+        //   continue;
+        // }
+
+        final videoItem = VideoItem(
+          id: id.toString(),
+          title: title,
+          thumbnail: _buildThumbnailUrl(file),
+          duration: _formatDuration(item['duration']), // This might not be in API response
+          description: description ?? 'No description available',
+          category: _mapCategory(category),
+          file: file,
+          fileType: fileType,
+        );
+        
+        debugPrint('✅ Valid item added: $title (ID: $id, Category: $category, Type: $fileType)');
+        fetchedVideos.add(videoItem);
+      }
+
+      debugPrint('Final video count after filtering: ${fetchedVideos.length}');
+
+      setState(() {
+        _allVideos = fetchedVideos;
+        _featuredVideo = fetchedVideos.isNotEmpty ? fetchedVideos.first : null;
+        _isLoading = false;
+      });
+
+      if (fetchedVideos.isEmpty) {
+        debugPrint('No videos found - this might be expected if there are no Kagan videos in the database');
+      }
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching videos: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load videos: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _buildThumbnailUrl(String? filename) {
+    if (filename == null || filename.isEmpty) {
+      return 'assets/videos/thumbnails/default_thumbnail.jpg';
+    }
+    
+    final String lowerFilename = filename.toLowerCase();
+    
+    // Check if it's a video file
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv', '.flv', '.wmv'];
+    bool isVideoFile = videoExtensions.any((ext) => lowerFilename.endsWith(ext));
+    
+    if (isVideoFile) {
+      // For video files, you might want to generate thumbnails or use a placeholder
+      return 'assets/videos/thumbnails/default_thumbnail.jpg';
+    }
+    
+    // Check if it's an image file that can be used as thumbnail
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    bool isImageFile = imageExtensions.any((ext) => lowerFilename.endsWith(ext));
+    
+    if (isImageFile) {
+      return '$_uploadsBaseUrl$filename';
+    }
+    
+    return 'assets/videos/thumbnails/default_thumbnail.jpg';
+  }
+
+  FileType _determineFileType(String? filename) {
+    if (filename == null || filename.isEmpty) {
+      return FileType.unknown;
+    }
+    
+    final String lowerFilename = filename.toLowerCase();
+    
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv', '.flv', '.wmv'];
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a'];
+    
+    if (videoExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.video;
+    } else if (imageExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.image;
+    } else if (audioExtensions.any((ext) => lowerFilename.endsWith(ext))) {
+      return FileType.audio;
+    }
+    
+    return FileType.unknown;
+  }
+
+  String _formatDuration(dynamic duration) {
+    if (duration == null) return '--:--';
+    
+    if (duration is String) {
+      if (duration.contains(':')) return duration;
+      final int? seconds = int.tryParse(duration);
+      if (seconds != null) {
+        final minutes = seconds ~/ 60;
+        final remainingSeconds = seconds % 60;
+        return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+      }
+    }
+    
+    if (duration is int) {
+      final minutes = duration ~/ 60;
+      final remainingSeconds = duration % 60;
+      return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    }
+    
+    return '--:--';
+  }
+
+  String _mapCategory(String? category) {
+    switch (category?.toLowerCase()) {
+      case 'video':
+        return 'Video';
+      case 'artifact':
+        return 'Cultural Artifact';
+      case 'instrument':
+        return 'Traditional Instrument';
+      case 'audio':
+        return 'Audio Recording';
+      case 'image':
+        return 'Image';
+      default:
+        return 'Media';
+    }
+  }
+
+  Future<void> _refreshVideos() async {
+    await _fetchVideos();
   }
 
   @override
@@ -171,6 +367,56 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         ),
       ),
     );
+  }
+
+  // Add debug info widget
+  Widget _buildDebugInfo() {
+    if (!_isLoading && _allVideos.isEmpty && _errorMessage == null) {
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Debug Info:',
+              style: TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'API Base URL: $_baseUrl',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 12,
+              ),
+            ),
+            Text(
+              'Expected data for Kagan tribe with video category',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 12,
+              ),
+            ),
+            Text(
+              'Total items loaded: ${_allVideos.length}',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -277,7 +523,6 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                       _searchFocusNode.unfocus();
                       setState(() {
                         _searchQuery = '';
-                        _selectedCategory = 'All';
                         _isHeaderVisible = true;
                       });
                     },
@@ -297,45 +542,164 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildMainContent() {
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      slivers: [
-        SliverToBoxAdapter(
-          child: _buildFeaturedVideo(),
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Loading Kagan videos...',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
-        SliverToBoxAdapter(
-          child: _buildCategoriesFilter(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load videos',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshVideos,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
         ),
-        SliverToBoxAdapter(
-          child: _buildBrowseSection(),
+      );
+    }
+
+    if (_allVideos.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.video_library_outlined,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Kagan videos available',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for new content',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+            ),
+            _buildDebugInfo(),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshVideos,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Refresh'),
+            ),
+          ],
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final category = _filteredCategories[index];
-              return _buildCategorySection(category);
-            },
-            childCount: _filteredCategories.length,
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshVideos,
+      color: const Color(0xFFD4A574),
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          if (_featuredVideo != null)
+            SliverToBoxAdapter(
+              child: _buildFeaturedVideo(),
+            ),
+          SliverToBoxAdapter(
+            child: _buildBrowseSection(),
           ),
-        ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
-        ),
-      ],
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.8,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final video = _allVideos[index];
+                  return _buildVideoCard(video);
+                },
+                childCount: _allVideos.length,
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 20),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSearchResults() {
     return Column(
       children: [
-        if (_searchQuery.isNotEmpty || _selectedCategory != 'All')
+        if (_searchQuery.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Text(
-                  _buildResultsText(),
+                  '${_filteredVideos.length} result${_filteredVideos.length == 1 ? '' : 's'} for "$_searchQuery"',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 14,
@@ -346,17 +710,17 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
           ),
         
         Expanded(
-          child: _searchQuery.isEmpty && _selectedCategory == 'All'
+          child: _searchQuery.isEmpty
               ? Center(
                   child: Text(
-                    'Start typing to search or select a category...',
+                    'Start typing to search...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 16,
                     ),
                   ),
                 )
-              : _filteredCategories.isEmpty
+              : _filteredVideos.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -377,9 +741,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _searchQuery.isNotEmpty 
-                                ? 'Try different keywords'
-                                : 'No videos in this category',
+                            'Try different keywords',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
                               fontSize: 14,
@@ -388,15 +750,23 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : GridView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
                         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
-                      itemCount: _filteredCategories.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.8,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: _filteredVideos.length,
                       itemBuilder: (context, index) {
-                        final category = _filteredCategories[index];
-                        return _buildCategorySection(category);
+                        final video = _filteredVideos[index];
+                        return _buildVideoCard(video);
                       },
                     ),
         ),
@@ -405,6 +775,8 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildFeaturedVideo() {
+    if (_featuredVideo == null) return const SizedBox.shrink();
+
     return Container(
       margin: const EdgeInsets.all(20),
       height: 200,
@@ -425,19 +797,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
           child: InkWell(
             onTap: () {
               HapticFeedback.mediumImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const VideoPlayerScreen(
-                    videoTitle: 'Kagan Heritage',
-                    videoDescription: 'A comprehensive look into the rich culture and traditions',
-                    thumbnailPath: 'assets/videos/thumbnails/ata_featured.jpg',
-                    duration: '15:30',
-                    accentColor: Color(0xFFD4A574),
-                    tribalName: 'Kagan',
-                  ),
-                ),
-              );
+              _playVideo(_featuredVideo!);
             },
             child: Stack(
               children: [
@@ -454,19 +814,41 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                       ],
                     ),
                   ),
-                  child: Image.asset(
-                    'assets/videos/thumbnails/ata_featured.jpg',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.play_circle_outline,
-                          color: Colors.white,
-                          size: 60,
+                  child: _featuredVideo!.thumbnail.startsWith('http')
+                      ? Image.network(
+                          _featuredVideo!.thumbnail,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(
+                                Icons.play_circle_outline,
+                                color: Colors.white,
+                                size: 60,
+                              ),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          _featuredVideo!.thumbnail,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(
+                                Icons.play_circle_outline,
+                                color: Colors.white,
+                                size: 60,
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -487,9 +869,9 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Featured: Kagan Heritage',
-                        style: TextStyle(
+                      Text(
+                        'Featured: ${_featuredVideo!.title}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -497,11 +879,13 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'A comprehensive look into the rich culture and traditions',
+                        _featuredVideo!.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 14,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -528,48 +912,6 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildCategoriesFilter() {
-    return Container(
-      height: 50,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          final isSelected = _selectedCategory == category;
-          
-          return Container(
-            margin: const EdgeInsets.only(right: 12),
-            child: FilterChip(
-              label: Text(category),
-              selected: isSelected,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-              backgroundColor: const Color(0xFF2A2A2A),
-              selectedColor: const Color(0xFFD4A574),
-              side: BorderSide(
-                color: isSelected 
-                    ? const Color(0xFFD4A574)
-                    : const Color(0xFFD4A574).withOpacity(0.3),
-                width: isSelected ? 2 : 1,
-              ),
-              onSelected: (selected) {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _selectedCategory = selected ? category : 'All';
-                });
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildBrowseSection() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -582,7 +924,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
           ),
           SizedBox(width: 8),
           Text(
-            'Browse videos',
+            'Browse Kagan videos',
             style: TextStyle(
               color: Color(0xFFD4A574),
               fontSize: 16,
@@ -595,68 +937,8 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildCategorySection(VideoCategory category) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              Text(
-                category.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4A574).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFD4A574).withOpacity(0.5),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  category.tag,
-                  style: const TextStyle(
-                    color: Color(0xFFD4A574),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: category.videos.length,
-            itemBuilder: (context, index) {
-              final video = category.videos[index];
-              return _buildVideoCard(video);
-            },
-          ),
-        ),
-        const SizedBox(height: 32),
-      ],
-    );
-  }
-
   Widget _buildVideoCard(VideoItem video) {
     return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -680,6 +962,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
+                  flex: 3,
                   child: Stack(
                     children: [
                       Container(
@@ -694,19 +977,41 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                             ],
                           ),
                         ),
-                        child: Image.asset(
-                          video.thumbnail,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: Colors.white,
-                                size: 30,
+                        child: video.thumbnail.startsWith('http')
+                            ? Image.network(
+                                video.thumbnail,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.play_circle_outline,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.asset(
+                                video.thumbnail,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.play_circle_outline,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
                       Positioned(
                         top: 8,
@@ -732,34 +1037,74 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                       ),
                       Center(
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          child: const Icon(
-                            Icons.play_arrow,
+                          child: Icon(
+                            video.fileType == FileType.video 
+                                ? Icons.play_arrow
+                                : video.fileType == FileType.audio
+                                    ? Icons.music_note
+                                    : Icons.image,
                             color: Colors.white,
-                            size: 20,
+                            size: 24,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  color: const Color(0xFF2A2A2A),
-                  child: Text(
-                    video.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    color: const Color(0xFF2A2A2A),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          video.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Expanded(
+                          child: Text(
+                            video.description,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD4A574).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            video.category,
+                            style: const TextStyle(
+                              color: Color(0xFFD4A574),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -770,58 +1115,67 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  String _buildResultsText() {
-    int totalVideos = _filteredCategories.fold(0, (sum, category) => sum + category.videos.length);
-    String text = '$totalVideos result${totalVideos == 1 ? '' : 's'}';
-    
-    if (_searchQuery.isNotEmpty && _selectedCategory != 'All') {
-      text += ' for "$_searchQuery" in $_selectedCategory';
-    } else if (_searchQuery.isNotEmpty) {
-      text += ' for "$_searchQuery"';
-    } else if (_selectedCategory != 'All') {
-      text += ' in $_selectedCategory';
-    }
-    
-    return text;
-  }
-
   void _playVideo(VideoItem video) {
+    // Validate that we have a playable video file
+    if (video.file.isEmpty || video.fileType != FileType.video) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            video.fileType == FileType.audio 
+                ? 'This is an audio file. Audio player not implemented yet.'
+                : video.fileType == FileType.image
+                    ? 'This is an image file, not a video.'
+                    : 'Cannot play this file type.',
+          ),
+          backgroundColor: const Color(0xFFD4A574),
+        ),
+      );
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => VideoPlayerScreen(
           videoTitle: video.title,
-          videoDescription: 'Traditional Kagan cultural content',
+          videoDescription: video.description,
           thumbnailPath: video.thumbnail,
           duration: video.duration,
           accentColor: const Color(0xFFD4A574),
           tribalName: 'Kagan',
+          videoUrl: '$_uploadsBaseUrl${video.file}',
         ),
       ),
     );
   }
 }
 
-class VideoCategory {
-  final String title;
-  final String tag;
-  final List<VideoItem> videos;
-
-  VideoCategory({
-    required this.title,
-    required this.tag,
-    required this.videos,
-  });
+// Enum for file types
+enum FileType {
+  video,
+  audio,
+  image,
+  unknown,
 }
 
 class VideoItem {
+  final String id;
   final String title;
   final String thumbnail;
   final String duration;
+  final String description;
+  final String category;
+  final String file;
+  final FileType fileType;
 
   VideoItem({
+    required this.id,
     required this.title,
     required this.thumbnail,
     required this.duration,
+    required this.description,
+    required this.category,
+    required this.file,
+    required this.fileType,
   });
 }
