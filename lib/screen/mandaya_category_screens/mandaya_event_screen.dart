@@ -1,15 +1,15 @@
-// lib/screen/mandaya_category_screens/mandaya_images_screen.dart
+// lib/screen/mandaya_category_screens/mandaya_event_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MandayaImagesScreen extends StatefulWidget {
-  const MandayaImagesScreen({super.key});
+class MandayaEventScreen extends StatefulWidget {
+  const MandayaEventScreen({super.key});
 
   @override
-  State<MandayaImagesScreen> createState() => _MandayaImagesScreenState();
+  State<MandayaEventScreen> createState() => _MandayaEventScreenState();
 }
 
-class _MandayaImagesScreenState extends State<MandayaImagesScreen> {
+class _MandayaEventScreenState extends State<MandayaEventScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -271,7 +271,7 @@ class _MandayaImagesScreenState extends State<MandayaImagesScreen> {
           const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'MANDAYA IMAGES',
+              'MANDAYA EVENTS',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,

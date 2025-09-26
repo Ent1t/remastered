@@ -6,7 +6,7 @@ import 'learn_more_screen/mansaka_learn_more_screen.dart';
 import 'mansaka_category_screens/mansaka_music_screen.dart';
 import 'mansaka_category_screens/mansaka_video_screen.dart';
 import 'mansaka_category_screens/mansaka_artifacts_screen.dart';
-import 'mansaka_category_screens/mansaka_images_screen.dart';
+import 'mansaka_category_screens/mansaka_event_screen.dart';
 
 class MansakaCulturalDetailScreen extends StatelessWidget {
   const MansakaCulturalDetailScreen({super.key});
@@ -52,7 +52,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const MansakaImagesScreen(),
+        builder: (context) => const MansakaEventScreen(),
       ),
     );
   }
@@ -412,7 +412,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
         ),
         
         _buildCategoryCard(
-          title: 'IMAGES',
+          title: 'EVENTS',
           imagePath: 'assets/images/mansaka_images.jpg',
           gradientColors: const [Color(0xFFAB7BA5), Color(0xFF8B6098)],
           onTap: () => _navigateToImages(context),

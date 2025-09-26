@@ -1,176 +1,131 @@
-// lib/screen/mansaka_category_screens/mansaka_images_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MansakaImagesScreen extends StatefulWidget {
-  const MansakaImagesScreen({super.key});
+class KaganEventScreen extends StatefulWidget {
+  const KaganEventScreen({super.key});
 
   @override
-  State<MansakaImagesScreen> createState() => _MansakaImagesScreenState();
+  State<KaganEventScreen> createState() => _KaganEventScreenState();
 }
 
-class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
+class _KaganEventScreenState extends State<KaganEventScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<ImageCategory> _imageCategories = [
-    ImageCategory(
-      title: 'Traditional Ceremony',
-      tag: 'Ceremony',
-      imagePath: 'assets/images/mansaka_ceremony.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mansaka_ceremony_1.jpg',
-          description: 'Mansaka ritual ceremony honoring ancestral spirits with traditional offerings',
-          location: 'Compostela Valley, Monkayo',
-          date: 'March 22, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_ceremony_2.jpg',
-          description: 'Sacred blessing ritual performed by tribal elder using ancient chants',
-          location: 'Nabunturan Cultural Center',
-          date: 'April 28, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_ceremony_3.jpg',
-          description: 'Community thanksgiving ceremony for successful harvest season',
-          location: 'Barangay Mamangan, Compostela',
-          date: 'May 15, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_ceremony_4.jpg',
-          description: 'Traditional wedding ceremony with exchange of ancestral beads',
-          location: 'Mansaka Ancestral Territory',
-          date: 'June 12, 2023',
-        ),
-      ],
+  // All images in a flat list
+  final List<ImageItem> _allImages = [
+    // Traditional Ceremony images
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_1.jpg',
+      description: 'Traditional Kagan wedding ceremony with elders performing ancient rituals',
+      location: 'Barangay Tugbok, Davao City',
+      date: 'March 15, 2023',
     ),
-    ImageCategory(
-      title: 'Village Life',
-      tag: 'Lifestyle',
-      imagePath: 'assets/images/mansaka_village.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mansaka_village_1.jpg',
-          description: 'Daily life in traditional Mansaka mountain community',
-          location: 'Sitio Libcatan, New Bataan',
-          date: 'January 20, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_village_2.jpg',
-          description: 'Children participating in traditional cultural games and learning',
-          location: 'Barangay Andap, Monkayo',
-          date: 'February 25, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_village_3.jpg',
-          description: 'Tribal council meeting with elders sharing wisdom and traditions',
-          location: 'Community Hall, Pantukan',
-          date: 'April 3, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_village_4.jpg',
-          description: 'Traditional agriculture practices in mountainous terrain',
-          location: 'Highland Farms, Maragusan',
-          date: 'April 20, 2023',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_2.jpg',
+      description: 'Sacred blessing ritual conducted by tribal elder',
+      location: 'Mt. Apo Cultural Center',
+      date: 'April 20, 2023',
     ),
-    ImageCategory(
-      title: 'Traditional Crafts',
-      tag: 'Handicraft',
-      imagePath: 'assets/images/mansaka_crafts.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mansaka_crafts_1.jpg',
-          description: 'Intricate beadwork and jewelry crafting using traditional techniques',
-          location: 'Mansaka Craft Center, Pantukan',
-          date: 'July 25, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_crafts_2.jpg',
-          description: 'Master craftsman creating traditional weapons and ceremonial tools',
-          location: 'Heritage Workshop, Monkayo',
-          date: 'August 18, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_crafts_3.jpg',
-          description: 'Collection of handwoven baskets and traditional containers',
-          location: 'Cultural Arts Center',
-          date: 'September 8, 2023',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_3.jpg',
+      description: 'Community gathering for harvest thanksgiving ceremony',
+      location: 'Marilog District, Davao City',
+      date: 'May 10, 2023',
     ),
-    ImageCategory(
-      title: 'Cultural Heritage',
-      tag: 'Heritage',
-      imagePath: 'assets/images/mansaka_heritage.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mansaka_heritage_1.jpg',
-          description: 'Ancient tribal artifacts including ceremonial daggers and ritual items',
-          location: 'Mansaka Heritage Museum',
-          date: 'October 15, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_heritage_2.jpg',
-          description: 'Traditional musical instruments used in spiritual and cultural ceremonies',
-          location: 'Cultural Heritage Center',
-          date: 'November 22, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_heritage_3.jpg',
-          description: 'Sacred ancestral totems and protective spiritual symbols',
-          location: 'Sacred Grove, Mt. Diwalwal',
-          date: 'December 30, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_heritage_4.jpg',
-          description: 'Historical documentation of tribal leaders and cultural practices',
-          location: 'Compostela Valley Archives',
-          date: 'January 18, 2024',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mansaka_heritage_5.jpg',
-          description: 'Traditional pottery and carved wooden vessels from ancestral times',
-          location: 'Craft Heritage Workshop',
-          date: 'February 25, 2024',
-        ),
-      ],
+    ImageItem(
+      imagePath: 'assets/images/kagan_ceremony_4.jpg',
+      description: 'Traditional dance performance during cultural festival',
+      location: 'Tribal Cultural Center',
+      date: 'June 5, 2023',
+    ),
+    // Village Life images
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_1.jpg',
+      description: 'Daily life in traditional Kagan village settlement',
+      location: 'Calinan District, Davao City',
+      date: 'January 12, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_2.jpg',
+      description: 'Children playing traditional games in the village',
+      location: 'Barangay Wangan, Calinan',
+      date: 'February 18, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_3.jpg',
+      description: 'Village elders sharing stories and wisdom',
+      location: 'Tribal Council Hall',
+      date: 'March 22, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_village_4.jpg',
+      description: 'Traditional farming practices in terraced fields',
+      location: 'Highland Village, Marilog',
+      date: 'April 8, 2023',
+    ),
+    // Traditional Textiles images
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_1.jpg',
+      description: 'Intricate handwoven textiles with traditional patterns',
+      location: 'Weaving Center, Tugbok',
+      date: 'July 14, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_2.jpg',
+      description: 'Master weaver creating ceremonial cloth',
+      location: 'Heritage Craft Workshop',
+      date: 'August 3, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_textiles_3.jpg',
+      description: 'Collection of traditional Kagan garments and accessories',
+      location: 'Cultural Heritage Museum',
+      date: 'September 11, 2023',
+    ),
+    // Cultural Heritage images
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_1.jpg',
+      description: 'Ancient tribal artifacts and ceremonial tools',
+      location: 'Heritage Collection Center',
+      date: 'October 5, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_2.jpg',
+      description: 'Traditional musical instruments used in rituals',
+      location: 'Cultural Arts Center',
+      date: 'November 12, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_3.jpg',
+      description: 'Sacred tribal totems and spiritual symbols',
+      location: 'Sacred Grove, Mt. Apo',
+      date: 'December 20, 2023',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_4.jpg',
+      description: 'Historical photographs of tribal leaders',
+      location: 'Archive Documentation Center',
+      date: 'January 8, 2024',
+    ),
+    ImageItem(
+      imagePath: 'assets/images/kagan_heritage_5.jpg',
+      description: 'Traditional pottery and crafted vessels',
+      location: 'Pottery Workshop, Calinan',
+      date: 'February 15, 2024',
     ),
   ];
 
-  // Search functionality
-  List<ImageCategory> get _filteredCategories {
+  // Search functionality for all images
+  List<ImageItem> get _filteredImages {
     if (_searchQuery.isEmpty) {
-      return _imageCategories;
+      return _allImages;
     }
-    return _imageCategories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.tag.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.images.any((image) => 
-                image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.date.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return _allImages.where((image) {
+      return image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             image.date.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
-  }
-
-  List<ImageItem> get _searchResults {
-    if (_searchQuery.isEmpty) return [];
-    
-    List<ImageItem> results = [];
-    for (var category in _imageCategories) {
-      for (var image in category.images) {
-        if (image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.date.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.tag.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          results.add(image);
-        }
-      }
-    }
-    return results;
   }
 
   bool get _isSearching => _searchQuery.isNotEmpty;
@@ -181,14 +136,15 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
     super.dispose();
   }
 
-  void _openImageGallery(ImageCategory category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageGalleryScreen(
-          category: category,
-          accentColor: const Color(0xFFB19CD9),
-        ),
+  void _showImageViewer(ImageItem image, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ImageViewerBottomSheet(
+        images: [image], // Show only the selected image
+        initialIndex: 0,
+        accentColor: const Color(0xFFD4A574),
       ),
     );
   }
@@ -221,19 +177,18 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSearchBar(),
-                      if (_isSearching) ...[
-                        const SizedBox(height: 20),
-                        _buildSearchResults(),
-                      ] else ...[
-                        const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                      if (!_isSearching) ...[
                         _buildFeaturedImage(),
                         const SizedBox(height: 24),
                         _buildDescription(),
                         const SizedBox(height: 32),
-                        _buildBrowseSection(),
-                        const SizedBox(height: 20),
-                        _buildImageCategories(),
+                        _buildAllImagesSection(),
+                      ] else ...[
+                        _buildSearchResultsHeader(),
                       ],
+                      const SizedBox(height: 20),
+                      _buildImageGrid(),
                       SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
                     ],
                   ),
@@ -271,7 +226,7 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
           const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'MANSAKA IMAGES',
+              'KAGAN EVENTS',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -293,7 +248,7 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFB19CD9).withOpacity(0.3),
+            color: const Color(0xFFD4A574).withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -340,49 +295,132 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_searchResults.isEmpty) {
-      return _buildNoResults();
-    }
+  Widget _buildFeaturedImage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            'assets/images/kagan_featured.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFD4A574),
+                      Color(0xFF8B4513),
+                      Color(0xFF654321),
+                    ],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.image,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 
+  Widget _buildDescription() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Search Results (${_searchResults.length})',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            'Browse through a collection of historical and contemporary photographs showcasing the Kagan people, their customs, and cultural expressions through time.',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 16,
+              height: 1.6,
+              letterSpacing: 0.5,
             ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-            ),
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return _buildSearchResultCard(_searchResults[index], index);
-            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchResultCard(ImageItem image, int index) {
+  Widget _buildAllImagesSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'All Images (${_allImages.length})',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResultsHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Search Results (${_filteredImages.length})',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageGrid() {
+    if (_filteredImages.isEmpty) {
+      return _buildNoResults();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1,
+        ),
+        itemCount: _filteredImages.length,
+        itemBuilder: (context, index) {
+          return _buildImageCard(_filteredImages[index], index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildImageCard(ImageItem image, int index) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        _showSearchResultViewer(image, index);
+        _showImageViewer(image, index);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -407,8 +445,8 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFB19CD9),
-                      Color(0xFF5D4E75),
+                      Color(0xFFD4A574),
+                      Color(0xFF8B4513),
                     ],
                   ),
                 ),
@@ -423,19 +461,6 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  void _showSearchResultViewer(ImageItem image, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: [image], // Show only the selected image
-        initialIndex: 0,
-        accentColor: const Color(0xFFB19CD9),
       ),
     );
   }
@@ -476,223 +501,6 @@ class _MansakaImagesScreenState extends State<MansakaImagesScreen> {
       ),
     );
   }
-
-  Widget _buildFeaturedImage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            'assets/images/mansaka_featured.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFB19CD9),
-                      Color(0xFF5D4E75),
-                      Color(0xFF3F325A),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 60,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescription() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Browse through a collection of historical and contemporary photographs showcasing the Mansaka people, their customs, and cultural expressions through time.',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
-              height: 1.6,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        'Browse images',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageCategories() {
-    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
-      return _buildNoResults();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: _filteredCategories.length,
-        itemBuilder: (context, index) {
-          final category = _filteredCategories[index];
-          return _buildCategoryCard(category);
-        },
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(ImageCategory category) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _openImageGallery(category);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Image.asset(
-                  category.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFB19CD9),
-                            Color(0xFF5D4E75),
-                          ],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xFF2A2A2A),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB19CD9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${category.images.length} images',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ImageCategory {
-  final String title;
-  final String tag;
-  final String imagePath;
-  final List<ImageItem> images;
-
-  ImageCategory({
-    required this.title,
-    required this.tag,
-    required this.imagePath,
-    required this.images,
-  });
 }
 
 class ImageItem {
@@ -707,156 +515,6 @@ class ImageItem {
     required this.location,
     required this.date,
   });
-}
-
-class ImageGalleryScreen extends StatelessWidget {
-  final ImageCategory category;
-  final Color accentColor;
-
-  const ImageGalleryScreen({
-    super.key,
-    required this.category,
-    required this.accentColor,
-  });
-
-  void _showImageViewer(BuildContext context, int initialIndex) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: category.images,
-        initialIndex: initialIndex,
-        accentColor: accentColor,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: GridView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: category.images.length,
-                  itemBuilder: (context, index) {
-                    return _buildImageItem(category.images[index], index, context);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              category.title.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageItem(ImageItem imageItem, int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showImageViewer(context, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            imageItem.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accentColor.withOpacity(0.7),
-                      accentColor,
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class ImageViewerBottomSheet extends StatefulWidget {
@@ -922,7 +580,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               },
             ),
           ),
-          _buildPageIndicator(),
+          if (widget.images.length > 1) _buildPageIndicator(),
           SizedBox(height: 20 + keyboardHeight * 0.1),
         ],
       ),
@@ -1307,15 +965,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
-                            child: Text(
-                              'Tap to zoom • Pinch to scale • Drag to pan',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
+                          Text(
+                            'Tap to zoom • Pinch to scale • Drag to pan',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Row(

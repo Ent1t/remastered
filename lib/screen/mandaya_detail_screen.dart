@@ -6,7 +6,7 @@ import 'learn_more_screen/mandaya_learn_more_screen.dart';
 import 'mandaya_category_screens/mandaya_music_screen.dart';
 import 'mandaya_category_screens/mandaya_video_screen.dart';
 import 'mandaya_category_screens/mandaya_artifacts_screen.dart';
-import 'mandaya_category_screens/mandaya_images_screen.dart';
+import 'mandaya_category_screens/mandaya_event_screen.dart';
 
 class MandayaCulturalDetailScreen extends StatelessWidget {
   const MandayaCulturalDetailScreen({super.key});
@@ -52,7 +52,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const MandayaImagesScreen(),
+        builder: (context) => const MandayaEventScreen(),
       ),
     );
   }
@@ -412,7 +412,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
         ),
         
         _buildCategoryCard(
-          title: 'IMAGES',
+          title: 'EVENTS',
           imagePath: 'assets/images/mandaya_images.jpg',
           gradientColors: const [Color(0xFF9ACD32), Color(0xFF7B9A2D)],
           onTap: () => _navigateToImages(context),

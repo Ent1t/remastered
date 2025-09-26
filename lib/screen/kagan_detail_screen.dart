@@ -5,7 +5,7 @@ import 'learn_more_screen/kagan_learn_more_screen.dart';
 import 'kagan_category_screens/kagan_music_screen.dart';
 import 'kagan_category_screens/kagan_video_screen.dart';
 import 'kagan_category_screens/kagan_artifacts_screen.dart';
-import 'kagan_category_screens/kagan_images_screen.dart';
+import 'kagan_category_screens/kagan_event_screen.dart';
 
 class KaganCulturalDetailScreen extends StatelessWidget {
   const KaganCulturalDetailScreen({super.key});
@@ -51,7 +51,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const KaganImagesScreen(),
+        builder: (context) => const KaganEventScreen(),
       ),
     );
   }
@@ -407,7 +407,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
         ),
         
         _buildCategoryCard(
-          title: 'IMAGES',
+          title: 'EVENTS',
           imagePath: 'assets/images/kagan_images.jpg',
           gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
           onTap: () => _navigateToImages(context),
