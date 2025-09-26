@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class KaganEventScreen extends StatefulWidget {
   const KaganEventScreen({super.key});
@@ -12,141 +14,190 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // All images in a flat list
-  final List<ImageItem> _allImages = [
-    // Traditional Ceremony images
-    ImageItem(
-      imagePath: 'assets/images/kagan_ceremony_1.jpg',
-      description: 'Traditional Kagan wedding ceremony with elders performing ancient rituals',
-      location: 'Barangay Tugbok, Davao City',
-      date: 'March 15, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_ceremony_2.jpg',
-      description: 'Sacred blessing ritual conducted by tribal elder',
-      location: 'Mt. Apo Cultural Center',
-      date: 'April 20, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_ceremony_3.jpg',
-      description: 'Community gathering for harvest thanksgiving ceremony',
-      location: 'Marilog District, Davao City',
-      date: 'May 10, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_ceremony_4.jpg',
-      description: 'Traditional dance performance during cultural festival',
-      location: 'Tribal Cultural Center',
-      date: 'June 5, 2023',
-    ),
-    // Village Life images
-    ImageItem(
-      imagePath: 'assets/images/kagan_village_1.jpg',
-      description: 'Daily life in traditional Kagan village settlement',
-      location: 'Calinan District, Davao City',
-      date: 'January 12, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_village_2.jpg',
-      description: 'Children playing traditional games in the village',
-      location: 'Barangay Wangan, Calinan',
-      date: 'February 18, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_village_3.jpg',
-      description: 'Village elders sharing stories and wisdom',
-      location: 'Tribal Council Hall',
-      date: 'March 22, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_village_4.jpg',
-      description: 'Traditional farming practices in terraced fields',
-      location: 'Highland Village, Marilog',
-      date: 'April 8, 2023',
-    ),
-    // Traditional Textiles images
-    ImageItem(
-      imagePath: 'assets/images/kagan_textiles_1.jpg',
-      description: 'Intricate handwoven textiles with traditional patterns',
-      location: 'Weaving Center, Tugbok',
-      date: 'July 14, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_textiles_2.jpg',
-      description: 'Master weaver creating ceremonial cloth',
-      location: 'Heritage Craft Workshop',
-      date: 'August 3, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_textiles_3.jpg',
-      description: 'Collection of traditional Kagan garments and accessories',
-      location: 'Cultural Heritage Museum',
-      date: 'September 11, 2023',
-    ),
-    // Cultural Heritage images
-    ImageItem(
-      imagePath: 'assets/images/kagan_heritage_1.jpg',
-      description: 'Ancient tribal artifacts and ceremonial tools',
-      location: 'Heritage Collection Center',
-      date: 'October 5, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_heritage_2.jpg',
-      description: 'Traditional musical instruments used in rituals',
-      location: 'Cultural Arts Center',
-      date: 'November 12, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_heritage_3.jpg',
-      description: 'Sacred tribal totems and spiritual symbols',
-      location: 'Sacred Grove, Mt. Apo',
-      date: 'December 20, 2023',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_heritage_4.jpg',
-      description: 'Historical photographs of tribal leaders',
-      location: 'Archive Documentation Center',
-      date: 'January 8, 2024',
-    ),
-    ImageItem(
-      imagePath: 'assets/images/kagan_heritage_5.jpg',
-      description: 'Traditional pottery and crafted vessels',
-      location: 'Pottery Workshop, Calinan',
-      date: 'February 15, 2024',
-    ),
-  ];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<EventItem> _allEvents = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  // Search functionality for all images
-  List<ImageItem> get _filteredImages {
+  List<EventItem> get _filteredEvents {
     if (_searchQuery.isEmpty) {
-      return _allImages;
+      return _allEvents;
     }
-    return _allImages.where((image) {
-      return image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             image.date.toLowerCase().contains(_searchQuery.toLowerCase());
+    return _allEvents.where((event) {
+      return event.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             event.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             event.location.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
-  bool get _isSearching => _searchQuery.isNotEmpty;
-
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _fetchEvents();
   }
 
-  void _showImageViewer(ImageItem image, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: [image], // Show only the selected image
-        initialIndex: 0,
-        accentColor: const Color(0xFFD4A574),
-      ),
-    );
+  Future<void> _fetchEvents() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching Kagan events from: $_baseUrl');
+      
+      // API call with query parameters for Kagan events
+      final String apiUrl = '$_baseUrl?tribe=kagan&category=event';
+      debugPrint('API URL: $apiUrl');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+      
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      
+      // Check for API error response
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      // Extract data according to API documentation
+      if (!jsonData.containsKey('data')) {
+        throw Exception('API response missing "data" field');
+      }
+
+      final dynamic rawData = jsonData['data'];
+      List<dynamic> contentItems = [];
+      
+      if (rawData is List) {
+        contentItems = rawData;
+      } else if (rawData is Map) {
+        contentItems = [rawData];
+      } else {
+        throw Exception('Unexpected data format in API response');
+      }
+
+      debugPrint('Found ${contentItems.length} content items');
+
+      final List<EventItem> events = [];
+
+      for (var item in contentItems) {
+        if (item == null || item is! Map<String, dynamic>) {
+          debugPrint('Skipping invalid item: $item');
+          continue;
+        }
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // Extract and validate required fields according to API schema
+        final dynamic id = item['id'];
+        final dynamic userId = item['user_id'];
+        final String? title = item['title']?.toString();
+        final String? category = item['category']?.toString();
+        final String? tribe = item['tribe']?.toString();
+        final String? description = item['description']?.toString();
+        final String? file = item['file']?.toString();
+        final dynamic isArchived = item['is_archived'];
+        final String? time = item['time']?.toString();
+        
+        // Validate required fields
+        if (id == null || 
+            userId == null || 
+            title == null || title.isEmpty ||
+            category == null || category.isEmpty ||
+            tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty ||
+            isArchived == null ||
+            time == null || time.isEmpty) {
+          debugPrint('Skipping item with missing required fields');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // Filter: Must be Kagan tribe
+        if (tribe.toLowerCase() != 'kagan') {
+          debugPrint('Skipping non-Kagan item: $tribe');
+          continue;
+        }
+
+        // Filter: Must not be archived (is_archived should be 0)
+        if (isArchived != 0) {
+          debugPrint('Skipping archived item: $title');
+          continue;
+        }
+
+        // Filter: Must be event category or image content
+        if (category.toLowerCase() != 'event' && !_isImageContent(file)) {
+          debugPrint('Skipping non-event content: $file (category: $category)');
+          continue;
+        }
+
+        // Create event item
+        final event = EventItem(
+          id: id.toString(),
+          name: title,
+          description: description ?? 'No description available',
+          imagePath: '$_uploadsBaseUrl$file',
+          file: file,
+          location: 'Davao Region, Philippines', // Default location, can be extracted from description
+          date: _formatDate(time),
+          isNetworkSource: true,
+        );
+        
+        debugPrint('✅ Added event: $title (ID: $id, Category: $category)');
+        events.add(event);
+      }
+
+      debugPrint('Final event count: ${events.length}');
+
+      setState(() {
+        _allEvents = events;
+        _isLoading = false;
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching events: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load events: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _isImageContent(String filename) {
+    final String lowerFilename = filename.toLowerCase();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => lowerFilename.endsWith(ext));
+  }
+
+  String _formatDate(String timeString) {
+    try {
+      final DateTime dateTime = DateTime.parse(timeString);
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
+    } catch (e) {
+      return timeString; // Return original string if parsing fails
+    }
+  }
+
+  Future<void> _refreshEvents() async {
+    await _fetchEvents();
   }
 
   @override
@@ -170,32 +221,149 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             children: [
               _buildHeader(),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
-                      const SizedBox(height: 20),
-                      if (!_isSearching) ...[
-                        _buildFeaturedImage(),
-                        const SizedBox(height: 24),
-                        _buildDescription(),
-                        const SizedBox(height: 32),
-                        _buildAllImagesSection(),
-                      ] else ...[
-                        _buildSearchResultsHeader(),
-                      ],
-                      const SizedBox(height: 20),
-                      _buildImageGrid(),
-                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-                    ],
-                  ),
-                ),
+                child: _isLoading 
+                    ? _buildLoadingState()
+                    : _errorMessage != null 
+                        ? _buildErrorState()
+                        : _allEvents.isEmpty
+                            ? _buildEmptyState()
+                            : _buildContent(),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading Kagan events...',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load events',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshEvents,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD4A574),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_outlined,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No Kagan events available',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new events',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshEvents,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD4A574),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshEvents,
+      color: const Color(0xFFD4A574),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            const SizedBox(height: 20),
+            _buildFeaturedImage(),
+            const SizedBox(height: 24),
+            _buildDescription(),
+            const SizedBox(height: 32),
+            _buildBrowseSection(),
+            const SizedBox(height: 20),
+            _buildEventsGrid(),
+            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+          ],
         ),
       ),
     );
@@ -261,7 +429,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
           },
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: 'Search images',
+            hintText: 'Search events',
             hintStyle: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 16,
@@ -314,7 +482,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/kagan_featured.jpg',
+            'assets/images/kagan_events_featured.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -331,7 +499,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.image,
+                    Icons.event,
                     color: Colors.white,
                     size: 60,
                   ),
@@ -351,7 +519,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Browse through a collection of historical and contemporary photographs showcasing the Kagan people, their customs, and cultural expressions through time.',
+            'Browse through a collection of historical and contemporary photographs showcasing Kagan events, ceremonies, and cultural celebrations that preserve their rich heritage.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 16,
@@ -364,11 +532,11 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     );
   }
 
-  Widget _buildAllImagesSection() {
+  Widget _buildBrowseSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
-        'All Images (${_allImages.length})',
+        'Browse events (${_filteredEvents.length})',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -378,22 +546,8 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     );
   }
 
-  Widget _buildSearchResultsHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        'Search Results (${_filteredImages.length})',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageGrid() {
-    if (_filteredImages.isEmpty) {
+  Widget _buildEventsGrid() {
+    if (_filteredEvents.isEmpty) {
       return _buildNoResults();
     }
 
@@ -404,63 +558,14 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.85,
         ),
-        itemCount: _filteredImages.length,
+        itemCount: _filteredEvents.length,
         itemBuilder: (context, index) {
-          return _buildImageCard(_filteredImages[index], index);
+          return _buildEventCard(_filteredEvents[index], index);
         },
-      ),
-    );
-  }
-
-  Widget _buildImageCard(ImageItem image, int index) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showImageViewer(image, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            image.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFD4A574),
-                      Color(0xFF8B4513),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
       ),
     );
   }
@@ -480,7 +585,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No images found',
+              'No events found',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.6),
                 fontSize: 18,
@@ -501,39 +606,190 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
       ),
     );
   }
+
+  Widget _buildEventCard(EventItem event, int index) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _showEventViewer(event, index);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 3,
+                child: event.isNetworkSource
+                    ? Image.network(
+                        event.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFD4A574),
+                                  Color(0xFF8B4513),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        event.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFD4A574),
+                                  Color(0xFF8B4513),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: const Color(0xFF2A2A2A),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      event.description,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEventViewer(EventItem event, int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => EventViewerBottomSheet(
+        events: _filteredEvents,
+        initialIndex: index,
+        accentColor: const Color(0xFFD4A574),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 }
 
-class ImageItem {
-  final String imagePath;
+class EventItem {
+  final String? id;
+  final String name;
   final String description;
+  final String imagePath;
+  final String? file;
   final String location;
   final String date;
+  final bool isNetworkSource;
 
-  ImageItem({
-    required this.imagePath,
+  EventItem({
+    this.id,
+    required this.name,
     required this.description,
+    required this.imagePath,
+    this.file,
     required this.location,
     required this.date,
+    this.isNetworkSource = false,
   });
 }
 
-class ImageViewerBottomSheet extends StatefulWidget {
-  final List<ImageItem> images;
+class EventViewerBottomSheet extends StatefulWidget {
+  final List<EventItem> events;
   final int initialIndex;
   final Color accentColor;
 
-  const ImageViewerBottomSheet({
+  const EventViewerBottomSheet({
     super.key,
-    required this.images,
+    required this.events,
     required this.initialIndex,
     required this.accentColor,
   });
 
   @override
-  State<ImageViewerBottomSheet> createState() => _ImageViewerBottomSheetState();
+  State<EventViewerBottomSheet> createState() => _EventViewerBottomSheetState();
 }
 
-class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
+class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   late PageController _pageController;
   late int _currentIndex;
 
@@ -574,13 +830,13 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                 });
                 HapticFeedback.selectionClick();
               },
-              itemCount: widget.images.length,
+              itemCount: widget.events.length,
               itemBuilder: (context, index) {
-                return _buildImageCard(widget.images[index]);
+                return _buildEventCard(widget.events[index]);
               },
             ),
           ),
-          if (widget.images.length > 1) _buildPageIndicator(),
+          _buildPageIndicator(),
           SizedBox(height: 20 + keyboardHeight * 0.1),
         ],
       ),
@@ -605,7 +861,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
       child: Row(
         children: [
           const Text(
-            'Image Gallery',
+            'Event Details',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -626,7 +882,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     );
   }
 
-  Widget _buildImageCard(ImageItem imageItem) {
+  Widget _buildEventCard(EventItem event) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -634,7 +890,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: () => _showFullScreenImage(imageItem),
+            onTap: () => _showFullScreenImage(event),
             child: Container(
               height: 250,
               width: double.infinity,
@@ -652,33 +908,72 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      imageItem.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                widget.accentColor.withOpacity(0.7),
-                                widget.accentColor,
-                              ],
-                            ),
+                    event.isNetworkSource
+                        ? Image.network(
+                            event.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.event,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: const Color(0xFF2A2A2A),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            event.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.event,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.image,
-                              color: Colors.white,
-                              size: 60,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -712,7 +1007,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  imageItem.description,
+                  event.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -721,9 +1016,18 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _buildMetadataRow(Icons.location_on, 'Location', imageItem.location),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildMetadataRow(Icons.location_on, 'Location', event.location),
                 const SizedBox(height: 8),
-                _buildMetadataRow(Icons.calendar_today, 'Date', imageItem.date),
+                _buildMetadataRow(Icons.calendar_today, 'Date', event.date),
               ],
             ),
           ),
@@ -733,14 +1037,14 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     );
   }
 
-  void _showFullScreenImage(ImageItem imageItem) {
+  void _showFullScreenImage(EventItem event) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.black,
         pageBuilder: (BuildContext context, _, __) {
           return FullScreenImageViewer(
-            image: imageItem,
+            event: event,
             accentColor: widget.accentColor,
           );
         },
@@ -786,7 +1090,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-        widget.images.length,
+        widget.events.length,
         (index) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: 8,
@@ -804,12 +1108,12 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
 }
 
 class FullScreenImageViewer extends StatefulWidget {
-  final ImageItem image;
+  final EventItem event;
   final Color accentColor;
 
   const FullScreenImageViewer({
     super.key,
-    required this.image,
+    required this.event,
     required this.accentColor,
   });
 
@@ -859,33 +1163,74 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 boundaryMargin: const EdgeInsets.all(20),
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.asset(
-                  widget.image.imagePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            widget.accentColor.withOpacity(0.7),
-                            widget.accentColor,
-                          ],
-                        ),
+                child: widget.event.isNetworkSource
+                    ? Image.network(
+                        widget.event.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            color: Colors.black,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        widget.event.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.white,
-                          size: 100,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
             AnimatedOpacity(
@@ -926,17 +1271,15 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.image.description,
+                                  widget.event.name,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  widget.image.location,
+                                  'Kagan Event',
                                   style: TextStyle(
                                     color: widget.accentColor,
                                     fontSize: 14,
@@ -977,13 +1320,33 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                           Row(
                             children: [
                               Icon(
+                                Icons.location_on,
+                                color: widget.accentColor,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  widget.event.location,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
                                 Icons.calendar_today,
                                 color: widget.accentColor,
                                 size: 16,
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                widget.image.date,
+                                widget.event.date,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,

@@ -390,32 +390,32 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
         
         const SizedBox(height: 20),
         
-        _buildCategoryCard(
-          title: 'MUSIC',
-          imagePath: 'assets/images/mandaya_music.jpg',
-          gradientColors: const [Color(0xFF7FB069), Color(0xFF5D8A47)],
-          onTap: () => _navigateToMusic(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'VIDEO',
-          imagePath: 'assets/images/mandaya_video.jpg',
-          gradientColors: const [Color(0xFF6B8E23), Color(0xFF556B2F)],
-          onTap: () => _navigateToVideo(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'ARTIFACTS',
-          imagePath: 'assets/images/mandaya_artifacts.jpg',
-          gradientColors: const [Color(0xFF8FBC8F), Color(0xFF6B8E6B)],
-          onTap: () => _navigateToArtifacts(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'EVENTS',
-          imagePath: 'assets/images/mandaya_images.jpg',
-          gradientColors: const [Color(0xFF9ACD32), Color(0xFF7B9A2D)],
-          onTap: () => _navigateToImages(context),
+      _buildCategoryCard(
+        title: 'MUSIC',
+        imagePath: 'assets/images/mandaya_music.jpg',
+        gradientColors: const [Color(0xFF8FC475), Color(0xFF7BB061)], // Lightest greens
+        onTap: () => _navigateToMusic(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'VIDEO',
+        imagePath: 'assets/images/mandaya_video.jpg',
+        gradientColors: const [Color(0xFF7BB061), Color(0xFF689C4D)], // Medium greens
+        onTap: () => _navigateToVideo(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'ARTIFACTS',
+        imagePath: 'assets/images/mandaya_artifacts.jpg',
+        gradientColors: const [Color(0xFF689C4D), Color(0xFF558839)], // Darker greens
+        onTap: () => _navigateToArtifacts(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'EVENTS',
+        imagePath: 'assets/images/mandaya_images.jpg',
+        gradientColors: const [Color(0xFF558839), Color(0xFF427425)], // Darkest greens
+        onTap: () => _navigateToImages(context),
         ),
       ],
     );

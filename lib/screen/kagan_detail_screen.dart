@@ -385,32 +385,32 @@ class KaganCulturalDetailScreen extends StatelessWidget {
         
         const SizedBox(height: 20),
         
-        _buildCategoryCard(
-          title: 'MUSIC',
-          imagePath: 'assets/images/kagan_music.jpg',
-          gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
-          onTap: () => _navigateToMusic(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'VIDEO',
-          imagePath: 'assets/images/kagan_video.jpg',
-          gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
-          onTap: () => _navigateToVideo(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'ARTIFACTS',
-          imagePath: 'assets/images/kagan_artifacts.jpg',
-          gradientColors: const [Color(0xFF5A6B7A), Color(0xFF3D4A5C)],
-          onTap: () => _navigateToArtifacts(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'EVENTS',
-          imagePath: 'assets/images/kagan_images.jpg',
-          gradientColors: const [Color(0xFF7A5A6B), Color(0xFF5C3D4A)],
-          onTap: () => _navigateToImages(context),
+              _buildCategoryCard(
+        title: 'MUSIC',
+        imagePath: 'assets/images/kagan_music.jpg',
+        gradientColors: const [Color(0xFF8B7355), Color(0xFF654321)],
+        onTap: () => _navigateToMusic(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'VIDEO',
+        imagePath: 'assets/images/kagan_video.jpg',
+        gradientColors: const [Color(0xFF6B5B47), Color(0xFF4A3D2A)],
+        onTap: () => _navigateToVideo(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'ARTIFACTS',
+        imagePath: 'assets/images/kagan_artifacts.jpg',
+        gradientColors: const [Color(0xFF5D4A37), Color(0xFF3D2F1F)], // Darker browns - 3rd level
+        onTap: () => _navigateToArtifacts(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'EVENTS',
+        imagePath: 'assets/images/kagan_images.jpg',
+        gradientColors: const [Color(0xFF3D2F1F), Color(0xFF2A1F14)], // Darkest browns - 4th level
+        onTap: () => _navigateToImages(context)
         ),
       ],
     );

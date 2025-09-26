@@ -390,32 +390,32 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
         
         const SizedBox(height: 20),
         
-        _buildCategoryCard(
-          title: 'MUSIC',
-          imagePath: 'assets/images/mansaka_music.jpg',
-          gradientColors: const [Color(0xFFB19CD9), Color(0xFF8B6DB0)],
-          onTap: () => _navigateToMusic(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'VIDEO',
-          imagePath: 'assets/images/mansaka_video.jpg',
-          gradientColors: const [Color(0xFF9B59B6), Color(0xFF8E44AD)],
-          onTap: () => _navigateToVideo(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'ARTIFACTS',
-          imagePath: 'assets/images/mansaka_artifacts.jpg',
-          gradientColors: const [Color(0xFF6C7B95), Color(0xFF5D4E75)],
-          onTap: () => _navigateToArtifacts(context),
-        ),
-        
-        _buildCategoryCard(
-          title: 'EVENTS',
-          imagePath: 'assets/images/mansaka_images.jpg',
-          gradientColors: const [Color(0xFFAB7BA5), Color(0xFF8B6098)],
-          onTap: () => _navigateToImages(context),
+      _buildCategoryCard(
+        title: 'MUSIC',
+        imagePath: 'assets/images/mansaka_music.jpg',
+        gradientColors: const [Color(0xFFB19CD9), Color(0xFF9B59B6)], // Lightest purples
+        onTap: () => _navigateToMusic(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'VIDEO',
+        imagePath: 'assets/images/mansaka_video.jpg',
+        gradientColors: const [Color(0xFF9B59B6), Color(0xFF8E44AD)], // Medium purples
+        onTap: () => _navigateToVideo(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'ARTIFACTS',
+        imagePath: 'assets/images/mansaka_artifacts.jpg',
+        gradientColors: const [Color(0xFF8E44AD), Color(0xFF663399)], // Darker purples
+        onTap: () => _navigateToArtifacts(context),
+      ),
+      
+      _buildCategoryCard(
+        title: 'EVENTS',
+        imagePath: 'assets/images/mansaka_images.jpg',
+        gradientColors: const [Color(0xFF663399), Color(0xFF4A1A4A)], // Darkest purples
+        onTap: () => _navigateToImages(context),
         ),
       ],
     );

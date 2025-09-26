@@ -1,6 +1,8 @@
 // lib/screen/mandaya_category_screens/mandaya_event_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MandayaEventScreen extends StatefulWidget {
   const MandayaEventScreen({super.key});
@@ -13,184 +15,190 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<ImageCategory> _imageCategories = [
-    ImageCategory(
-      title: 'Traditional Ceremony',
-      tag: 'Ceremony',
-      imagePath: 'assets/images/mandaya_ceremony.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mandaya_ceremony_1.jpg',
-          description: 'Sacred Mandaya ritual led by tribal shaman (Baylan) with traditional chants',
-          location: 'Davao Oriental, Tarragona',
-          date: 'March 18, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_ceremony_2.jpg',
-          description: 'Community healing ceremony using traditional herbs and prayers',
-          location: 'Mati City Cultural Center',
-          date: 'April 25, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_ceremony_3.jpg',
-          description: 'Harvest festival celebration with ancestral spirit offerings',
-          location: 'Barangay Badas, Tarragona',
-          date: 'May 12, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_ceremony_4.jpg',
-          description: 'Traditional wedding ceremony with Dagmay textile exchange',
-          location: 'Mandaya Ancestral Domain',
-          date: 'June 8, 2023',
-        ),
-      ],
-    ),
-    ImageCategory(
-      title: 'Village Life',
-      tag: 'Lifestyle',
-      imagePath: 'assets/images/mandaya_village.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mandaya_village_1.jpg',
-          description: 'Daily activities in traditional Mandaya mountain village',
-          location: 'Barangay Maputi, Boston',
-          date: 'January 15, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_village_2.jpg',
-          description: 'Children learning traditional games and cultural practices',
-          location: 'Sitio Kapatagan, Caraga',
-          date: 'February 22, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_village_3.jpg',
-          description: 'Elders sharing oral traditions and ancestral wisdom',
-          location: 'Tribal Council House, Mati',
-          date: 'March 30, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_village_4.jpg',
-          description: 'Sustainable farming practices in terraced mountainside fields',
-          location: 'Highland Farms, Tarragona',
-          date: 'April 18, 2023',
-        ),
-      ],
-    ),
-    ImageCategory(
-      title: 'Dagmay Textiles',
-      tag: 'Handicraft',
-      imagePath: 'assets/images/mandaya_dagmay.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mandaya_dagmay_1.jpg',
-          description: 'Intricate Dagmay weaving with traditional geometric patterns and symbols',
-          location: 'Mandaya Weaving Center, Mati',
-          date: 'July 20, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_dagmay_2.jpg',
-          description: 'Master weaver demonstrating ancient abaca fiber preparation techniques',
-          location: 'Cultural Heritage Workshop',
-          date: 'August 14, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_dagmay_3.jpg',
-          description: 'Collection of ceremonial Dagmay textiles with spiritual significance',
-          location: 'Mandaya Cultural Museum',
-          date: 'September 5, 2023',
-        ),
-      ],
-    ),
-    ImageCategory(
-      title: 'Cultural Heritage',
-      tag: 'Heritage',
-      imagePath: 'assets/images/mandaya_heritage.jpg',
-      images: [
-        ImageItem(
-          imagePath: 'assets/images/mandaya_heritage_1.jpg',
-          description: 'Ancient tribal artifacts including ritual daggers and ceremonial items',
-          location: 'Mandaya Heritage Center',
-          date: 'October 10, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_heritage_2.jpg',
-          description: 'Traditional musical instruments used in spiritual ceremonies',
-          location: 'Cultural Arts Pavilion',
-          date: 'November 18, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_heritage_3.jpg',
-          description: 'Sacred ancestral totems and spiritual guardian symbols',
-          location: 'Sacred Forest Shrine',
-          date: 'December 25, 2023',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_heritage_4.jpg',
-          description: 'Historical photographs documenting tribal leadership and traditions',
-          location: 'Davao Oriental Archives',
-          date: 'January 12, 2024',
-        ),
-        ImageItem(
-          imagePath: 'assets/images/mandaya_heritage_5.jpg',
-          description: 'Traditional pottery and basketry crafted using ancestral techniques',
-          location: 'Craft Workshop, Baganga',
-          date: 'February 20, 2024',
-        ),
-      ],
-    ),
-  ];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<EventItem> _allEvents = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  // Search functionality
-  List<ImageCategory> get _filteredCategories {
+  List<EventItem> get _filteredEvents {
     if (_searchQuery.isEmpty) {
-      return _imageCategories;
+      return _allEvents;
     }
-    return _imageCategories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.tag.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.images.any((image) => 
-                image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                image.date.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return _allEvents.where((event) {
+      return event.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             event.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             event.location.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
-  List<ImageItem> get _searchResults {
-    if (_searchQuery.isEmpty) return [];
-    
-    List<ImageItem> results = [];
-    for (var category in _imageCategories) {
-      for (var image in category.images) {
-        if (image.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            image.date.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            category.tag.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          results.add(image);
-        }
-      }
-    }
-    return results;
-  }
-
-  bool get _isSearching => _searchQuery.isNotEmpty;
-
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _fetchEvents();
   }
 
-  void _openImageGallery(ImageCategory category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageGalleryScreen(
-          category: category,
-          accentColor: const Color(0xFF7FB069),
-        ),
-      ),
-    );
+  Future<void> _fetchEvents() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching Mandaya events from: $_baseUrl');
+      
+      // API call with query parameters for Mandaya events
+      const String apiUrl = '$_baseUrl?tribe=mandaya&category=event';
+      debugPrint('API URL: $apiUrl');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+      
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      
+      // Check for API error response
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      // Extract data according to API documentation
+      if (!jsonData.containsKey('data')) {
+        throw Exception('API response missing "data" field');
+      }
+
+      final dynamic rawData = jsonData['data'];
+      List<dynamic> contentItems = [];
+      
+      if (rawData is List) {
+        contentItems = rawData;
+      } else if (rawData is Map) {
+        contentItems = [rawData];
+      } else {
+        throw Exception('Unexpected data format in API response');
+      }
+
+      debugPrint('Found ${contentItems.length} content items');
+
+      final List<EventItem> events = [];
+
+      for (var item in contentItems) {
+        if (item == null || item is! Map<String, dynamic>) {
+          debugPrint('Skipping invalid item: $item');
+          continue;
+        }
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // Extract and validate required fields according to API schema
+        final dynamic id = item['id'];
+        final dynamic userId = item['user_id'];
+        final String? title = item['title']?.toString();
+        final String? category = item['category']?.toString();
+        final String? tribe = item['tribe']?.toString();
+        final String? description = item['description']?.toString();
+        final String? file = item['file']?.toString();
+        final dynamic isArchived = item['is_archived'];
+        final String? time = item['time']?.toString();
+        
+        // Validate required fields
+        if (id == null || 
+            userId == null || 
+            title == null || title.isEmpty ||
+            category == null || category.isEmpty ||
+            tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty ||
+            isArchived == null ||
+            time == null || time.isEmpty) {
+          debugPrint('Skipping item with missing required fields');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // Filter: Must be Mandaya tribe
+        if (tribe.toLowerCase() != 'mandaya') {
+          debugPrint('Skipping non-Mandaya item: $tribe');
+          continue;
+        }
+
+        // Filter: Must not be archived (is_archived should be 0)
+        if (isArchived != 0) {
+          debugPrint('Skipping archived item: $title');
+          continue;
+        }
+
+        // Filter: Must be event category or image content
+        if (category.toLowerCase() != 'event' && !_isImageContent(file)) {
+          debugPrint('Skipping non-event content: $file (category: $category)');
+          continue;
+        }
+
+        // Create event item
+        final event = EventItem(
+          id: id.toString(),
+          name: title,
+          description: description ?? 'No description available',
+          imagePath: '$_uploadsBaseUrl$file',
+          file: file,
+          location: 'Davao Oriental, Philippines', // Default location, can be extracted from description
+          date: _formatDate(time),
+          isNetworkSource: true,
+        );
+        
+        debugPrint('✅ Added event: $title (ID: $id, Category: $category)');
+        events.add(event);
+      }
+
+      debugPrint('Final event count: ${events.length}');
+
+      setState(() {
+        _allEvents = events;
+        _isLoading = false;
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching events: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load events: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _isImageContent(String filename) {
+    final String lowerFilename = filename.toLowerCase();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => lowerFilename.endsWith(ext));
+  }
+
+  String _formatDate(String timeString) {
+    try {
+      final DateTime dateTime = DateTime.parse(timeString);
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
+    } catch (e) {
+      return timeString; // Return original string if parsing fails
+    }
+  }
+
+  Future<void> _refreshEvents() async {
+    await _fetchEvents();
   }
 
   @override
@@ -214,33 +222,149 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             children: [
               _buildHeader(),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
-                      if (_isSearching) ...[
-                        const SizedBox(height: 20),
-                        _buildSearchResults(),
-                      ] else ...[
-                        const SizedBox(height: 20),
-                        _buildFeaturedImage(),
-                        const SizedBox(height: 24),
-                        _buildDescription(),
-                        const SizedBox(height: 32),
-                        _buildBrowseSection(),
-                        const SizedBox(height: 20),
-                        _buildImageCategories(),
-                      ],
-                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-                    ],
-                  ),
-                ),
+                child: _isLoading 
+                    ? _buildLoadingState()
+                    : _errorMessage != null 
+                        ? _buildErrorState()
+                        : _allEvents.isEmpty
+                            ? _buildEmptyState()
+                            : _buildContent(),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading Mandaya events...',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load events',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshEvents,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7FB069),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_outlined,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No Mandaya events available',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new events',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshEvents,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7FB069),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshEvents,
+      color: const Color(0xFF7FB069),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            const SizedBox(height: 20),
+            _buildFeaturedImage(),
+            const SizedBox(height: 24),
+            _buildDescription(),
+            const SizedBox(height: 32),
+            _buildBrowseSection(),
+            const SizedBox(height: 20),
+            _buildEventsGrid(),
+            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+          ],
         ),
       ),
     );
@@ -306,7 +430,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
           },
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: 'Search images',
+            hintText: 'Search events',
             hintStyle: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 16,
@@ -340,65 +464,26 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_searchResults.isEmpty) {
-      return _buildNoResults();
-    }
-
+  Widget _buildFeaturedImage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Search Results (${_searchResults.length})',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-            ),
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return _buildSearchResultCard(_searchResults[index], index);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResultCard(ImageItem image, int index) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showSearchResultViewer(image, index);
-      },
       child: Container(
+        height: 200,
+        width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            image.imagePath,
+            'assets/images/mandaya_events_featured.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -409,14 +494,15 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                     colors: [
                       Color(0xFF7FB069),
                       Color(0xFF4A5D23),
+                      Color(0xFF2F3E15),
                     ],
                   ),
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.image,
+                    Icons.event,
                     color: Colors.white,
-                    size: 30,
+                    size: 60,
                   ),
                 ),
               );
@@ -427,15 +513,60 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
     );
   }
 
-  void _showSearchResultViewer(ImageItem image, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: [image], // Show only the selected image
-        initialIndex: 0,
-        accentColor: const Color(0xFF7FB069),
+  Widget _buildDescription() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Browse through a collection of historical and contemporary photographs showcasing Mandaya events, ceremonies, and cultural celebrations that preserve their rich heritage.',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 16,
+              height: 1.6,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBrowseSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        'Browse events (${_filteredEvents.length})',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventsGrid() {
+    if (_filteredEvents.isEmpty) {
+      return _buildNoResults();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: _filteredEvents.length,
+        itemBuilder: (context, index) {
+          return _buildEventCard(_filteredEvents[index], index);
+        },
       ),
     );
   }
@@ -455,7 +586,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No images found',
+              'No events found',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.6),
                 fontSize: 18,
@@ -477,119 +608,11 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
     );
   }
 
-  Widget _buildFeaturedImage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            'assets/images/mandaya_featured.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF7FB069),
-                      Color(0xFF4A5D23),
-                      Color(0xFF2F3E15),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 60,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescription() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Browse through a collection of historical and contemporary photographs showcasing the Mandaya people, their customs, and cultural expressions through time.',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
-              height: 1.6,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        'Browse images',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageCategories() {
-    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
-      return _buildNoResults();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: _filteredCategories.length,
-        itemBuilder: (context, index) {
-          final category = _filteredCategories[index];
-          return _buildCategoryCard(category);
-        },
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(ImageCategory category) {
+  Widget _buildEventCard(EventItem event, int index) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        _openImageGallery(category);
+        _showEventViewer(event, index);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -609,31 +632,69 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: Image.asset(
-                  category.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF7FB069),
-                            Color(0xFF4A5D23),
-                          ],
-                        ),
+                child: event.isNetworkSource
+                    ? Image.network(
+                        event.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF7FB069),
+                                  Color(0xFF4A5D23),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        event.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF7FB069),
+                                  Color(0xFF4A5D23),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -642,7 +703,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      category.title,
+                      event.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -652,23 +713,14 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                    Text(
+                      event.description,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF7FB069),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${category.images.length} images',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -679,203 +731,66 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
       ),
     );
   }
-}
 
-class ImageCategory {
-  final String title;
-  final String tag;
-  final String imagePath;
-  final List<ImageItem> images;
-
-  ImageCategory({
-    required this.title,
-    required this.tag,
-    required this.imagePath,
-    required this.images,
-  });
-}
-
-class ImageItem {
-  final String imagePath;
-  final String description;
-  final String location;
-  final String date;
-
-  ImageItem({
-    required this.imagePath,
-    required this.description,
-    required this.location,
-    required this.date,
-  });
-}
-
-class ImageGalleryScreen extends StatelessWidget {
-  final ImageCategory category;
-  final Color accentColor;
-
-  const ImageGalleryScreen({
-    super.key,
-    required this.category,
-    required this.accentColor,
-  });
-
-  void _showImageViewer(BuildContext context, int initialIndex) {
+  void _showEventViewer(EventItem event, int index) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ImageViewerBottomSheet(
-        images: category.images,
-        initialIndex: initialIndex,
-        accentColor: accentColor,
+      builder: (context) => EventViewerBottomSheet(
+        events: _filteredEvents,
+        initialIndex: index,
+        accentColor: const Color(0xFF7FB069),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: GridView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: category.images.length,
-                  itemBuilder: (context, index) {
-                    return _buildImageItem(category.images[index], index, context);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              category.title.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageItem(ImageItem imageItem, int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showImageViewer(context, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            imageItem.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accentColor.withOpacity(0.7),
-                      accentColor,
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
 
-class ImageViewerBottomSheet extends StatefulWidget {
-  final List<ImageItem> images;
+class EventItem {
+  final String? id;
+  final String name;
+  final String description;
+  final String imagePath;
+  final String? file;
+  final String location;
+  final String date;
+  final bool isNetworkSource;
+
+  EventItem({
+    this.id,
+    required this.name,
+    required this.description,
+    required this.imagePath,
+    this.file,
+    required this.location,
+    required this.date,
+    this.isNetworkSource = false,
+  });
+}
+
+class EventViewerBottomSheet extends StatefulWidget {
+  final List<EventItem> events;
   final int initialIndex;
   final Color accentColor;
 
-  const ImageViewerBottomSheet({
+  const EventViewerBottomSheet({
     super.key,
-    required this.images,
+    required this.events,
     required this.initialIndex,
     required this.accentColor,
   });
 
   @override
-  State<ImageViewerBottomSheet> createState() => _ImageViewerBottomSheetState();
+  State<EventViewerBottomSheet> createState() => _EventViewerBottomSheetState();
 }
 
-class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
+class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   late PageController _pageController;
   late int _currentIndex;
 
@@ -916,9 +831,9 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                 });
                 HapticFeedback.selectionClick();
               },
-              itemCount: widget.images.length,
+              itemCount: widget.events.length,
               itemBuilder: (context, index) {
-                return _buildImageCard(widget.images[index]);
+                return _buildEventCard(widget.events[index]);
               },
             ),
           ),
@@ -947,7 +862,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
       child: Row(
         children: [
           const Text(
-            'Image Gallery',
+            'Event Details',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -968,7 +883,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     );
   }
 
-  Widget _buildImageCard(ImageItem imageItem) {
+  Widget _buildEventCard(EventItem event) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -976,7 +891,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: () => _showFullScreenImage(imageItem),
+            onTap: () => _showFullScreenImage(event),
             child: Container(
               height: 250,
               width: double.infinity,
@@ -994,33 +909,72 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      imageItem.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                widget.accentColor.withOpacity(0.7),
-                                widget.accentColor,
-                              ],
-                            ),
+                    event.isNetworkSource
+                        ? Image.network(
+                            event.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.event,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: const Color(0xFF2A2A2A),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            event.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.event,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.image,
-                              color: Colors.white,
-                              size: 60,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -1054,7 +1008,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  imageItem.description,
+                  event.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -1063,9 +1017,18 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _buildMetadataRow(Icons.location_on, 'Location', imageItem.location),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildMetadataRow(Icons.location_on, 'Location', event.location),
                 const SizedBox(height: 8),
-                _buildMetadataRow(Icons.calendar_today, 'Date', imageItem.date),
+                _buildMetadataRow(Icons.calendar_today, 'Date', event.date),
               ],
             ),
           ),
@@ -1075,14 +1038,14 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     );
   }
 
-  void _showFullScreenImage(ImageItem imageItem) {
+  void _showFullScreenImage(EventItem event) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.black,
         pageBuilder: (BuildContext context, _, __) {
           return FullScreenImageViewer(
-            image: imageItem,
+            event: event,
             accentColor: widget.accentColor,
           );
         },
@@ -1128,7 +1091,7 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-        widget.images.length,
+        widget.events.length,
         (index) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: 8,
@@ -1146,12 +1109,12 @@ class _ImageViewerBottomSheetState extends State<ImageViewerBottomSheet> {
 }
 
 class FullScreenImageViewer extends StatefulWidget {
-  final ImageItem image;
+  final EventItem event;
   final Color accentColor;
 
   const FullScreenImageViewer({
     super.key,
-    required this.image,
+    required this.event,
     required this.accentColor,
   });
 
@@ -1201,33 +1164,74 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 boundaryMargin: const EdgeInsets.all(20),
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.asset(
-                  widget.image.imagePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            widget.accentColor.withOpacity(0.7),
-                            widget.accentColor,
-                          ],
-                        ),
+                child: widget.event.isNetworkSource
+                    ? Image.network(
+                        widget.event.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            color: Colors.black,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        widget.event.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.white,
-                          size: 100,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
             AnimatedOpacity(
@@ -1268,17 +1272,15 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.image.description,
+                                  widget.event.name,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  widget.image.location,
+                                  'Mandaya Event',
                                   style: TextStyle(
                                     color: widget.accentColor,
                                     fontSize: 14,
@@ -1307,17 +1309,35 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
-                            child: Text(
-                              'Tap to zoom • Pinch to scale • Drag to pan',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
+                          Text(
+                            'Tap to zoom • Pinch to scale • Drag to pan',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: widget.accentColor,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  widget.event.location,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(
@@ -1327,7 +1347,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                widget.image.date,
+                                widget.event.date,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -1347,4 +1367,4 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
       ),
     );
   }
-}
+} 
