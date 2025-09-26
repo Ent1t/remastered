@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class KaganArtifactsScreen extends StatefulWidget {
   const KaganArtifactsScreen({super.key});
@@ -12,121 +14,12 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // All artifacts in a single list (removed from categories)
-  final List<ArtifactItem> _allArtifacts = [
-    // Jewelry & Adornments
-    ArtifactItem(
-      name: 'Tubà Sacred Necklace',
-      description: 'Multi-layered brass and gold bead necklace worn by tribal leaders during important ceremonies',
-      material: 'Brass beads, gold accents, cotton thread',
-      origin: 'Tugbok Village, Davao City',
-      age: 'Circa 1890-1920',
-      significance: 'Symbol of leadership and spiritual authority',
-      imagePath: 'assets/artifacts/kagan_tuba_necklace.jpg',
-    ),
-    ArtifactItem(
-      name: 'Ceremonial Ear Weights',
-      description: 'Heavy brass ear ornaments that gradually stretch the earlobes as a sign of beauty and status',
-      material: 'Hammered brass, silver inlay',
-      origin: 'Calinan District, Davao City',
-      age: 'Late 19th century',
-      significance: 'Marker of social status and tribal identity',
-      imagePath: 'assets/artifacts/kagan_ear_weights.jpg',
-    ),
-    ArtifactItem(
-      name: 'Wedding Anklet Set',
-      description: 'Intricate silver anklets with traditional geometric patterns, worn during marriage ceremonies',
-      material: 'Sterling silver, brass bells',
-      origin: 'Marilog District, Davao City',
-      age: 'Early 20th century',
-      significance: 'Symbol of marital commitment and fertility',
-      imagePath: 'assets/artifacts/kagan_wedding_anklets.jpg',
-    ),
-    // Traditional Weapons
-    ArtifactItem(
-      name: 'Bangkaw War Spear',
-      description: 'Long ceremonial spear with iron tip, used in tribal warfare and hunting large game',
-      material: 'Bamboo shaft, forged iron tip, rattan binding',
-      origin: 'Mt. Apo Foothills',
-      age: 'Mid-19th century',
-      significance: 'Symbol of warrior status and tribal protection',
-      imagePath: 'assets/artifacts/kagan_bangkaw_spear.jpg',
-    ),
-    ArtifactItem(
-      name: 'Kris Ceremonial Dagger',
-      description: 'Wavy-bladed ritual dagger with carved wooden handle, used in spiritual ceremonies',
-      material: 'Damascus steel blade, kamagong wood handle',
-      origin: 'Tribal Blacksmith, Tugbok',
-      age: 'Circa 1880',
-      significance: 'Spiritual protection and ancestral connection',
-      imagePath: 'assets/artifacts/kagan_kris_dagger.jpg',
-    ),
-    ArtifactItem(
-      name: 'Hunting Bow and Arrows',
-      description: 'Traditional bow with poison-tipped arrows used for hunting wild boar and deer',
-      material: 'Bamboo bow, rattan string, wooden arrows',
-      origin: 'Highland Hunting Grounds',
-      age: 'Early 1900s',
-      significance: 'Essential tool for survival and food procurement',
-      imagePath: 'assets/artifacts/kagan_bow_arrows.jpg',
-    ),
-    // Ritual Objects
-    ArtifactItem(
-      name: 'Baylan Prayer Bowl',
-      description: 'Sacred wooden bowl used by shamans for water rituals and ancestor communication',
-      material: 'Carved narra wood, brass inlay',
-      origin: 'Sacred Grove, Mt. Apo',
-      age: 'Late 19th century',
-      significance: 'Bridge between physical and spiritual worlds',
-      imagePath: 'assets/artifacts/kagan_prayer_bowl.jpg',
-    ),
-    ArtifactItem(
-      name: 'Ancestral Spirit Mask',
-      description: 'Carved wooden mask representing tribal ancestors, worn during spiritual ceremonies',
-      material: 'Kamagong wood, natural pigments, animal hair',
-      origin: 'Ritual Workshop, Calinan',
-      age: 'Circa 1870-1900',
-      significance: 'Channels ancestral spirits during ceremonies',
-      imagePath: 'assets/artifacts/kagan_spirit_mask.jpg',
-    ),
-    ArtifactItem(
-      name: 'Incense Burner Staff',
-      description: 'Wooden staff with metal bowl for burning sacred herbs during healing rituals',
-      material: 'Bamboo shaft, brass bowl, carved decorations',
-      origin: 'Tribal Healer Collection',
-      age: 'Early 20th century',
-      significance: 'Purification and healing ceremonies',
-      imagePath: 'assets/artifacts/kagan_incense_staff.jpg',
-    ),
-    // Daily Use Tools
-    ArtifactItem(
-      name: 'Rice Terracing Hoe',
-      description: 'Iron-bladed hoe with wooden handle, used for cultivating mountain rice terraces',
-      material: 'Forged iron blade, hardwood handle',
-      origin: 'Highland Farms, Marilog',
-      age: 'Late 19th century',
-      significance: 'Essential tool for rice cultivation and survival',
-      imagePath: 'assets/artifacts/kagan_rice_hoe.jpg',
-    ),
-    ArtifactItem(
-      name: 'Traditional Weaving Loom',
-      description: 'Wooden frame loom used for weaving traditional textiles and ceremonial cloths',
-      material: 'Bamboo frame, wooden heddles, cotton strings',
-      origin: 'Weaving Center, Tugbok',
-      age: 'Early 1900s',
-      significance: 'Creation of cultural identity through textiles',
-      imagePath: 'assets/artifacts/kagan_weaving_loom.jpg',
-    ),
-    ArtifactItem(
-      name: 'Coconut Grater Stool',
-      description: 'Low wooden stool with metal grater blade for processing coconut meat',
-      material: 'Narra wood, iron grater blade',
-      origin: 'Village Craftsman, Calinan',
-      age: 'Mid-20th century',
-      significance: 'Daily food preparation and community gathering',
-      imagePath: 'assets/artifacts/kagan_coconut_grater.jpg',
-    ),
-  ];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<ArtifactItem> _allArtifacts = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   List<ArtifactItem> get _filteredArtifacts {
     if (_searchQuery.isEmpty) {
@@ -134,12 +27,163 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
     }
     return _allArtifacts.where((artifact) {
       return artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             artifact.origin.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             artifact.age.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             artifact.significance.toLowerCase().contains(_searchQuery.toLowerCase());
+             artifact.description.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchArtifacts();
+  }
+
+  Future<void> _fetchArtifacts() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching Kagan artifacts from: $_baseUrl');
+      
+      // API call with query parameters for Kagan artifacts
+      final String apiUrl = '$_baseUrl?tribe=kagan&category=artifact';
+      debugPrint('API URL: $apiUrl');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+      
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      
+      // Check for API error response
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      // Extract data according to API documentation
+      if (!jsonData.containsKey('data')) {
+        throw Exception('API response missing "data" field');
+      }
+
+      final dynamic rawData = jsonData['data'];
+      List<dynamic> contentItems = [];
+      
+      if (rawData is List) {
+        contentItems = rawData;
+      } else if (rawData is Map) {
+        contentItems = [rawData];
+      } else {
+        throw Exception('Unexpected data format in API response');
+      }
+
+      debugPrint('Found ${contentItems.length} content items');
+
+      final List<ArtifactItem> artifacts = [];
+
+      for (var item in contentItems) {
+        if (item == null || item is! Map<String, dynamic>) {
+          debugPrint('Skipping invalid item: $item');
+          continue;
+        }
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // Extract and validate required fields according to API schema
+        final dynamic id = item['id'];
+        final dynamic userId = item['user_id'];
+        final String? title = item['title']?.toString();
+        final String? category = item['category']?.toString();
+        final String? tribe = item['tribe']?.toString();
+        final String? description = item['description']?.toString();
+        final String? file = item['file']?.toString();
+        final dynamic isArchived = item['is_archived'];
+        final String? time = item['time']?.toString();
+        
+        // Validate required fields
+        if (id == null || 
+            userId == null || 
+            title == null || title.isEmpty ||
+            category == null || category.isEmpty ||
+            tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty ||
+            isArchived == null ||
+            time == null || time.isEmpty) {
+          debugPrint('Skipping item with missing required fields');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // Filter: Must be Kagan tribe
+        if (tribe.toLowerCase() != 'kagan') {
+          debugPrint('Skipping non-Kagan item: $tribe');
+          continue;
+        }
+
+        // Filter: Must not be archived (is_archived should be 0)
+        if (isArchived != 0) {
+          debugPrint('Skipping archived item: $title');
+          continue;
+        }
+
+        // Filter: Must be artifact category or image content
+        if (category.toLowerCase() != 'artifact' && !_isImageContent(file)) {
+          debugPrint('Skipping non-artifact content: $file (category: $category)');
+          continue;
+        }
+
+        // Create artifact item
+        final artifact = ArtifactItem(
+          id: id.toString(),
+          name: title,
+          description: description ?? 'No description available',
+          imagePath: '$_uploadsBaseUrl$file',
+          file: file,
+          isNetworkSource: true,
+        );
+        
+        debugPrint('✅ Added artifact: $title (ID: $id, Category: $category)');
+        artifacts.add(artifact);
+      }
+
+      debugPrint('Final artifact count: ${artifacts.length}');
+
+      setState(() {
+        _allArtifacts = artifacts;
+        _isLoading = false;
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching artifacts: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load artifacts: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _isImageContent(String filename) {
+    final String lowerFilename = filename.toLowerCase();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => lowerFilename.endsWith(ext));
+  }
+
+  Future<void> _refreshArtifacts() async {
+    await _fetchArtifacts();
   }
 
   @override
@@ -163,28 +207,149 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
             children: [
               _buildHeader(),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
-                      const SizedBox(height: 20),
-                      _buildFeaturedImage(),
-                      const SizedBox(height: 24),
-                      _buildDescription(),
-                      const SizedBox(height: 32),
-                      _buildBrowseSection(),
-                      const SizedBox(height: 20),
-                      _buildArtifactsGrid(),
-                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-                    ],
-                  ),
-                ),
+                child: _isLoading 
+                    ? _buildLoadingState()
+                    : _errorMessage != null 
+                        ? _buildErrorState()
+                        : _allArtifacts.isEmpty
+                            ? _buildEmptyState()
+                            : _buildContent(),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading Kagan artifacts...',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load artifacts',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshArtifacts,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD4A574),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.museum_outlined,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No Kagan artifacts available',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new artifacts',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshArtifacts,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD4A574),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshArtifacts,
+      color: const Color(0xFFD4A574),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            const SizedBox(height: 20),
+            _buildFeaturedImage(),
+            const SizedBox(height: 24),
+            _buildDescription(),
+            const SizedBox(height: 32),
+            _buildBrowseSection(),
+            const SizedBox(height: 20),
+            _buildArtifactsGrid(),
+            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+          ],
         ),
       ),
     );
@@ -452,31 +617,69 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: Image.asset(
-                  artifact.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFD4A574),
-                            Color(0xFF8B4513),
-                          ],
-                        ),
+                child: artifact.isNetworkSource
+                    ? Image.network(
+                        artifact.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFD4A574),
+                                  Color(0xFF8B4513),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        artifact.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFD4A574),
+                                  Color(0xFF8B4513),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.museum,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -495,23 +698,14 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                    Text(
+                      artifact.description,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD4A574),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        artifact.age,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -535,25 +729,29 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 }
 
 class ArtifactItem {
+  final String? id;
   final String name;
   final String description;
-  final String material;
-  final String origin;
-  final String age;
-  final String significance;
   final String imagePath;
+  final String? file;
+  final bool isNetworkSource;
 
   ArtifactItem({
+    this.id,
     required this.name,
     required this.description,
-    required this.material,
-    required this.origin,
-    required this.age,
-    required this.significance,
     required this.imagePath,
+    this.file,
+    this.isNetworkSource = false,
   });
 }
 
@@ -692,33 +890,72 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      artifact.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                widget.accentColor.withOpacity(0.7),
-                                widget.accentColor,
-                              ],
-                            ),
+                    artifact.isNetworkSource
+                        ? Image.network(
+                            artifact.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.museum,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: const Color(0xFF2A2A2A),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            artifact.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.museum,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.museum,
-                              color: Colors.white,
-                              size: 60,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -769,14 +1006,6 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildMetadataRow(Icons.build, 'Material', artifact.material),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.location_on, 'Origin', artifact.origin),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.access_time, 'Age', artifact.age),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.star, 'Significance', artifact.significance),
               ],
             ),
           ),
@@ -912,33 +1141,74 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 boundaryMargin: const EdgeInsets.all(20),
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.asset(
-                  widget.artifact.imagePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            widget.accentColor.withOpacity(0.7),
-                            widget.accentColor,
-                          ],
-                        ),
+                child: widget.artifact.isNetworkSource
+                    ? Image.network(
+                        widget.artifact.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            color: Colors.black,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4A574)),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        widget.artifact.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.museum,
-                          color: Colors.white,
-                          size: 100,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
             AnimatedOpacity(
@@ -987,7 +1257,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                   ),
                                 ),
                                 Text(
-                                  widget.artifact.origin,
+                                  'Kagan Artifact',
                                   style: TextStyle(
                                     color: widget.accentColor,
                                     fontSize: 14,
@@ -1024,24 +1294,6 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                widget.artifact.age,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -1054,4 +1306,4 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
       ),
     );
   }
-}
+} 

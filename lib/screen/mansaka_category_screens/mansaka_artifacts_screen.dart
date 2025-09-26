@@ -1,6 +1,7 @@
-// lib/screen/mansaka_category_screens/mansaka_artifacts_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MansakaArtifactsScreen extends StatefulWidget {
   const MansakaArtifactsScreen({super.key});
@@ -13,183 +14,177 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<ArtifactCategory> _categories = [
-    ArtifactCategory(
-      title: 'Jewelry & Adornments',
-      subtitle: 'Sacred Beadwork & Personal Items',
-      imagePath: 'assets/images/mansaka_jewelry.jpg',
-      gradientColors: [const Color(0xFFB19CD9), const Color(0xFF8B6DB0)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Mansaka Royal Necklace',
-          description: 'Elaborate multi-strand necklace worn by tribal royalty during important ceremonies',
-          material: 'Gold-plated brass beads, colored glass, silk thread',
-          origin: 'Royal House, Compostela Valley',
-          age: 'Circa 1890-1920',
-          significance: 'Symbol of royal bloodline and divine authority',
-          imagePath: 'assets/artifacts/mansaka_royal_necklace.jpg',
-        ),
-        ArtifactItem(
-          name: 'Tribal Crown of Feathers',
-          description: 'Ceremonial headdress made of rare bird feathers and precious stones',
-          material: 'Eagle feathers, semi-precious stones, bamboo frame',
-          origin: 'Mountain Sanctuary, Maco',
-          age: 'Late 19th century',
-          significance: 'Connection to sky spirits and divine power',
-          imagePath: 'assets/artifacts/mansaka_feather_crown.jpg',
-        ),
-        ArtifactItem(
-          name: 'Wedding Bracelet Set',
-          description: 'Matching pair of silver bracelets with intricate engravings, worn during marriage rituals',
-          material: 'Sterling silver, brass inlay, natural gems',
-          origin: 'Traditional Jeweler, Nabunturan',
-          age: 'Early 20th century',
-          significance: 'Unity and eternal bond in marriage',
-          imagePath: 'assets/artifacts/mansaka_wedding_bracelets.jpg',
-        ),
-      ],
-    ),
-    ArtifactCategory(
-      title: 'Traditional Weapons',
-      subtitle: 'Hunting & Ceremonial Arms',
-      imagePath: 'assets/images/mansaka_weapons.jpg',
-      gradientColors: [const Color(0xFF9B59B6), const Color(0xFF8E44AD)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Datu War Lance',
-          description: 'Long ceremonial spear used by tribal chiefs in warfare and important rituals',
-          material: 'Hardwood shaft, steel spearhead, brass ornaments',
-          origin: 'Datu\'s Arsenal, Pantukan',
-          age: 'Mid-19th century',
-          significance: 'Symbol of leadership and tribal authority',
-          imagePath: 'assets/artifacts/mansaka_datu_lance.jpg',
-        ),
-        ArtifactItem(
-          name: 'Sacred Kris of Protection',
-          description: 'Wavy-bladed ceremonial dagger believed to possess protective spiritual powers',
-          material: 'Damascus steel blade, carved ivory handle',
-          origin: 'Sacred Blacksmith, Monkayo',
-          age: 'Circa 1870-1890',
-          significance: 'Spiritual protection and ancestral blessing',
-          imagePath: 'assets/artifacts/mansaka_sacred_kris.jpg',
-        ),
-        ArtifactItem(
-          name: 'Mansaka Battle Shield',
-          description: 'Wooden shield decorated with tribal symbols, used in combat and ceremonies',
-          material: 'Ironwood, natural pigments, brass studs',
-          origin: 'Warrior Craftsman, New Bataan',
-          age: 'Late 19th century',
-          significance: 'Protection in battle and spiritual defense',
-          imagePath: 'assets/artifacts/mansaka_battle_shield.jpg',
-        ),
-      ],
-    ),
-    ArtifactCategory(
-      title: 'Ritual Objects',
-      subtitle: 'Ceremonial & Spiritual Items',
-      imagePath: 'assets/images/mansaka_ritual.jpg',
-      gradientColors: [const Color(0xFF6C7B95), const Color(0xFF5D4E75)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Babaylan Sacred Vessel',
-          description: 'Ritual container used by shamans for water ceremonies and spirit communication',
-          material: 'Carved kamagong wood, gold leaf details',
-          origin: 'Sacred Grove, Mawab',
-          age: 'Late 19th century',
-          significance: 'Bridge between physical and spiritual realms',
-          imagePath: 'assets/artifacts/mansaka_sacred_vessel.jpg',
-        ),
-        ArtifactItem(
-          name: 'Ancestral Spirit Figure',
-          description: 'Carved wooden figurine representing tribal ancestors, used in worship rituals',
-          material: 'Sacred wood, natural pigments, blessed oils',
-          origin: 'Temple Carver, Maragusan',
-          age: 'Circa 1860-1890',
-          significance: 'Vessel for ancestral spirits during ceremonies',
-          imagePath: 'assets/artifacts/mansaka_spirit_figure.jpg',
-        ),
-        ArtifactItem(
-          name: 'Healing Prayer Beads',
-          description: 'String of sacred beads used by healers during therapeutic rituals',
-          material: 'Blessed wood beads, silk cord, silver accents',
-          origin: 'Master Healer, Laak',
-          age: 'Early 20th century',
-          significance: 'Focus and amplification of healing energies',
-          imagePath: 'assets/artifacts/mansaka_prayer_beads.jpg',
-        ),
-      ],
-    ),
-    ArtifactCategory(
-      title: 'Daily Use Tools',
-      subtitle: 'Agricultural & Household Items',
-      imagePath: 'assets/images/mansaka_tools.jpg',
-      gradientColors: [const Color(0xFFAB7BA5), const Color(0xFF8B6098)],
-      artifacts: [
-        ArtifactItem(
-          name: 'Mountain Rice Harvester',
-          description: 'Curved blade tool used for harvesting rice in terraced mountain fields',
-          material: 'Steel blade, bamboo handle, rattan grip',
-          origin: 'Highland Farms, Maco',
-          age: 'Late 19th century',
-          significance: 'Essential for mountain rice cultivation',
-          imagePath: 'assets/artifacts/mansaka_rice_harvester.jpg',
-        ),
-        ArtifactItem(
-          name: 'Traditional Loom Frame',
-          description: 'Wooden frame loom used for weaving Mansaka textiles with geometric patterns',
-          material: 'Bamboo frame, wooden parts, cotton strings',
-          origin: 'Weaving Master, Compostela',
-          age: 'Early 1900s',
-          significance: 'Preservation of textile weaving traditions',
-          imagePath: 'assets/artifacts/mansaka_loom_frame.jpg',
-        ),
-        ArtifactItem(
-          name: 'Water Storage Jar',
-          description: 'Large ceramic vessel used for storing drinking water and rice wine',
-          material: 'Fired clay, natural glaze, bamboo lid',
-          origin: 'Village Potter, Montevista',
-          age: 'Mid-20th century',
-          significance: 'Essential for household water management',
-          imagePath: 'assets/artifacts/mansaka_water_jar.jpg',
-        ),
-      ],
-    ),
-  ];
+  // API and loading state
+  static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
+  static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
+  List<ArtifactItem> _allArtifacts = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  List<ArtifactCategory> get _filteredCategories {
+  List<ArtifactItem> get _filteredArtifacts {
     if (_searchQuery.isEmpty) {
-      return _categories;
+      return _allArtifacts;
     }
-    return _categories.where((category) {
-      return category.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.subtitle.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             category.artifacts.any((artifact) => 
-                artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return _allArtifacts.where((artifact) {
+      return artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             artifact.description.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
-  List<ArtifactItem> get _searchResults {
-    if (_searchQuery.isEmpty) return [];
-    
-    List<ArtifactItem> results = [];
-    for (var category in _categories) {
-      for (var artifact in category.artifacts) {
-        if (artifact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.material.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.origin.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.age.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            artifact.significance.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          results.add(artifact);
-        }
-      }
-    }
-    return results;
+  @override
+  void initState() {
+    super.initState();
+    _fetchArtifacts();
   }
 
-  bool get _isSearching => _searchQuery.isNotEmpty;
+  Future<void> _fetchArtifacts() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Fetching Mansaka artifacts from: $_baseUrl');
+      
+      // API call with query parameters for Mansaya artifacts
+      final String apiUrl = '$_baseUrl?tribe=mansaka&category=artifact';
+      debugPrint('API URL: $apiUrl');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+      
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('API returned status code: ${response.statusCode}');
+      }
+
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      
+      // Check for API error response
+      if (jsonData.containsKey('error')) {
+        throw Exception(jsonData['error']);
+      }
+
+      // Extract data according to API documentation
+      if (!jsonData.containsKey('data')) {
+        throw Exception('API response missing "data" field');
+      }
+
+      final dynamic rawData = jsonData['data'];
+      List<dynamic> contentItems = [];
+      
+      if (rawData is List) {
+        contentItems = rawData;
+      } else if (rawData is Map) {
+        contentItems = [rawData];
+      } else {
+        throw Exception('Unexpected data format in API response');
+      }
+
+      debugPrint('Found ${contentItems.length} content items');
+
+      final List<ArtifactItem> artifacts = [];
+
+      for (var item in contentItems) {
+        if (item == null || item is! Map<String, dynamic>) {
+          debugPrint('Skipping invalid item: $item');
+          continue;
+        }
+        
+        debugPrint('Processing item: ${item.toString()}');
+        
+        // Extract and validate required fields according to API schema
+        final dynamic id = item['id'];
+        final dynamic userId = item['user_id'];
+        final String? title = item['title']?.toString();
+        final String? category = item['category']?.toString();
+        final String? tribe = item['tribe']?.toString();
+        final String? description = item['description']?.toString();
+        final String? file = item['file']?.toString();
+        final dynamic isArchived = item['is_archived'];
+        final String? time = item['time']?.toString();
+        
+        // Validate required fields
+        if (id == null || 
+            userId == null || 
+            title == null || title.isEmpty ||
+            category == null || category.isEmpty ||
+            tribe == null || tribe.isEmpty ||
+            file == null || file.isEmpty ||
+            isArchived == null ||
+            time == null || time.isEmpty) {
+          debugPrint('Skipping item with missing required fields');
+          debugPrint('  id: $id, user_id: $userId, title: $title');
+          debugPrint('  category: $category, tribe: $tribe, file: $file');
+          debugPrint('  is_archived: $isArchived, time: $time');
+          continue;
+        }
+        
+        // Filter: Must be Mansaka tribe
+        if (tribe.toLowerCase() != 'mansaka') {
+          debugPrint('Skipping non-Mansaka item: $tribe');
+          continue;
+        }
+
+        // Filter: Must not be archived (is_archived should be 0)
+        if (isArchived != 0) {
+          debugPrint('Skipping archived item: $title');
+          continue;
+        }
+
+        // Filter: Must be artifact category or image content
+        if (category.toLowerCase() != 'artifact' && !_isImageContent(file)) {
+          debugPrint('Skipping non-artifact content: $file (category: $category)');
+          continue;
+        }
+
+        // Create artifact item
+        final artifact = ArtifactItem(
+          id: id.toString(),
+          name: title,
+          description: description ?? 'No description available',
+          imagePath: '$_uploadsBaseUrl$file',
+          file: file,
+          isNetworkSource: true,
+        );
+        
+        debugPrint('✅ Added artifact: $title (ID: $id, Category: $category)');
+        artifacts.add(artifact);
+      }
+
+      debugPrint('Final artifact count: ${artifacts.length}');
+
+      setState(() {
+        _allArtifacts = artifacts;
+        _isLoading = false;
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching artifacts: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Failed to load artifacts: ${e.toString().replaceAll('Exception: ', '')}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _isImageContent(String filename) {
+    final String lowerFilename = filename.toLowerCase();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => lowerFilename.endsWith(ext));
+  }
+
+  Future<void> _refreshArtifacts() async {
+    await _fetchArtifacts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,33 +207,149 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
             children: [
               _buildHeader(),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
-                      if (_isSearching) ...[
-                        const SizedBox(height: 20),
-                        _buildSearchResults(),
-                      ] else ...[
-                        const SizedBox(height: 20),
-                        _buildFeaturedImage(),
-                        const SizedBox(height: 24),
-                        _buildDescription(),
-                        const SizedBox(height: 32),
-                        _buildBrowseSection(),
-                        const SizedBox(height: 20),
-                        _buildArtifactCategories(),
-                      ],
-                      SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-                    ],
-                  ),
-                ),
+                child: _isLoading 
+                    ? _buildLoadingState()
+                    : _errorMessage != null 
+                        ? _buildErrorState()
+                        : _allArtifacts.isEmpty
+                            ? _buildEmptyState()
+                            : _buildContent(),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading Mansaka artifacts...',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load artifacts',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshArtifacts,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4CAF50),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.museum_outlined,
+            size: 64,
+            color: Colors.white.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No Mansaka artifacts available',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new artifacts',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _refreshArtifacts,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4CAF50),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshArtifacts,
+      color: const Color(0xFF4CAF50),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            const SizedBox(height: 20),
+            _buildFeaturedImage(),
+            const SizedBox(height: 24),
+            _buildDescription(),
+            const SizedBox(height: 32),
+            _buildBrowseSection(),
+            const SizedBox(height: 20),
+            _buildArtifactsGrid(),
+            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+          ],
         ),
       ),
     );
@@ -291,7 +402,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFB19CD9).withOpacity(0.3),
+            color: const Color(0xFF4CAF50).withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -366,9 +477,9 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFB19CD9),
-                      Color(0xFF9B59B6),
-                      Color(0xFF8E44AD),
+                      Color(0xFF4CAF50),
+                      Color(0xFF388E3C),
+                      Color(0xFF2E7D32),
                     ],
                   ),
                 ),
@@ -408,11 +519,11 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
-        'Browse artifacts',
-        style: TextStyle(
+        'Browse artifacts (${_filteredArtifacts.length})',
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -421,8 +532,8 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
     );
   }
 
-  Widget _buildArtifactCategories() {
-    if (_searchQuery.isNotEmpty && _filteredCategories.isEmpty) {
+  Widget _buildArtifactsGrid() {
+    if (_filteredArtifacts.isEmpty) {
       return _buildNoResults();
     }
 
@@ -437,9 +548,9 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 0.85,
         ),
-        itemCount: _filteredCategories.length,
+        itemCount: _filteredArtifacts.length,
         itemBuilder: (context, index) {
-          return _buildCategoryCard(_filteredCategories[index]);
+          return _buildArtifactCard(_filteredArtifacts[index], index);
         },
       ),
     );
@@ -482,111 +593,11 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    if (_searchResults.isEmpty) {
-      return _buildNoResults();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Search Results (${_searchResults.length})',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-            ),
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return _buildSearchResultCard(_searchResults[index], index);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResultCard(ArtifactItem artifact, int index) {
+  Widget _buildArtifactCard(ArtifactItem artifact, int index) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        _showSearchResultViewer(artifact, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            artifact.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFB19CD9),
-                      Color(0xFF9B59B6),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.museum,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showSearchResultViewer(ArtifactItem artifact, int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ArtifactViewerBottomSheet(
-        artifacts: [artifact],
-        initialIndex: 0,
-        accentColor: const Color(0xFFB19CD9),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(ArtifactCategory category) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showArtifactGallery(category);
+        _showArtifactViewer(artifact, index);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -606,28 +617,69 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: Image.asset(
-                  category.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: category.gradientColors,
-                        ),
+                child: artifact.isNetworkSource
+                    ? Image.network(
+                        artifact.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF4CAF50),
+                                  Color(0xFF388E3C),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        artifact.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF4CAF50),
+                                  Color(0xFF388E3C),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: Center(
-                        child: Icon(
-                          _getCategoryIcon(category.title),
-                          color: Colors.white.withOpacity(0.7),
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
               ),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -636,7 +688,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      category.title,
+                      artifact.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -646,23 +698,14 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                    Text(
+                      artifact.description,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 12,
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB19CD9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${category.artifacts.length} artifacts',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -674,418 +717,42 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String title) {
-    switch (title.toLowerCase()) {
-      case 'jewelry & adornments':
-        return Icons.diamond;
-      case 'traditional weapons':
-        return Icons.security;
-      case 'ritual objects':
-        return Icons.auto_awesome;
-      case 'daily use tools':
-        return Icons.build;
-      default:
-        return Icons.museum;
-    }
-  }
-
-  void _showArtifactGallery(ArtifactCategory category) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ArtifactGalleryScreen(
-          category: category,
-          accentColor: const Color(0xFFB19CD9),
-        ),
-      ),
-    );
-  }
-}
-
-class FullScreenImageViewer extends StatefulWidget {
-  final ArtifactItem artifact;
-  final Color accentColor;
-
-  const FullScreenImageViewer({
-    super.key,
-    required this.artifact,
-    required this.accentColor,
-  });
-
-  @override
-  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
-}
-
-class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
-  bool _showControls = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _hideControlsAfterDelay();
-  }
-
-  void _hideControlsAfterDelay() {
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _showControls = false;
-        });
-      }
-    });
-  }
-
-  void _toggleControls() {
-    setState(() {
-      _showControls = !_showControls;
-    });
-    if (_showControls) {
-      _hideControlsAfterDelay();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        onTap: _toggleControls,
-        child: Stack(
-          children: [
-            Center(
-              child: InteractiveViewer(
-                panEnabled: true,
-                boundaryMargin: const EdgeInsets.all(20),
-                minScale: 0.5,
-                maxScale: 4.0,
-                child: Image.asset(
-                  widget.artifact.imagePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            widget.accentColor.withOpacity(0.7),
-                            widget.accentColor,
-                          ],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.museum,
-                          color: Colors.white,
-                          size: 100,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            AnimatedOpacity(
-              opacity: _showControls ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.8),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.artifact.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  widget.artifact.origin,
-                                  style: TextStyle(
-                                    color: widget.accentColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.8),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tap to zoom • Pinch to scale • Drag to pan',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                widget.artifact.age,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ArtifactCategory {
-  final String title;
-  final String subtitle;
-  final String imagePath;
-  final List<Color> gradientColors;
-  final List<ArtifactItem> artifacts;
-
-  ArtifactCategory({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-    required this.gradientColors,
-    required this.artifacts,
-  });
-}
-
-class ArtifactItem {
-  final String name;
-  final String description;
-  final String material;
-  final String origin;
-  final String age;
-  final String significance;
-  final String imagePath;
-
-  ArtifactItem({
-    required this.name,
-    required this.description,
-    required this.material,
-    required this.origin,
-    required this.age,
-    required this.significance,
-    required this.imagePath,
-  });
-}
-
-class ArtifactGalleryScreen extends StatelessWidget {
-  final ArtifactCategory category;
-  final Color accentColor;
-
-  const ArtifactGalleryScreen({
-    super.key,
-    required this.category,
-    required this.accentColor,
-  });
-
-  void _showArtifactViewer(BuildContext context, int initialIndex) {
+  void _showArtifactViewer(ArtifactItem artifact, int index) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ArtifactViewerBottomSheet(
-        artifacts: category.artifacts,
-        initialIndex: initialIndex,
-        accentColor: accentColor,
+        artifacts: _filteredArtifacts,
+        initialIndex: index,
+        accentColor: const Color(0xFF4CAF50),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF1a1a1a),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 20,
-                  bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: GridView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: category.artifacts.length,
-                  itemBuilder: (context, index) {
-                    return _buildArtifactCard(category.artifacts[index], index, context);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
+}
 
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              category.title.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+class ArtifactItem {
+  final String? id;
+  final String name;
+  final String description;
+  final String imagePath;
+  final String? file;
+  final bool isNetworkSource;
 
-  Widget _buildArtifactCard(ArtifactItem artifact, int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showArtifactViewer(context, index);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            artifact.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accentColor.withOpacity(0.7),
-                      accentColor,
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.museum,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
+  ArtifactItem({
+    this.id,
+    required this.name,
+    required this.description,
+    required this.imagePath,
+    this.file,
+    this.isNetworkSource = false,
+  });
 }
 
 class ArtifactViewerBottomSheet extends StatefulWidget {
@@ -1124,12 +791,8 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
-      height: keyboardHeight > 0 
-          ? screenHeight * 0.95 - keyboardHeight 
-          : screenHeight * 0.8,
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -1227,33 +890,72 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      artifact.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                widget.accentColor.withOpacity(0.7),
-                                widget.accentColor,
-                              ],
-                            ),
+                    artifact.isNetworkSource
+                        ? Image.network(
+                            artifact.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.museum,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: const Color(0xFF2A2A2A),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            artifact.imagePath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      widget.accentColor.withOpacity(0.7),
+                                      widget.accentColor,
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.museum,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.museum,
-                              color: Colors.white,
-                              size: 60,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -1304,14 +1006,6 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildMetadataRow(Icons.build, 'Material', artifact.material),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.location_on, 'Origin', artifact.origin),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.access_time, 'Age', artifact.age),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.star, 'Significance', artifact.significance),
               ],
             ),
           ),
@@ -1339,37 +1033,6 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
     );
   }
 
-  Widget _buildMetadataRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: widget.accentColor,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            color: widget.accentColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -1385,6 +1048,229 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                 ? widget.accentColor
                 : Colors.white.withOpacity(0.3),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatefulWidget {
+  final ArtifactItem artifact;
+  final Color accentColor;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.artifact,
+    required this.accentColor,
+  });
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  bool _showControls = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _hideControlsAfterDelay();
+  }
+
+  void _hideControlsAfterDelay() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showControls = false;
+        });
+      }
+    });
+  }
+
+  void _toggleControls() {
+    setState(() {
+      _showControls = !_showControls;
+    });
+    if (_showControls) {
+      _hideControlsAfterDelay();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        onTap: _toggleControls,
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                panEnabled: true,
+                boundaryMargin: const EdgeInsets.all(20),
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: widget.artifact.isNetworkSource
+                    ? Image.network(
+                        widget.artifact.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            color: Colors.black,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        widget.artifact.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  widget.accentColor.withOpacity(0.7),
+                                  widget.accentColor,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.museum,
+                                color: Colors.white,
+                                size: 100,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.artifact.name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Mansaka Artifact',
+                                  style: TextStyle(
+                                    color: widget.accentColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tap to zoom • Pinch to scale • Drag to pan',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
