@@ -18,11 +18,18 @@ dependencies:
   shared_preferences: ^2.1.1
   video_thumbnail: ^0.5.0
   path_provider: ^2.0.14
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: "^0.14.4"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/iamges/icon.png"
 
 flutter:
   uses-material-design: true

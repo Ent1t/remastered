@@ -23,6 +23,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<double> _pulseAnimation;
   
+  // Animation controller for back button fade
+  late AnimationController _backButtonFadeController;
+  late Animation<double> _backButtonFadeAnimation;
+  
   bool _showScrollIndicator = true;
   bool _userHasScrolled = false; // Track if user has scrolled
 
@@ -47,6 +51,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
     );
     
+    // Initialize back button fade controller
+    _backButtonFadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    
     // Initialize animations
     _fadeAnimation = Tween<double>(
       begin: 1.0,
@@ -64,6 +74,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
     
+    // Initialize back button fade animation (0.0 = hidden, 1.0 = visible)
+    _backButtonFadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _backButtonFadeController,
+      curve: Curves.easeInOut,
+    ));
+    
     // Start the initial animations
     _startInitialAnimations();
     
@@ -74,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _startInitialAnimations() {
     // Start with full opacity
     _fadeController.reset();
+    _backButtonFadeController.forward(); // Start with back button visible at top
     
     // Start pulsing animation and keep it running until user scrolls
     _pulseController.repeat(reverse: true);
@@ -95,6 +115,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _userHasScrolled = true; // Mark that user has scrolled
       _hideScrollIndicator();
     }
+    
+    // Handle back button fade based on scroll position - should come back when at very top
+    if (_currentIndex == 0) {
+      if (_scrollController.offset <= 5) {
+        // Show back button when very close to top (within 5px)
+        if (_backButtonFadeController.status != AnimationStatus.forward && 
+            _backButtonFadeController.status != AnimationStatus.completed) {
+          _backButtonFadeController.forward();
+        }
+      } else {
+        // Hide back button when scrolled away from top
+        if (_backButtonFadeController.status != AnimationStatus.reverse && 
+            _backButtonFadeController.status != AnimationStatus.dismissed) {
+          _backButtonFadeController.reverse();
+        }
+      }
+    }
   }
 
   void _showScrollIndicatorForCurrentTab() {
@@ -105,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _userHasScrolled = false; // Reset scroll tracking
       });
       _fadeController.reset();
+      _backButtonFadeController.forward(); // Show back button when returning to top
       _pulseController.repeat(reverse: true);
     }
   }
@@ -123,12 +161,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ? const TribesScreen()
                 : const TranslationScreen(),
             
-            // Back Button - Only visible on Home screen
+            // Back Button - Only visible on Home screen with fade animation
             if (_currentIndex == 0)
               Positioned(
                 top: 16,
                 right: 16,
-                child: _buildBackButton(),
+                child: AnimatedBuilder(
+                  animation: _backButtonFadeAnimation,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _backButtonFadeAnimation.value,
+                      child: _buildBackButton(),
+                    );
+                  },
+                ),
               ),
             
             // Scroll Indicator - Only visible on Home screen and when user hasn't scrolled
@@ -221,16 +267,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ],
         ),
-        child: Row(
+        child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.arrow_back_ios,
               color: Colors.white,
               size: 8,
             ),
-            const SizedBox(width: 2),
-            const Text(
+            SizedBox(width: 2),
+            Text(
               'Back',
               style: TextStyle(
                 color: Colors.white,
@@ -1308,6 +1354,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.dispose();
     _fadeController.dispose();
     _pulseController.dispose();
+    _backButtonFadeController.dispose(); // Don't forget to dispose the new controller
     super.dispose();
   }
-}
+} 
