@@ -48,7 +48,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
       debugPrint('Fetching Mandaya artifacts from: $_baseUrl');
       
       // API call with query parameters for Mandaya artifacts
-      final String apiUrl = '$_baseUrl?tribe=mandaya&category=artifact';
+      const String apiUrl = '$_baseUrl?tribe=mandaya&category=artifact';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(

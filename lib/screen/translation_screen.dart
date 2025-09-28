@@ -24,7 +24,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
   // Audio file paths for each phrase and language combination
   final Map<String, String> _audioFilePaths = {
     // Signature Phrase - standalone audio (no language suffix)
-    'Mabuhay og Madayaw': 'assets/audio/signature_mabuhay_og_madayaw.mp3',
+    'Mabuhay og Madayaw': 'assets/audio/sbom.mp3',
     
     // Greetings
     'Hello_English': 'assets/audio/english/greetings_hello_english.mp3',

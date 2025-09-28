@@ -48,7 +48,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
       debugPrint('Fetching Kagan events from: $_baseUrl');
       
       // API call with query parameters for Kagan events
-      final String apiUrl = '$_baseUrl?tribe=kagan&category=event';
+      const String apiUrl = '$_baseUrl?tribe=kagan&category=event';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(

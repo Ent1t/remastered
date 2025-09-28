@@ -47,7 +47,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       debugPrint('Fetching Mansaka artifacts from: $_baseUrl');
       
       // API call with query parameters for Mansaya artifacts
-      final String apiUrl = '$_baseUrl?tribe=mansaka&category=artifact';
+      const String apiUrl = '$_baseUrl?tribe=mansaka&category=artifact';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(

@@ -121,7 +121,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
       debugPrint('Fetching Mansaka music tracks from: $_baseUrl');
       
       // Correct API call according to documentation - using query parameters
-      final String apiUrl = '$_baseUrl?tribe=mansaka';
+      const String apiUrl = '$_baseUrl?tribe=mansaka';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(

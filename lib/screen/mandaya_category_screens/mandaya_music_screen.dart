@@ -122,7 +122,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       debugPrint('Fetching Mandaya music tracks from: $_baseUrl');
       
       // API call for Mandaya tribe
-      final String apiUrl = '$_baseUrl?tribe=mandaya';
+      const String apiUrl = '$_baseUrl?tribe=mandaya';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(

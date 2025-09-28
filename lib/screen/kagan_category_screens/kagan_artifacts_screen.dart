@@ -47,7 +47,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
       debugPrint('Fetching Kagan artifacts from: $_baseUrl');
       
       // API call with query parameters for Kagan artifacts
-      final String apiUrl = '$_baseUrl?tribe=kagan&category=artifact';
+      const String apiUrl = '$_baseUrl?tribe=kagan&category=artifact';
       debugPrint('API URL: $apiUrl');
 
       final response = await http.get(
