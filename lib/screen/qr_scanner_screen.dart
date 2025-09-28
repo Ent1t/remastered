@@ -240,66 +240,214 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     );
   }
 
-  Future <void> _showResultDialog(String result) async {
-    http.Response response = await http.post(Uri.parse("${Config.baseUrl}scan/"),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"code": result}));
-      body:jsonEncode({
-        "code": result,
-        "userData": Global.userData
-      });
+  Future<void> _showResultDialog(String result) async {
+    // Handle entrance QR code
+    if (result == "entrance") {
+      try {
+        http.Response response = await http.post(
+          Uri.parse("${Config.baseUrl}visit/"),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'name': Global.userData["name"],
+            'school': Global.userData["school"],
+          })
+        );
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('QR Code Result'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.qr_code,
-                  size: 64,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+        if (response.statusCode == 409) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: const Text('You have already visited today!'),
+                actions: [
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _resetScanner();
+                    },
                   ),
-                  child: SelectableText(
-                    result,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
-                    ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+
+        if (response.statusCode >= 400) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: Text(response.body),
+                actions: [
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _resetScanner();
+                    },
                   ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+
+        // Success case
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Thank you for visiting!'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _resetScanner();
+                  },
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resetScanner();
-              },
-              child: const Text('Scan Another'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Go back to previous screen
-              },
-              style: ElevatedButton.styleFrom(
-              ),
-              child: const Text('Done'),
-            ),
-          ],
+            );
+          },
         );
-      },
-    );
+        return;
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('Failed to connect: $e'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _resetScanner();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+    }
+
+    // Handle regular QR codes
+    try {
+      http.Response response = await http.post(
+        Uri.parse("${Config.baseUrl}scan/"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'code': result,
+          'name': Global.userData["name"],
+          'school': Global.userData["school"],
+        })
+      );
+
+      if (response.statusCode >= 400) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(response.body),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _resetScanner();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      // Parse response and get content title
+      String contentTitle = jsonDecode(response.body)["data"]["title"];
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('QR Code Result'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.qr_code,
+                    size: 64,
+                    color: Colors.green,
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SelectableText(
+                      contentTitle,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _resetScanner();
+                },
+                child: const Text('Scan Another'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Go back to previous screen
+                },
+                child: const Text('Done'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: Text('Failed to process QR code: $e'),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _resetScanner();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   void _resetScanner() {
