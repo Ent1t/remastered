@@ -28,85 +28,85 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     // Greetings
     'Hello_English': 'assets/audio/english/ghe.mp3',
-    'Hello_Cebuano': 'assets/audio/greetings_hello_cebuano.mp3',
-    'Hello_Kagan': 'assets/audio/greetings_hello_kagan.mp3',
-    'Hello_Mansaka': 'assets/audio/greetings_hello_mansaka.mp3',
-    'Hello_Mandaya': 'assets/audio/greetings_hello_mandaya.mp3',
+    'Hello_Cebuano': 'assets/audio/cebuano/ghc.mp3',
+    'Hello_Kagan': 'assets/audio/kagan/greetings_hello_kagan.mp3',
+    'Hello_Mansaka': 'assets/audio/mansaka/greetings_hello_mansaka.mp3',
+    'Hello_Mandaya': 'assets/audio/mandaya/greetings_hello_mandaya.mp3',
     
     'Good morning_English': 'assets/audio/english/ggme.mp3',
-    'Good morning_Cebuano': 'assets/audio/greetings_goodmorning_cebuano.mp3',
-    'Good morning_Kagan': 'assets/audio/greetings_goodmorning_kagan.mp3',
-    'Good morning_Mansaka': 'assets/audio/greetings_goodmorning_mansaka.mp3',
-    'Good morning_Mandaya': 'assets/audio/greetings_goodmorning_mandaya.mp3',
+    'Good morning_Cebuano': 'assets/audio/cebuano/gmbc.mp3',
+    'Good morning_Kagan': 'assets/audio/kagan/greetings_goodmorning_kagan.mp3',
+    'Good morning_Mansaka': 'assets/audio/mansaka/greetings_goodmorning_mansaka.mp3',
+    'Good morning_Mandaya': 'assets/audio/mandaya/greetings_goodmorning_mandaya.mp3',
     
     'Good day_English': 'assets/audio/english/ggde.mp3',
-    'Good day_Cebuano': 'assets/audio/greetings_goodday_cebuano.mp3',
-    'Good day_Kagan': 'assets/audio/greetings_goodday_kagan.mp3',
-    'Good day_Mansaka': 'assets/audio/greetings_goodday_mansaka.mp3',
-    'Good day_Mandaya': 'assets/audio/greetings_goodday_mandaya.mp3',
+    'Good day_Cebuano': 'assets/audio/cebuano/gmac.mp3',
+    'Good day_Kagan': 'assets/audio/kagan/greetings_goodday_kagan.mp3',
+    'Good day_Mansaka': 'assets/audio/mansaka/greetings_goodday_mansaka.mp3',
+    'Good day_Mandaya': 'assets/audio/mandaya/greetings_goodday_mandaya.mp3',
     
     'How are you?_English': 'assets/audio/english/ghaye.mp3',
-    'How are you?_Cebuano': 'assets/audio/greetings_howareyou_cebuano.mp3',
-    'How are you?_Kagan': 'assets/audio/greetings_howareyou_kagan.mp3',
-    'How are you?_Mansaka': 'assets/audio/greetings_howareyou_mansaka.mp3',
-    'How are you?_Mandaya': 'assets/audio/greetings_howareyou_mandaya.mp3',
+    'How are you?_Cebuano': 'assets/audio/cebuano/gkkc.mp3',
+    'How are you?_Kagan': 'assets/audio/kagan/greetings_howareyou_kagan.mp3',
+    'How are you?_Mansaka': 'assets/audio/mansaka/greetings_howareyou_mansaka.mp3',
+    'How are you?_Mandaya': 'assets/audio/mandaya/greetings_howareyou_mandaya.mp3',
     
     // Basic Phrases
     'Thank you_English': 'assets/audio/english/btye.mp3',
-    'Thank you_Cebuano': 'assets/audio/basic_thankyou_cebuano.mp3',
-    'Thank you_Kagan': 'assets/audio/basic_thankyou_kagan.mp3',
-    'Thank you_Mansaka': 'assets/audio/basic_thankyou_mansaka.mp3',
-    'Thank you_Mandaya': 'assets/audio/basic_thankyou_mandaya.mp3',
+    'Thank you_Cebuano': 'assets/audio/cebuano/bsc.mp3',
+    'Thank you_Kagan': 'assets/audio/kagan/basic_thankyou_kagan.mp3',
+    'Thank you_Mansaka': 'assets/audio/mansaka/basic_thankyou_mansaka.mp3',
+    'Thank you_Mandaya': 'assets/audio/mandaya/basic_thankyou_mandaya.mp3',
     
     'Thank you very much_English': 'assets/audio/english/btyvme.mp3',
-    'Thank you very much_Cebuano': 'assets/audio/basic_thankyouverymuch_cebuano.mp3',
-    'Thank you very much_Kagan': 'assets/audio/basic_thankyouverymuch_kagan.mp3',
-    'Thank you very much_Mansaka': 'assets/audio/basic_thankyouverymuch_mansaka.mp3',
-    'Thank you very much_Mandaya': 'assets/audio/basic_thankyouverymuch_mandaya.mp3',
+    'Thank you very much_Cebuano': 'assets/audio/cebuano/bskc.mp3',
+    'Thank you very much_Kagan': 'assets/audio/kagan/basic_thankyouverymuch_kagan.mp3',
+    'Thank you very much_Mansaka': 'assets/audio/mansaka/basic_thankyouverymuch_mansaka.mp3',
+    'Thank you very much_Mandaya': 'assets/audio/mandaya/basic_thankyouverymuch_mandaya.mp3',
     
     'Please_English': 'assets/audio/english/bpe.mp3',
-    'Please_Cebuano': 'assets/audio/basic_please_cebuano.mp3',
-    'Please_Kagan': 'assets/audio/basic_please_kagan.mp3',
-    'Please_Mansaka': 'assets/audio/basic_please_mansaka.mp3',
-    'Please_Mandaya': 'assets/audio/basic_please_mandaya.mp3',
+    'Please_Cebuano': 'assets/audio/cebuano/bpc.mp3',
+    'Please_Kagan': 'assets/audio/kaganbasic_please_kagan.mp3',
+    'Please_Mansaka': 'assets/audio/mansaka/basic_please_mansaka.mp3',
+    'Please_Mandaya': 'assets/audio/mandaya/basic_please_mandaya.mp3',
     
     'Excuse me_English': 'assets/audio/english/beme.mp3',
-    'Excuse me_Cebuano': 'assets/audio/basic_excuseme_cebuano.mp3',
-    'Excuse me_Kagan': 'assets/audio/basic_excuseme_kagan.mp3',
-    'Excuse me_Mansaka': 'assets/audio/basic_excuseme_mansaka.mp3',
-    'Excuse me_Mandaya': 'assets/audio/basic_excuseme_mandaya.mp3',
+    'Excuse me_Cebuano': 'assets/audio/cebuano/bemc.mp3',
+    'Excuse me_Kagan': 'assets/audio/kaganbasic_excuseme_kagan.mp3',
+    'Excuse me_Mansaka': 'assets/audio/mansaka/basic_excuseme_mansaka.mp3',
+    'Excuse me_Mandaya': 'assets/audio/mandaya/basic_excuseme_mandaya.mp3',
     
     // Questions
     'What is your name?_English': 'assets/audio/english/qwiyne.mp3',
-    'What is your name?_Cebuano': 'assets/audio/questions_whatisyourname_cebuano.mp3',
-    'What is your name?_Kagan': 'assets/audio/questions_whatisyourname_kagan.mp3',
-    'What is your name?_Mansaka': 'assets/audio/questions_whatisyourname_mansaka.mp3',
-    'What is your name?_Mandaya': 'assets/audio/questions_whatisyourname_mandaya.mp3',
+    'What is your name?_Cebuano': 'assets/audio/cebuano/quinc.mp3',
+    'What is your name?_Kagan': 'assets/audio/kagan/uestions_whatisyourname_kagan.mp3',
+    'What is your name?_Mansaka': 'assets/audio/mansaka/questions_whatisyourname_mansaka.mp3',
+    'What is your name?_Mandaya': 'assets/audio/mandaya/questions_whatisyourname_mandaya.mp3',
     
     'Where are you from?_English': 'assets/audio/english/qwayfe.mp3',
-    'Where are you from?_Cebuano': 'assets/audio/questions_whereareyoufrom_cebuano.mp3',
-    'Where are you from?_Kagan': 'assets/audio/questions_whereareyoufrom_kagan.mp3',
-    'Where are you from?_Mansaka': 'assets/audio/questions_whereareyoufrom_mansaka.mp3',
-    'Where are you from?_Mandaya': 'assets/audio/questions_whereareyoufrom_mandaya.mp3',
+    'Where are you from?_Cebuano': 'assets/audio/cebuano/qtakc.mp3',
+    'Where are you from?_Kagan': 'assets/audio/kaganquestions_whereareyoufrom_kagan.mp3',
+    'Where are you from?_Mansaka': 'assets/audio/mansaka/questions_whereareyoufrom_mansaka.mp3',
+    'Where are you from?_Mandaya': 'assets/audio/mandaya/questions_whereareyoufrom_mandaya.mp3',
     
     // Numbers
     'One_English': 'assets/audio/english/noe.mp3',
-    'One_Cebuano': 'assets/audio/numbers_one_cebuano.mp3',
-    'One_Kagan': 'assets/audio/numbers_one_kagan.mp3',
-    'One_Mansaka': 'assets/audio/numbers_one_mansaka.mp3',
-    'One_Mandaya': 'assets/audio/numbers_one_mandaya.mp3',
+    'One_Cebuano': 'assets/audio/cebuano/nic.mp3',
+    'One_Kagan': 'assets/audio/kagannumbers_one_kagan.mp3',
+    'One_Mansaka': 'assets/audio/mansaka/numbers_one_mansaka.mp3',
+    'One_Mandaya': 'assets/audio/mandaya/numbers_one_mandaya.mp3',
     
     'Two_English': 'assets/audio/english/ntwoe.mp3',
-    'Two_Cebuano': 'assets/audio/numbers_two_cebuano.mp3',
-    'Two_Kagan': 'assets/audio/numbers_two_kagan.mp3',
-    'Two_Mansaka': 'assets/audio/numbers_two_mansaka.mp3',
-    'Two_Mandaya': 'assets/audio/numbers_two_mandaya.mp3',
+    'Two_Cebuano': 'assets/audio/cebuano/nduhac.mp3',
+    'Two_Kagan': 'assets/audio/kaga/numbers_two_kagan.mp3',
+    'Two_Mansaka': 'assets/audio/mansaka/numbers_two_mansaka.mp3',
+    'Two_Mandaya': 'assets/audio/mandaya/numbers_two_mandaya.mp3',
     
     'Three_English': 'assets/audio/english/nthreee.mp3',
-    'Three_Cebuano': 'assets/audio/numbers_three_cebuano.mp3',
-    'Three_Kagan': 'assets/audio/numbers_three_kagan.mp3',
-    'Three_Mansaka': 'assets/audio/numbers_three_mansaka.mp3',
-    'Three_Mandaya': 'assets/audio/numbers_three_mandaya.mp3',
+    'Three_Cebuano': 'assets/audio/cebuano/ntuloc.mp3',
+    'Three_Kagan': 'assets/audio/kagan/numbers_three_kagan.mp3',
+    'Three_Mansaka': 'assets/audio/mansaka/numbers_three_mansaka.mp3',
+    'Three_Mandaya': 'assets/audio/mandaya/numbers_three_mandaya.mp3',
   };
 
   // Local phrase data - optimized for offline use
@@ -252,15 +252,17 @@ class _TranslationScreenState extends State<TranslationScreen> {
         return;
       }
 
+      final currentPhraseKey = '${phraseKey}_$language';
+
       setState(() {
-        currentlyPlayingPhrase = '${phraseKey}_$language';
+        currentlyPlayingPhrase = currentPhraseKey;
         isPlaying = true;
       });
 
       // Play local audio file
       bool success = await _audioService.playLocalAudio(
         audioPath: audioPath,
-        phraseKey: '${phraseKey}_$language',
+        phraseKey: currentPhraseKey,
       );
 
       if (!success) {
@@ -278,10 +280,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
             ),
           );
         }
+        return;
       }
 
       HapticFeedback.lightImpact();
-      _updatePlayingStatus();
+      
+      // Start monitoring audio status
+      _startAudioStatusMonitoring(currentPhraseKey);
       
     } catch (e) {
       print('Error playing local audio: $e');
@@ -326,10 +331,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
             ),
           );
         }
+        return;
       }
 
       HapticFeedback.lightImpact();
-      _updatePlayingStatus();
+      
+      // Start monitoring audio status
+      _startAudioStatusMonitoring(phraseKey);
       
     } catch (e) {
       print('Error playing standalone audio: $e');
@@ -338,6 +346,30 @@ class _TranslationScreenState extends State<TranslationScreen> {
         isPlaying = false;
       });
     }
+  }
+
+  // New method to monitor audio status and auto-stop when finished
+  void _startAudioStatusMonitoring(String expectedPhraseKey) {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      
+      // Check if the audio service reports as still playing
+      bool audioServiceIsPlaying = _audioService.isPlaying;
+      String? audioServiceCurrentPhrase = _audioService.currentlyPlaying;
+      
+      // If audio service says it's not playing, or the phrase changed, stop our state
+      if (!audioServiceIsPlaying || audioServiceCurrentPhrase != expectedPhraseKey) {
+        if (currentlyPlayingPhrase == expectedPhraseKey) {
+          setState(() {
+            currentlyPlayingPhrase = null;
+            isPlaying = false;
+          });
+        }
+      } else {
+        // Continue monitoring if still playing
+        _startAudioStatusMonitoring(expectedPhraseKey);
+      }
+    });
   }
 
   void _showAudioNotAvailableMessage(String phraseKey, String language) {
@@ -351,21 +383,6 @@ class _TranslationScreenState extends State<TranslationScreen> {
         ),
       );
     }
-  }
-
-  void _updatePlayingStatus() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted && _audioService.currentlyPlaying != currentlyPlayingPhrase) {
-        setState(() {
-          currentlyPlayingPhrase = _audioService.currentlyPlaying;
-          isPlaying = _audioService.isPlaying;
-        });
-        
-        if (isPlaying) {
-          _updatePlayingStatus();
-        }
-      }
-    });
   }
 
   Future<void> _stopAudio() async {
