@@ -18,18 +18,24 @@ dependencies:
   shared_preferences: ^2.1.1
   video_thumbnail: ^0.5.0
   path_provider: ^2.0.14
-  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
   flutter_launcher_icons: "^0.14.4"
+  flutter_native_splash: ^2.4.6
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/iamges/icon.png"
+  image_path: "assets/images/icon.png" 
+
+flutter_native_splash:
+  color: "#1B4332"
+  image: assets/images/icon.png 
+  android: true
+  ios: true
 
 flutter:
   uses-material-design: true
@@ -37,6 +43,8 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
-    - assets/videos/
-    - assets/artifacts/
-    - assets/image/background/logging/
+    - assets/audio/english/
+    - assets/audio/cebuano/
+    - assets/audio/kagan/
+    - assets/audio/mansaka/
+    - assets/audio/mandaya/

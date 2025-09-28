@@ -59,43 +59,87 @@ class AudioService {
         return false;
       }
 
+      // FIX 1: Handle the asset path correctly
+      // Remove 'assets/' prefix for AssetSource since audioplayers expects relative path from assets
+      String assetPath = audioPath;
+      if (assetPath.startsWith('assets/')) {
+        assetPath = assetPath.substring(7); // Remove 'assets/' prefix
+      }
+
       // Play the audio file
-      await _audioPlayer.play(AssetSource(audioPath.replaceFirst('assets/', '')));
+      await _audioPlayer.play(AssetSource(assetPath));
       
       _currentlyPlaying = phraseKey;
       _isPlaying = true;
       
-      print('Playing local audio: $audioPath for phrase: $phraseKey');
+      print('Playing local audio: $assetPath for phrase: $phraseKey');
       return true;
       
     } catch (e) {
       print('Error playing local audio: $e');
+      print('Attempted path: $audioPath');
       _currentlyPlaying = null;
       _isPlaying = false;
       return false;
     }
   }
 
-  // Check if audio file exists in assets
+  // FIX 2: Improved asset existence check with better error handling
   Future<bool> _audioFileExists(String audioPath) async {
     try {
-      await rootBundle.load(audioPath);
+      final ByteData data = await rootBundle.load(audioPath);
+      print('Audio file found: $audioPath (${data.lengthInBytes} bytes)');
       return true;
     } catch (e) {
+      print('Audio file check failed for: $audioPath - Error: $e');
+      
+      // FIX 3: Try alternative path formats if first attempt fails
+      if (audioPath.startsWith('assets/')) {
+        // Try without 'assets/' prefix
+        try {
+          final String altPath = audioPath.substring(7);
+          await rootBundle.load(altPath);
+          print('Audio file found with alternative path: $altPath');
+          return true;
+        } catch (e2) {
+          print('Alternative path also failed: altPath - Error: $e2');
+        }
+      } else {
+        // Try with 'assets/' prefix
+        try {
+          final String altPath = 'assets/$audioPath';
+          await rootBundle.load(altPath);
+          print('Audio file found with assets prefix: $altPath');
+          return true;
+        } catch (e2) {
+          print('Assets prefix path also failed: assets/$audioPath - Error: $e2');
+        }
+      }
+      
       return false;
     }
   }
 
-  // Stop currently playing audio
+  // FIX 4: Improved stop method with better state handling
   Future<void> stopAudio() async {
     try {
-      if (_audioPlayer.state == PlayerState.playing) {
+      // Check current state before attempting to stop
+      final currentState = _audioPlayer.state;
+      print('Current player state before stop: $currentState');
+      
+      if (currentState == PlayerState.playing || 
+          currentState == PlayerState.paused) {
         await _audioPlayer.stop();
+        print('Audio stopped successfully');
       }
+      
       _currentlyPlaying = null;
       _isPlaying = false;
     } catch (e) {
       print('Error stopping audio: $e');
+      // Force reset state even if stop fails
+      _currentlyPlaying = null;
+      _isPlaying = false;
     }
   }
 
@@ -105,6 +149,7 @@ class AudioService {
       if (_audioPlayer.state == PlayerState.playing) {
         await _audioPlayer.pause();
         _isPlaying = false;
+        print('Audio paused');
       }
     } catch (e) {
       print('Error pausing audio: $e');
@@ -117,6 +162,7 @@ class AudioService {
       if (_audioPlayer.state == PlayerState.paused) {
         await _audioPlayer.resume();
         _isPlaying = true;
+        print('Audio resumed');
       }
     } catch (e) {
       print('Error resuming audio: $e');
@@ -161,34 +207,57 @@ class AudioService {
     }
   }
 
-  // Preload multiple audio files for better performance
+  // FIX 5: Enhanced preload with detailed logging
   Future<void> preloadAudioFiles(List<String> audioPaths) async {
+    print('Preloading ${audioPaths.length} audio files...');
+    int foundCount = 0;
+    int missingCount = 0;
+    
     try {
       for (String audioPath in audioPaths) {
         if (await _audioFileExists(audioPath)) {
-          // You can implement preloading logic here if needed
-          // For now, we'll just verify the files exist
-          print('Audio file verified: $audioPath');
+          foundCount++;
+          print('✅ Audio file verified: $audioPath');
         } else {
-          print('Audio file missing: $audioPath');
+          missingCount++;
+          print('❌ Audio file missing: $audioPath');
         }
       }
+      
+      print('Preload summary: $foundCount found, $missingCount missing');
     } catch (e) {
       print('Error preloading audio files: $e');
     }
   }
 
-  // Legacy method for backward compatibility with TTS
-  @deprecated
-  Future<bool> playPhrase({
-    required String text,
-    required String language,
-    required String phraseKey,
-  }) async {
-    // This method is deprecated in favor of playLocalAudio
-    // You can implement TTS fallback here if needed
-    print('playPhrase is deprecated. Use playLocalAudio instead.');
-    return false;
+  // FIX 6: Debug method to list all available assets
+  Future<List<String>> debugListAssets() async {
+    List<String> availableAssets = [];
+    
+    try {
+      // This is a basic implementation - you might need to manually list expected files
+      // since Flutter doesn't provide a direct way to list all assets at runtime
+      print('Debug: Checking asset availability...');
+      
+      // You can expand this list with all your expected audio files
+      List<String> expectedFiles = [
+        'assets/audio/signature_mabuhay_og_madayaw.mp3',
+        'assets/audio/english/greetings_hello_english.mp3',
+        'assets/audio/english/basic_thankyou_english.mp3',
+        // Add more files as needed
+      ];
+      
+      for (String file in expectedFiles) {
+        if (await _audioFileExists(file)) {
+          availableAssets.add(file);
+        }
+      }
+      
+    } catch (e) {
+      print('Error listing assets: $e');
+    }
+    
+    return availableAssets;
   }
 
   // Get list of available audio files
@@ -201,6 +270,7 @@ class AudioService {
       }
     }
     
+    print('Available files: ${availableFiles.length}/${expectedFiles.length}');
     return availableFiles;
   }
 
@@ -211,6 +281,7 @@ class AudioService {
       'isPlaying': _isPlaying,
       'currentlyPlaying': _currentlyPlaying,
       'playerState': _audioPlayer.state.toString(),
+      'timestamp': DateTime.now().toString(),
     };
   }
 
