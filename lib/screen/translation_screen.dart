@@ -66,13 +66,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     'Please_English': 'assets/audio/english/bpe.mp3',
     'Please_Cebuano': 'assets/audio/cebuano/bpc.mp3',
-    'Please_Kagan': 'assets/audio/kaganbasic_please_kagan.mp3',
+    'Please_Kagan': 'assets/audio/kagan/basic_please_kagan.mp3',
     'Please_Mansaka': 'assets/audio/mansaka/basic_please_mansaka.mp3',
     'Please_Mandaya': 'assets/audio/mandaya/basic_please_mandaya.mp3',
     
     'Excuse me_English': 'assets/audio/english/beme.mp3',
     'Excuse me_Cebuano': 'assets/audio/cebuano/bemc.mp3',
-    'Excuse me_Kagan': 'assets/audio/kaganbasic_excuseme_kagan.mp3',
+    'Excuse me_Kagan': 'assets/audio/kagan/basic_excuseme_kagan.mp3',
     'Excuse me_Mansaka': 'assets/audio/mansaka/basic_excuseme_mansaka.mp3',
     'Excuse me_Mandaya': 'assets/audio/mandaya/basic_excuseme_mandaya.mp3',
     
@@ -85,20 +85,20 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     'Where are you from?_English': 'assets/audio/english/qwayfe.mp3',
     'Where are you from?_Cebuano': 'assets/audio/cebuano/qtakc.mp3',
-    'Where are you from?_Kagan': 'assets/audio/kaganquestions_whereareyoufrom_kagan.mp3',
+    'Where are you from?_Kagan': 'assets/audio/kagan/questions_whereareyoufrom_kagan.mp3',
     'Where are you from?_Mansaka': 'assets/audio/mansaka/questions_whereareyoufrom_mansaka.mp3',
     'Where are you from?_Mandaya': 'assets/audio/mandaya/questions_whereareyoufrom_mandaya.mp3',
     
     // Numbers
     'One_English': 'assets/audio/english/noe.mp3',
-    'One_Cebuano': 'assets/audio/cebuano/nic.mp3',
-    'One_Kagan': 'assets/audio/kagannumbers_one_kagan.mp3',
+    'One_Cebuano': 'assets/audio/cebuano/nisac.mp3',
+    'One_Kagan': 'assets/audio/kagan/numbers_one_kagan.mp3',
     'One_Mansaka': 'assets/audio/mansaka/numbers_one_mansaka.mp3',
     'One_Mandaya': 'assets/audio/mandaya/numbers_one_mandaya.mp3',
     
     'Two_English': 'assets/audio/english/ntwoe.mp3',
     'Two_Cebuano': 'assets/audio/cebuano/nduhac.mp3',
-    'Two_Kagan': 'assets/audio/kaga/numbers_two_kagan.mp3',
+    'Two_Kagan': 'assets/audio/kagan/numbers_two_kagan.mp3',
     'Two_Mansaka': 'assets/audio/mansaka/numbers_two_mansaka.mp3',
     'Two_Mandaya': 'assets/audio/mandaya/numbers_two_mandaya.mp3',
     
