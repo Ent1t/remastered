@@ -1150,41 +1150,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildExploreButton(String title) {
-    return SizedBox(
-      height: 50, // Increased height to accommodate layers
-      child: Stack(
-        children: [
-            // Bottom layer (darkest shadow)
+Widget _buildExploreButton(String title) {
+  return SizedBox(
+    height: 50, // Increased height to accommodate layers
+    width: double.infinity, // Take full width available
+    child: Stack(
+      children: [
+        // Bottom layer (darkest shadow) - moderate extension for subtle effect
         Positioned(
-          right: 205,
-          top: 0,
+          right: 195,  // More reasonable extension - not too dramatic
+          top: 0,     // Same vertical position
           child: Container(
-            width: 140,
-            height: 45,
+            width: 160,
+            height: 35,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                 // Color(0xFF232322),
-                 // Color(0xFF898987),
                   Color.fromARGB(200, 96, 95, 91),
                   Color.fromARGB(200, 96, 95, 91),
                 ],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(15),
             ),
           ),
         ),
         
-        // Second layer
+        // Second layer (medium shadow) - just slightly bigger than main button
         Positioned(
-          right: 110,
-          top: 0,
+          right: 100,  // Small offset from main button
+          top: 0,     // Same vertical position
           child: Container(
             width: 140,
-            height: 45,
+            height: 35,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
@@ -1194,54 +1193,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Color.fromARGB(255, 148, 147, 145),
                 ],
               ),
-              borderRadius: BorderRadius.circular(10),
-            ),
+              borderRadius: BorderRadius.circular(15),
+            )
           ),
         ),
 
-          // Main button (top layer)
-          Positioned(
-            right: 8,
-            top: 0,
-            child: Container(
-              width: 140,
-              height: 45,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFDF8D7), // Main button color  FFA0845C
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: const Color(0xFF8B6F47), // Slight highlight border  FF8B6F47
-                  width: 1,
-                ),
+        // Main button (top layer) - original size and position
+        Positioned(
+          right: 8,   // Original position
+          top: 0,     // Same vertical position
+          child: Container(
+            width: 120, // Back to original width
+            height: 35,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFDF8D7), // Main button color
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: const Color(0xFF8B6F47),
+                width: 1,
               ),
-              child: Material(
-                color: const Color.fromARGB(0, 0, 0, 0),
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    _exploreMore(title);
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Explore more',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
-                      ),
+              // Remove the subtle shadow since we want clean layering
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  _exploreMore(title);
+                },
+                borderRadius: BorderRadius.circular(15),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'Explore more',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildBottomNavigationBar() {
     return Container(
