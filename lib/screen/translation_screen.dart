@@ -59,13 +59,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
     'Thank you_Mandaya': 'assets/audio/mandaya/basic_thankyou_mandaya.mp3',
     
     'Thank you very much_English': 'assets/audio/english/btyvme.mp3',
-    'Thank you very much_Cebuano': 'assets/audio/cebuano/bskc.mp3',
+    'Thank you very much_Cebuano': 'assets/audio/cebuano/bsalamatkc.mp3',
     'Thank you very much_Kagan': 'assets/audio/kagan/basic_thankyouverymuch_kagan.mp3',
     'Thank you very much_Mansaka': 'assets/audio/mansaka/basic_thankyouverymuch_mansaka.mp3',
     'Thank you very much_Mandaya': 'assets/audio/mandaya/basic_thankyouverymuch_mandaya.mp3',
     
     'Please_English': 'assets/audio/english/bpe.mp3',
-    'Please_Cebuano': 'assets/audio/cebuano/bpc.mp3',
+    'Please_Cebuano': 'assets/audio/cebuano/bpalihugc.mp3',
     'Please_Kagan': 'assets/audio/kagan/basic_please_kagan.mp3',
     'Please_Mansaka': 'assets/audio/mansaka/basic_please_mansaka.mp3',
     'Please_Mandaya': 'assets/audio/mandaya/basic_please_mandaya.mp3',
@@ -78,7 +78,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     // Questions
     'What is your name?_English': 'assets/audio/english/qwiyne.mp3',
-    'What is your name?_Cebuano': 'assets/audio/cebuano/quinc.mp3',
+    'What is your name?_Cebuano': 'assets/audio/cebuano/qunsainc.mp3',
     'What is your name?_Kagan': 'assets/audio/kagan/uestions_whatisyourname_kagan.mp3',
     'What is your name?_Mansaka': 'assets/audio/mansaka/questions_whatisyourname_mansaka.mp3',
     'What is your name?_Mandaya': 'assets/audio/mandaya/questions_whatisyourname_mandaya.mp3',
@@ -91,7 +91,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     // Numbers
     'One_English': 'assets/audio/english/noe.mp3',
-    'One_Cebuano': 'assets/audio/cebuano/nisac.mp3',
+    'One_Cebuano': 'assets/audio/cebuano/nic.mp3',
     'One_Kagan': 'assets/audio/kagan/numbers_one_kagan.mp3',
     'One_Mansaka': 'assets/audio/mansaka/numbers_one_mansaka.mp3',
     'One_Mandaya': 'assets/audio/mandaya/numbers_one_mandaya.mp3',
