@@ -9,7 +9,9 @@ import 'mansaka_category_screens/mansaka_artifacts_screen.dart';
 import 'mansaka_category_screens/mansaka_event_screen.dart';
 
 class MansakaCulturalDetailScreen extends StatelessWidget {
-  const MansakaCulturalDetailScreen({super.key});
+  final Map<String, dynamic>? contentData;
+  
+  const MansakaCulturalDetailScreen({super.key, this.contentData});
 
   // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
@@ -59,6 +61,13 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get content data from route arguments if not passed directly
+    final data = contentData ?? 
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    
+    // Check if we have QR scanned content data
+    final bool hasQRContent = data != null && data.isNotEmpty;
+    
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -77,14 +86,272 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeaderSection(context),
+              // Show QR content section if available, otherwise show regular header
+              hasQRContent 
+                ? _buildQRContentSection(context, data)
+                : _buildHeaderSection(context),
               const SizedBox(height: 24),
-              _buildInfoSection(),
-              const SizedBox(height: 32),
+              // Only show info section if no QR content (to avoid duplication)
+              if (!hasQRContent) _buildInfoSection(),
+              if (!hasQRContent) const SizedBox(height: 32),
+              // Always show categories section
               _buildCategoriesSection(context),
               const SizedBox(height: 40),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // New method to display QR scanned content
+  Widget _buildQRContentSection(BuildContext context, Map<String, dynamic> data) {
+    String? fileUrl;
+    if (data['file'] != null) {
+      fileUrl = 'https://huni-cms.ionvop.com/uploads/${data['file']}';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with back button and title
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'MANSAKA CONTENT',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // QR Content Display
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFFC4A8E8).withOpacity(0.3), // Mansaka purple border
+                width: 2,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image section
+                if (fileUrl != null)
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      topRight: Radius.circular(14),
+                    ),
+                    child: SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Image.network(
+                        fileUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            height: 200,
+                            color: Colors.grey[800],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFC4A8E8), // Mansaka purple
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 200,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF5D4E75),
+                                  Color(0xFF3F325A),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 60,
+                                color: Colors.white54,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                // Content information
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        data['title'] ?? 'Mansaka Cultural Content',
+                        style: const TextStyle(
+                          color: Color(0xFFC4A8E8), // Mansaka purple
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Metadata row
+                      Row(
+                        children: [
+                          _buildMetadataChip(
+                            label: 'Category',
+                            value: data['category']?.toString().toUpperCase() ?? 'ARTIFACT',
+                            color: const Color(0xFFB19CD9),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildMetadataChip(
+                            label: 'Tribe',
+                            value: data['tribe']?.toString().toUpperCase() ?? 'MANSAKA',
+                            color: const Color(0xFF9B59B6),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Description
+                      if (data['description'] != null && 
+                          data['description'].toString().trim().isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Description',
+                              style: TextStyle(
+                                color: Color(0xFFC4A8E8), // Mansaka purple
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              data['description'],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      const SizedBox(height: 20),
+
+                      // Content ID info
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.qr_code,
+                              color: Color(0xFFC4A8E8), // Mansaka purple
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Content ID: ${data['id']}',
+                              style: const TextStyle(
+                                color: Color(0xFFC4A8E8), // Mansaka purple
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper widget for metadata chips
+  Widget _buildMetadataChip({
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: color.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        value,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -529,4 +796,3 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
     }
   }
 }
-                

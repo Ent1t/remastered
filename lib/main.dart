@@ -3,6 +3,11 @@ import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
 import 'global.dart';
 
+// Import your QR scanner screen files based on actual structure
+import 'screen/mandaya_detail_screen.dart';
+import 'screen/mansaka_detail_screen.dart';
+import 'screen/kagan_detail_screen.dart';
+
 // Custom input formatter to allow only letters, spaces, hyphens, apostrophes, and periods
 class NameInputFormatter extends TextInputFormatter {
   @override
@@ -62,7 +67,20 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
           return HomeScreen(userData: args ?? {});
         },
-      },
+        // QR Scanner content routes - Updated to match your actual file structure
+        '/mandaya_detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return MandayaCulturalDetailScreen(contentData: args);
+        },
+        '/mansaka_detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return MansakaCulturalDetailScreen(contentData: args);
+        },
+        '/kagan_detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return KaganCulturalDetailScreen(contentData: args);
+        },
+       },
       debugShowCheckedModeBanner: false,
     );
   }
