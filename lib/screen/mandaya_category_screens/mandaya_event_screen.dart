@@ -1025,10 +1025,6 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildMetadataRow(Icons.location_on, 'Location', event.location),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.calendar_today, 'Date', event.date),
               ],
             ),
           ),
@@ -1053,37 +1049,6 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
-    );
-  }
-
-  Widget _buildMetadataRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: widget.accentColor,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            color: widget.accentColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1306,56 +1271,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                           ],
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tap to zoom • Pinch to scale • Drag to pan',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  widget.event.location,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                widget.event.date,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      child: Text(
+                        'Tap to zoom • Pinch to scale • Drag to pan',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -1367,4 +1289,4 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
       ),
     );
   }
-} 
+}

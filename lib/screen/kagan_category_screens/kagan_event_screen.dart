@@ -27,8 +27,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     }
     return _allEvents.where((event) {
       return event.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             event.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             event.location.toLowerCase().contains(_searchQuery.toLowerCase());
+             event.description.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
@@ -110,7 +109,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         final String? description = item['description']?.toString();
         final String? file = item['file']?.toString();
         final dynamic isArchived = item['is_archived'];
-        final String? time = item['time']?.toString();
         
         // Validate required fields
         if (id == null || 
@@ -119,12 +117,11 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             category == null || category.isEmpty ||
             tribe == null || tribe.isEmpty ||
             file == null || file.isEmpty ||
-            isArchived == null ||
-            time == null || time.isEmpty) {
+            isArchived == null) {
           debugPrint('Skipping item with missing required fields');
           debugPrint('  id: $id, user_id: $userId, title: $title');
           debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
+          debugPrint('  is_archived: $isArchived');
           continue;
         }
         
@@ -153,8 +150,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
           description: description ?? 'No description available',
           imagePath: '$_uploadsBaseUrl$file',
           file: file,
-          location: 'Davao Region, Philippines', // Default location, can be extracted from description
-          date: _formatDate(time),
           isNetworkSource: true,
         );
         
@@ -183,17 +178,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     final String lowerFilename = filename.toLowerCase();
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     return imageExtensions.any((ext) => lowerFilename.endsWith(ext));
-  }
-
-  String _formatDate(String timeString) {
-    try {
-      final DateTime dateTime = DateTime.parse(timeString);
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
-    } catch (e) {
-      return timeString; // Return original string if parsing fails
-    }
   }
 
   Future<void> _refreshEvents() async {
@@ -757,8 +741,6 @@ class EventItem {
   final String description;
   final String imagePath;
   final String? file;
-  final String location;
-  final String date;
   final bool isNetworkSource;
 
   EventItem({
@@ -767,8 +749,6 @@ class EventItem {
     required this.description,
     required this.imagePath,
     this.file,
-    required this.location,
-    required this.date,
     this.isNetworkSource = false,
   });
 }
@@ -1024,10 +1004,6 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildMetadataRow(Icons.location_on, 'Location', event.location),
-                const SizedBox(height: 8),
-                _buildMetadataRow(Icons.calendar_today, 'Date', event.date),
               ],
             ),
           ),
@@ -1052,37 +1028,6 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
-    );
-  }
-
-  Widget _buildMetadataRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: widget.accentColor,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            color: widget.accentColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1305,56 +1250,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                           ],
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tap to zoom • Pinch to scale • Drag to pan',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  widget.event.location,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: widget.accentColor,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                widget.event.date,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      child: Text(
+                        'Tap to zoom • Pinch to scale • Drag to pan',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
