@@ -176,16 +176,18 @@ class MansakaCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('ABOUT THE MANSAKA'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mansaka people are indigenous to the mountainous regions of Davao de Oro (formerly Compostela Valley). They are known for their expertise in agriculture, traditional crafts, and their deep spiritual connection to their ancestral lands.',
+            'The indigenous socio-political structure of the Mansaka tribe, established to promote order, maintain security and advance the development of their communities.',
           ),
           
           const SizedBox(height: 32),
           
           // Origins and Legend Section
-          _buildSectionTitle('ORIGINS & HERITAGE'),
+          _buildSectionTitle('ORIGINS & LEGENDS'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mansaka are believed to be among the earliest inhabitants of the Davao region. Their name is thought to derive from "man" (people) and "saka" (to go up), referring to their traditional practice of moving to higher elevations during certain seasons.',
+            'The term Mansaka was derived from the words ‘man,’ meaning ‘first’ and ‘saka,’ meaning ‘to ascend. '
+            'Mansaka meant ‘the first people to ascend the mountains or go upstream. '
+            'Prior to being called as ‘Mansaka,’ their people had once been called as ‘utaw’ which meant an indigenous person with innate character and virtues.'
           ),
           
           const SizedBox(height: 32),
@@ -195,43 +197,44 @@ class MansakaCulturalLearnMoreScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           _buildPracticeItem(
-            icon: Icons.agriculture,
-            title: 'Traditional Agriculture',
-            description: 'The Mansaka are skilled farmers, practicing sustainable agriculture techniques passed down through generations, including rice terracing and crop rotation.',
+            icon: Icons.healing,
+            title: 'Traditional Healing',
+            description: 'the Balyan, who is either male or female, is an important part of the structure of the Mansaka tribe. They are spiritual healers known as intelligent persons and are respected by the members of the tribe. Their knowing the cause of a member of a Mansaka tribe’s illness and their corresponding traditional medications had them viewed as someone endowed with special wisdom.',
+          ),
+        
+          const SizedBox(height: 16),
+          
+          _buildPracticeItem(
+            icon: Icons.nature_people,
+            title: 'Spiritual Rituals',
+            description: 'The Kyalalaysan is a prominent leader of the Mansaka tribe, equal in stature to the highest spiritual leaders, and skilled in rituals with singing and chanting. ' 
+                          'Usually from a family of Balyan, the current Kyalalaysan of Tagum, Aguido Sucnaan Sr., succeeded his grandfather, Pyagmatikadung Tangkunay. Past Kyalalaysan include Lantones, Manggang, Kalipayan, Uyop Uyopan, and Mailom.',
           ),
           
           const SizedBox(height: 16),
           
           _buildPracticeItem(
             icon: Icons.handyman,
-            title: 'Traditional Crafts',
-            description: 'Known for their basketry, woodcarving, and metalwork, creating both functional items and ceremonial objects with intricate designs.',
+            title: 'Craftsmanship',
+            description: 'The Mansaka show craftsmanship in rituals through singing and chanting, a skill practiced by the Kyalalaysan and passed down from their ancestors',
           ),
-          
-          const SizedBox(height: 16),
-          
-          _buildPracticeItem(
-            icon: Icons.nature_people,
-            title: 'Ancestral Wisdom',
-            description: 'Strong oral tradition preserving ancient knowledge about medicinal plants, weather patterns, and sustainable living practices.',
-          ),
-          
+
           const SizedBox(height: 32),
           
           // Lifestyle Section
           _buildSectionTitle('TRADITIONAL LIFESTYLE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mansaka live in close-knit communities governed by traditional leaders and council of elders. Their social structure emphasizes cooperation, respect for nature, and the importance of maintaining harmony between the physical and spiritual worlds.',
+            'They traditionally believe that the land is provided by Magbabaya, and considers their land as a very important possession which they inherited from their ancestors especially because they are dependent on the resources found within their domain.',
           ),
           
           const SizedBox(height: 32),
           
           // Modern Challenges Section
-          _buildSectionTitle('PRESERVING TRADITIONS'),
+          _buildSectionTitle('PRESERVING CULTURE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'While adapting to modern times, the Mansaka work to preserve their cultural identity through community education, traditional festivals, and the documentation of their indigenous knowledge systems for future generations.',
+            'The tribe also considers it their responsibility to protect, defend and handle the land well enough to be able to bequeath it to the next generation. Maintained their sense of pride and remained true to their cause of protecting their identity and cultural heritage.',
           ),
         ],
       ),

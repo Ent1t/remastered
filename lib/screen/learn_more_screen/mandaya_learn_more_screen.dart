@@ -176,16 +176,17 @@ class MandayaCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('ABOUT THE MANDAYA'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mandaya people are indigenous to the eastern part of Mindanao, particularly in Davao Oriental and parts of the Caraga Region. They are known for their vibrant textiles, rich oral literature, and strong connection to their ancestral domains.',
+            'One of Tagum’s dominant indigenous groups, the Mandaya tribe is a native community or Tipanud in the area. They also fosters a good relationship with those from the tribes of Kagan and Mansaka.',
           ),
           
           const SizedBox(height: 32),
           
           // Origins and Legend Section
-          _buildSectionTitle('ORIGINS & ANCESTRAL ROOTS'),
+          _buildSectionTitle('ORIGINS & LEGENDS'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mandaya trace their origins to the coastal and mountainous regions of eastern Mindanao. Their name "Mandaya" is believed to derive from "man" (first) and "daya" (upstream), signifying them as the first people to inhabit the upstream areas of major rivers.',
+            'The word Mandaya came from the words ‘man’ and ‘daya’ which means ‘people’ from the ‘upstream.’ '
+            'Mandaya is said to have originated from the interpretation of an utterance of those who live downstream.',
           ),
           
           const SizedBox(height: 32),
@@ -195,25 +196,25 @@ class MandayaCulturalLearnMoreScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           _buildPracticeItem(
-            icon: Icons.colorize,
-            title: 'Dagmay Weaving',
-            description: 'The Mandaya are renowned for their intricate dagmay textiles, featuring geometric patterns and vibrant colors that represent their cultural identity and beliefs.',
+            icon: Icons.healing,
+            title: 'Traditional Healing',
+            description: 'Traditional leaders of the Mandaya also include the Baylan who is the community’s spiritual healer who can foresee future happenings, such as calamities and disasters. As a priest or priestess, the Baylan performs rituals yet does not conduct wedding ceremonies.',
           ),
           
           const SizedBox(height: 16),
           
           _buildPracticeItem(
-            icon: Icons.auto_stories,
-            title: 'Oral Literature',
-            description: 'Rich tradition of epic narratives, folk tales, and songs that preserve their history, values, and wisdom for future generations.',
+            icon: Icons.people,
+            title: 'Spritual Rituals',
+            description: 'The Mandaya tribe is headed by a Datu or Bia who, as the supreme leader, must be a teacher, mediator and adviser to the members of the community; a culture master who officiates traditional ceremonies like tribal weddings and such other celebrations; and a judge who implements and executes the delivery of their justice system.',
           ),
           
           const SizedBox(height: 16),
           
           _buildPracticeItem(
-            icon: Icons.celebration,
-            title: 'Ritual Ceremonies',
-            description: 'Traditional ceremonies for important life events, agricultural cycles, and spiritual practices that strengthen community bonds.',
+            icon: Icons.handyman,
+            title: 'Craftmanship',
+            description: 'The craftsmanship of the Mandaya is shown in the dagum, the traditional Mandaya blouse, which is part of their cultural attire',
           ),
           
           const SizedBox(height: 32),
@@ -222,16 +223,17 @@ class MandayaCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('TRADITIONAL LIFESTYLE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Mandaya traditionally practice sustainable agriculture, particularly rice cultivation in terraced fields. Their communities are organized around kinship systems, with strong emphasis on collective decision-making and respect for elders and traditional leaders.',
+            'The members of the Mandaya communities are among the original settlers of Tagum and they have been in possession of their land since before the 18th century. '
+            'They lived simply, foraging their territory for means that would provide them with their sustenance and basic needs.',
           ),
           
           const SizedBox(height: 32),
           
           // Modern Challenges Section
-          _buildSectionTitle('CULTURAL PRESERVATION'),
+          _buildSectionTitle('PRESERVING CULTURE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'Today, the Mandaya continue to face challenges in maintaining their traditional practices while engaging with modern society. Community leaders and cultural workers are actively working to preserve their language, crafts, and cultural knowledge.',
+            'The Mandaya tribe fosters good relationships with other tribes and preserves their traditional territories in the barangays of Mankilam, Cuambogan, Pagsabangan, Canocotan, and San Miguel.',
           ),
         ],
       ),

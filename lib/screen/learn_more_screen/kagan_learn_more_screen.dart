@@ -175,7 +175,7 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('ABOUT THE KAGAN'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Kagan people are indigenous to the mountainous regions of Mindanao. They are known for their rich oral traditions, intricate beadwork, and deep spiritual connection to nature.',
+            'The Kagan tribe has occupied their ancestral domain since time immemorial and has been considering the lands encompassed therein as their life – the value of their existence. Kagan community is governed by a Pyagmatikadung / Datu who has his Council of Elders formed to eventually attend to the general affairs of said community',
           ),
           
           const SizedBox(height: 32),
@@ -184,7 +184,9 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('ORIGINS & LEGEND'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'Legend tells that the Kagan descended from the heavens, guided by spirits to settle in the mountains. Their ancestors were blessed with the knowledge of healing herbs and the ability to commune with nature spirits.',
+            'The Kagan elders narrated that the word “Kagan” comes from the root word Ka’ag, which means “to inform or to warn. ' 
+            'According to Datu Belardo Bungad, the name Ka’ag was not ascribed by other people, rather it is their people who called themselves as such.  '
+            'Another ascription based on an oral tradition recounted a person from Tagasug saying “Kyalagan ko na” which meant “I have found it.”',
           ),
           
           const SizedBox(height: 32),
@@ -204,7 +206,8 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildPracticeItem(
             icon: Icons.auto_awesome,
             title: 'Spiritual Rituals',
-            description: 'They perform various ceremonies to communicate with ancestral spirits and maintain harmony with the natural world.',
+            description: 'The sacred place of the Kagan tribe of Madaum called as Banakon where they used to offer rituals like Panuwak Buka." '
+                         'A ritual called as Panuwak Buka conducted at Banakon (Barret Beach) in Barangay Madaum performed by Datu Belardo Bungad to prevent calamities and bad things from happening in the community.',
           ),
           
           const SizedBox(height: 16),
@@ -212,7 +215,7 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildPracticeItem(
             icon: Icons.palette,
             title: 'Craftsmanship',
-            description: 'Renowned for their intricate beadwork, traditional weaving, and woodcarving skills that reflect their cultural identity.',
+            description: 'Aside from marking their territories with bodies of water, the Kagan also used huge trees such as Durian and Baluno as well as the Bamboo grass as their marker.',
           ),
           
           const SizedBox(height: 32),
@@ -221,7 +224,8 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('TRADITIONAL LIFESTYLE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'The Kagan traditionally live in harmony with their mountain environment, practicing sustainable agriculture and maintaining a deep respect for all living things. Their communities are organized around kinship groups, with elders serving as keepers of wisdom and tradition.',
+            'The Kagan community invoked the concept of self-delineation in identifying their traditional landmarks.'
+            'Kagan ancestors in Madaum consider Hijo River as an important part of their lives as this is where trade and other economic activities occur.'
           ),
           
           const SizedBox(height: 32),
@@ -230,7 +234,7 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
           _buildSectionTitle('PRESERVING CULTURE'),
           const SizedBox(height: 16),
           _buildDescriptionCard(
-            'Today, the Kagan face challenges in preserving their traditional way of life while adapting to modern society. Efforts are being made to document their languages, customs, and traditional knowledge for future generations.',
+            'The Kagan tribe is similar to Mansaka and Mandaya as these indigenous tribes also valued the conduct of rituals, and referred to their God as Tagallang na Magbabaya.',
           ),
         ],
       ),
