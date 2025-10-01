@@ -357,7 +357,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: ConstrainedBox(
-              constraints: BoxConstraints(
+              constraints: const BoxConstraints(
                 maxWidth: 1400,
               ),
               child: Center(

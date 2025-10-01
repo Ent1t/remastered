@@ -1084,7 +1084,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
                         ),
+<<<<<<< HEAD
                         maxLines: 3,
+=======
+                        maxLines: 1,
+>>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
@@ -1293,7 +1297,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
                         ),
+<<<<<<< HEAD
                         maxLines: 3,
+=======
+                        maxLines: 1,
+>>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
@@ -1302,7 +1310,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           color: Colors.white.withOpacity(0.7),
                           fontSize: artistFontSize,
                         ),
+<<<<<<< HEAD
                         maxLines: 3,
+=======
+                        maxLines: 1,
+>>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

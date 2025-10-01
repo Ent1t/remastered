@@ -1114,6 +1114,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                           fontSize: _getResponsiveFontSize(context, 16),
                           fontWeight: FontWeight.bold,
                         ),
+<<<<<<< HEAD
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1128,6 +1129,22 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: isLarge ? 6 : 4),
+=======
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: isLarge ? 6 : 4),
+                      Text(
+                        track.description,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: _getResponsiveFontSize(context, 14),
+                        ),
+                        maxLines: isLarge ? 1 : 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: isLarge ? 6 : 4),
+>>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
@@ -1215,10 +1232,10 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                       borderRadius: BorderRadius.circular(isLarge ? 24 : 20),
                     ),
                     child: _isLoadingAudio && isCurrentTrack
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
+                            child: const CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
