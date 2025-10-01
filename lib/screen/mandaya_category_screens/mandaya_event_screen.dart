@@ -33,6 +33,36 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
     }).toList();
   }
 
+  // Responsive helper methods
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 4; // Desktop
+    if (width >= 900) return 3;  // Tablet landscape
+    if (width >= 600) return 2;  // Tablet portrait
+    return 2;                     // Mobile
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 40;
+    if (width >= 600) return 30;
+    return 20;
+  }
+
+  double _getFeaturedImageHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 300;
+    if (width >= 600) return 250;
+    return 200;
+  }
+
+  double _getFontSize(BuildContext context, double baseSize) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return baseSize * 1.2;
+    if (width >= 600) return baseSize * 1.1;
+    return baseSize;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +78,6 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
 
       debugPrint('Fetching Mandaya events from: $_baseUrl');
       
-      // API call with query parameters for Mandaya events
       const String apiUrl = '$_baseUrl?tribe=mandaya&category=event';
       debugPrint('API URL: $apiUrl');
 
@@ -69,12 +98,10 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -102,7 +129,6 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -113,7 +139,6 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -123,38 +148,31 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
-        // Filter: Must be Mandaya tribe
         if (tribe.toLowerCase() != 'mandaya') {
           debugPrint('Skipping non-Mandaya item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Filter: Must be event category or image content
         if (category.toLowerCase() != 'event' && !_isImageContent(file)) {
           debugPrint('Skipping non-event content: $file (category: $category)');
           continue;
         }
 
-        // Create event item
         final event = EventItem(
           id: id.toString(),
           name: title,
           description: description ?? 'No description available',
           imagePath: '$_uploadsBaseUrl$file',
           file: file,
-          location: 'Davao Oriental, Philippines', // Default location, can be extracted from description
+          location: 'Davao Oriental, Philippines',
           date: _formatDate(time),
           isNetworkSource: true,
         );
@@ -193,7 +211,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
     } catch (e) {
-      return timeString; // Return original string if parsing fails
+      return timeString;
     }
   }
 
@@ -250,7 +268,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             'Loading Mandaya events...',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
-              fontSize: 14,
+              fontSize: _getFontSize(context, 14),
             ),
           ),
         ],
@@ -260,45 +278,55 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
 
   Widget _buildErrorState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load events',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _getHorizontalPadding(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: _getFontSize(context, 64),
+              color: Colors.white.withOpacity(0.5),
             ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              _errorMessage!,
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load events',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
+                color: Colors.white.withOpacity(0.7),
+                fontSize: _getFontSize(context, 18),
+                fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshEvents,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7FB069),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: _getFontSize(context, 14),
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            child: const Text('Retry'),
-          ),
-        ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshEvents,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7FB069),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  horizontal: _getFontSize(context, 24),
+                  vertical: _getFontSize(context, 12),
+                ),
+              ),
+              child: Text(
+                'Retry',
+                style: TextStyle(fontSize: _getFontSize(context, 14)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -310,7 +338,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
         children: [
           Icon(
             Icons.event_outlined,
-            size: 64,
+            size: _getFontSize(context, 64),
             color: Colors.white.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
@@ -318,7 +346,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             'No Mandaya events available',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
+              fontSize: _getFontSize(context, 18),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -327,7 +355,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             'Check back later for new events',
             style: TextStyle(
               color: Colors.white.withOpacity(0.5),
-              fontSize: 14,
+              fontSize: _getFontSize(context, 14),
             ),
           ),
           const SizedBox(height: 24),
@@ -336,8 +364,15 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF7FB069),
               foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: _getFontSize(context, 24),
+                vertical: _getFontSize(context, 12),
+              ),
             ),
-            child: const Text('Refresh'),
+            child: Text(
+              'Refresh',
+              style: TextStyle(fontSize: _getFontSize(context, 14)),
+            ),
           ),
         ],
       ),
@@ -345,34 +380,50 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   }
 
   Widget _buildContent() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final isDesktop = MediaQuery.of(context).size.width >= 1200;
+    
     return RefreshIndicator(
       onRefresh: _refreshEvents,
       color: const Color(0xFF7FB069),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildFeaturedImage(),
-            const SizedBox(height: 24),
-            _buildDescription(),
-            const SizedBox(height: 32),
-            _buildBrowseSection(),
-            const SizedBox(height: 20),
-            _buildEventsGrid(),
-            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isDesktop ? 1400 : double.infinity,
+              ),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchBar(),
+                    const SizedBox(height: 20),
+                    _buildFeaturedImage(),
+                    const SizedBox(height: 24),
+                    _buildDescription(),
+                    const SizedBox(height: 32),
+                    _buildBrowseSection(),
+                    const SizedBox(height: 20),
+                    _buildEventsGrid(),
+                    SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildHeader() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(horizontalPadding),
       child: Row(
         children: [
           Container(
@@ -385,20 +436,20 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios,
                 color: Colors.white,
-                size: 20,
+                size: _getFontSize(context, 20),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'MANDAYA EVENTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: _getFontSize(context, 20),
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -410,9 +461,12 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   }
 
   Widget _buildSearchBar() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 800),
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12),
@@ -428,16 +482,20 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
               _searchQuery = value;
             });
           },
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: _getFontSize(context, 16),
+          ),
           decoration: InputDecoration(
             hintText: 'Search events',
             hintStyle: TextStyle(
               color: Colors.white.withOpacity(0.6),
-              fontSize: 16,
+              fontSize: _getFontSize(context, 16),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: Colors.white.withOpacity(0.6),
+              size: _getFontSize(context, 24),
             ),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
@@ -450,13 +508,14 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                     icon: Icon(
                       Icons.clear,
                       color: Colors.white.withOpacity(0.6),
+                      size: _getFontSize(context, 24),
                     ),
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 16,
+              vertical: _getFontSize(context, 16),
             ),
           ),
         ),
@@ -465,11 +524,15 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   }
 
   Widget _buildFeaturedImage() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final imageHeight = _getFeaturedImageHeight(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
-        height: 200,
+        height: imageHeight,
         width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 1200),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
@@ -498,11 +561,11 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                     ],
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.event,
                     color: Colors.white,
-                    size: 60,
+                    size: _getFontSize(context, 60),
                   ),
                 ),
               );
@@ -514,33 +577,40 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   }
 
   Widget _buildDescription() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Browse through a collection of historical and contemporary photographs showcasing Mandaya events, ceremonies, and cultural celebrations that preserve their rich heritage.',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
-              height: 1.6,
-              letterSpacing: 0.5,
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Browse through a collection of historical and contemporary photographs showcasing Mandaya events, ceremonies, and cultural celebrations that preserve their rich heritage.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: _getFontSize(context, 16),
+                height: 1.6,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBrowseSection() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Text(
         'Browse events (${_filteredEvents.length})',
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: _getFontSize(context, 20),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -552,28 +622,37 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
       return _buildNoResults();
     }
 
+    final horizontalPadding = _getHorizontalPadding(context);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final spacing = MediaQuery.of(context).size.width >= 900 ? 20.0 : 16.0;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1400),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            childAspectRatio: 0.85,
+          ),
+          itemCount: _filteredEvents.length,
+          itemBuilder: (context, index) {
+            return _buildEventCard(_filteredEvents[index], index);
+          },
         ),
-        itemCount: _filteredEvents.length,
-        itemBuilder: (context, index) {
-          return _buildEventCard(_filteredEvents[index], index);
-        },
       ),
     );
   }
 
   Widget _buildNoResults() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -581,7 +660,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
             const SizedBox(height: 60),
             Icon(
               Icons.search_off,
-              size: 64,
+              size: _getFontSize(context, 64),
               color: Colors.white.withOpacity(0.3),
             ),
             const SizedBox(height: 16),
@@ -589,7 +668,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
               'No events found',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.6),
-                fontSize: 18,
+                fontSize: _getFontSize(context, 18),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -598,7 +677,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
               'Try searching with different keywords',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.4),
-                fontSize: 14,
+                fontSize: _getFontSize(context, 14),
               ),
             ),
             const SizedBox(height: 60),
@@ -609,6 +688,8 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
   }
 
   Widget _buildEventCard(EventItem event, int index) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
+    
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -648,11 +729,11 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.event,
                                 color: Colors.white,
-                                size: 40,
+                                size: isLargeScreen ? 50 : 40,
                               ),
                             ),
                           );
@@ -685,11 +766,11 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.event,
                                 color: Colors.white,
-                                size: 40,
+                                size: isLargeScreen ? 50 : 40,
                               ),
                             ),
                           );
@@ -697,16 +778,16 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                       ),
               ),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isLargeScreen ? 16 : 12),
                 color: const Color(0xFF2A2A2A),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       event.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: _getFontSize(context, 14),
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -717,7 +798,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
                       event.description,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: _getFontSize(context, 12),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -807,11 +888,28 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
     super.dispose();
   }
 
+  double _getFontSize(BuildContext context, double baseSize) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return baseSize * 1.2;
+    if (width >= 600) return baseSize * 1.1;
+    return baseSize;
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 40;
+    if (width >= 600) return 30;
+    return 20;
+  }
+
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxHeight = screenHeight * 0.9;
     
     return Container(
+      constraints: BoxConstraints(maxHeight: maxHeight),
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -819,10 +917,11 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildHandle(),
           _buildHeader(),
-          Expanded(
+          Flexible(
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
@@ -857,25 +956,27 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   }
 
   Widget _buildHeader() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Event Details',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: _getFontSize(context, 18),
               fontWeight: FontWeight.bold,
             ),
           ),
           const Spacer(),
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(
+            icon: Icon(
               Icons.close,
               color: Colors.white,
-              size: 24,
+              size: _getFontSize(context, 24),
             ),
           ),
         ],
@@ -884,8 +985,12 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   }
 
   Widget _buildEventCard(EventItem event) {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final imageHeight = screenWidth >= 900 ? 350.0 : screenWidth >= 600 ? 300.0 : 250.0;
+    
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -893,8 +998,9 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           GestureDetector(
             onTap: () => _showFullScreenImage(event),
             child: Container(
-              height: 250,
+              height: imageHeight,
               width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 800),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
@@ -927,11 +1033,11 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                                     ],
                                   ),
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Icon(
                                     Icons.event,
                                     color: Colors.white,
-                                    size: 60,
+                                    size: _getFontSize(context, 60),
                                   ),
                                 ),
                               );
@@ -965,11 +1071,11 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                                     ],
                                   ),
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Icon(
                                     Icons.event,
                                     color: Colors.white,
-                                    size: 60,
+                                    size: _getFontSize(context, 60),
                                   ),
                                 ),
                               );
@@ -984,10 +1090,10 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                           color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.fullscreen,
                           color: Colors.white,
-                          size: 16,
+                          size: _getFontSize(context, 16),
                         ),
                       ),
                     ),
@@ -999,7 +1105,8 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(maxWidth: 800),
+            padding: EdgeInsets.all(_getFontSize(context, 16)),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(12),
@@ -1009,9 +1116,9 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
               children: [
                 Text(
                   event.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: _getFontSize(context, 16),
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
@@ -1021,7 +1128,7 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                   event.description,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
+                    fontSize: _getFontSize(context, 14),
                     height: 1.5,
                   ),
                 ),
@@ -1053,14 +1160,16 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   }
 
   Widget _buildPageIndicator() {
+    final indicatorSize = MediaQuery.of(context).size.width >= 600 ? 10.0 : 8.0;
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         widget.events.length,
         (index) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: 8,
-          height: 8,
+          width: indicatorSize,
+          height: indicatorSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index == _currentIndex
@@ -1115,8 +1224,17 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
     }
   }
 
+  double _getFontSize(BuildContext context, double baseSize) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return baseSize * 1.2;
+    if (width >= 600) return baseSize * 1.1;
+    return baseSize;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 900;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -1126,7 +1244,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
             Center(
               child: InteractiveViewer(
                 panEnabled: true,
-                boundaryMargin: const EdgeInsets.all(20),
+                boundaryMargin: EdgeInsets.all(isLargeScreen ? 40 : 20),
                 minScale: 0.5,
                 maxScale: 4.0,
                 child: widget.event.isNetworkSource
@@ -1147,11 +1265,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.event,
                                 color: Colors.white,
-                                size: 100,
+                                size: _getFontSize(context, 100),
                               ),
                             ),
                           );
@@ -1187,11 +1305,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.event,
                                 color: Colors.white,
-                                size: 100,
+                                size: _getFontSize(context, 100),
                               ),
                             ),
                           );
@@ -1207,9 +1325,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isLargeScreen ? 30 : 20,
+                        vertical: isLargeScreen ? 20 : 16,
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -1225,10 +1343,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         children: [
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.close,
                               color: Colors.white,
-                              size: 28,
+                              size: _getFontSize(context, 28),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -1238,17 +1356,19 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               children: [
                                 Text(
                                   widget.event.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: _getFontSize(context, 18),
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   'Mandaya Event',
                                   style: TextStyle(
                                     color: widget.accentColor,
-                                    fontSize: 14,
+                                    fontSize: _getFontSize(context, 14),
                                   ),
                                 ),
                               ],
@@ -1260,7 +1380,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                     const Spacer(),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(isLargeScreen ? 30 : 20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
@@ -1275,7 +1395,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         'Tap to zoom • Pinch to scale • Drag to pan',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
+                          fontSize: _getFontSize(context, 12),
                         ),
                         textAlign: TextAlign.center,
                       ),

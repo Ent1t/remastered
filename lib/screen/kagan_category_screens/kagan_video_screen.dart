@@ -47,6 +47,42 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
+  // Responsive helpers
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 4;
+    if (width >= 800) return 3;
+    if (width >= 600) return 2;
+    return 2;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return 0.75;
+    return 0.8;
+  }
+
+  double _getFeaturedVideoHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (width >= 800) return height * 0.4;
+    if (width >= 600) return 250;
+    return 200;
+  }
+
+  EdgeInsets _getContentPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return const EdgeInsets.symmetric(horizontal: 32);
+    if (width >= 600) return const EdgeInsets.symmetric(horizontal: 24);
+    return const EdgeInsets.symmetric(horizontal: 16);
+  }
+
+  double _getGridSpacing(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return 24;
+    return 16;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -170,7 +206,6 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         final fileType = _determineFileType(file);
         final videoUrl = '$_uploadsBaseUrl$file';
         
-        // Check cache for duration and thumbnail
         final cachedDuration = await VideoMetadataCache.getDuration(id.toString());
         final cachedThumbnail = await VideoMetadataCache.getThumbnail(id.toString());
 
@@ -395,14 +430,21 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+    final showBackButton = width < 600 || !_isSearchFocused;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 16,
+      ),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 48,
-            child: _isSearchFocused 
+            width: _isSearchFocused && width < 600 ? 0 : 48,
+            child: _isSearchFocused && width < 600
                 ? const SizedBox.shrink()
                 : Container(
                     decoration: BoxDecoration(
@@ -424,11 +466,12 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 16,
+            width: _isSearchFocused && width < 600 ? 0 : 16,
           ),
           Expanded(
             child: Container(
               height: 48,
+              constraints: const BoxConstraints(maxWidth: 600),
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
@@ -533,27 +576,27 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
 
     if (_errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load videos',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+        child: Padding(
+          padding: _getContentPadding(context),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.white.withOpacity(0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load videos',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
                 _errorMessage!,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.5),
@@ -561,61 +604,66 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshVideos,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4A574),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshVideos,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4A574),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     if (_allVideos.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.video_library_outlined,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Kagan videos available',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Check back later for new content',
-              style: TextStyle(
+        child: Padding(
+          padding: _getContentPadding(context),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.video_library_outlined,
+                size: 64,
                 color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshVideos,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4A574),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 16),
+              Text(
+                'No Kagan videos available',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: const Text('Refresh'),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Check back later for new content',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshVideos,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4A574),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Refresh'),
+              ),
+            ],
+          ),
         ),
       );
     }
+
+    final spacing = _getGridSpacing(context);
 
     return RefreshIndicator(
       onRefresh: _refreshVideos,
@@ -632,13 +680,13 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
             child: _buildBrowseSection(),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: spacing),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _getCrossAxisCount(context),
+                childAspectRatio: _getChildAspectRatio(context),
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -658,11 +706,17 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildSearchResults() {
+    final spacing = _getGridSpacing(context);
+    final padding = _getContentPadding(context);
+
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: padding.horizontal / 2,
+              vertical: 8,
+            ),
             child: Row(
               children: [
                 Text(
@@ -719,15 +773,15 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                   : GridView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
+                        left: spacing,
+                        right: spacing,
                         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.8,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _getCrossAxisCount(context),
+                        childAspectRatio: _getChildAspectRatio(context),
+                        crossAxisSpacing: spacing,
+                        mainAxisSpacing: spacing,
                       ),
                       itemCount: _filteredVideos.length,
                       itemBuilder: (context, index) {
@@ -743,9 +797,19 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   Widget _buildFeaturedVideo() {
     if (_featuredVideo == null) return const SizedBox.shrink();
 
+    final height = _getFeaturedVideoHeight(context);
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      margin: const EdgeInsets.all(20),
-      height: 200,
+      margin: EdgeInsets.fromLTRB(
+        padding.horizontal / 2,
+        20,
+        padding.horizontal / 2,
+        20,
+      ),
+      height: height,
+      constraints: const BoxConstraints(maxWidth: 1200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -795,17 +859,17 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: 16,
-                  left: 16,
-                  right: 16,
+                  bottom: width >= 600 ? 24 : 16,
+                  left: width >= 600 ? 24 : 16,
+                  right: width >= 600 ? 24 : 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Featured: ${_featuredVideo!.title}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: width >= 600 ? 22 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -814,7 +878,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                         _featuredVideo!.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
-                          fontSize: 14,
+                          fontSize: width >= 600 ? 16 : 14,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -824,15 +888,15 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                 ),
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(width >= 600 ? 20 : 16),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.play_arrow,
                       color: Colors.white,
-                      size: 40,
+                      size: width >= 600 ? 48 : 40,
                     ),
                   ),
                 ),
@@ -845,9 +909,14 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
+    final padding = _getContentPadding(context);
+    
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 16,
+      ),
+      child: const Row(
         children: [
           Icon(
             Icons.video_library,
@@ -870,6 +939,10 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildVideoCard(VideoItem video) {
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = width >= 800 ? 15.0 : 14.0;
+    final descriptionFontSize = width >= 800 ? 13.0 : 12.0;
+    
     return VisibilityDetector(
       key: Key('video_${video.id}'),
       onVisibilityChanged: (info) {
@@ -959,7 +1032,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                         ),
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(width >= 800 ? 14 : 12),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(30),
@@ -971,7 +1044,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                                       ? Icons.music_note
                                       : Icons.image,
                               color: Colors.white,
-                              size: 24,
+                              size: width >= 800 ? 28 : 24,
                             ),
                           ),
                         ),
@@ -982,16 +1055,16 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                     flex: 2,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(width >= 800 ? 14 : 12),
                       color: const Color(0xFF2A2A2A),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             video.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                              fontSize: fontSize,
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
@@ -1003,7 +1076,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                               video.description,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.7),
-                                fontSize: 12,
+                                fontSize: descriptionFontSize,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

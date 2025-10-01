@@ -18,12 +18,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
   
-  // Scroll controller and visibility state
   final ScrollController _scrollController = ScrollController();
   bool _isHeaderVisible = true;
   double _lastScrollOffset = 0;
 
-  // Audio player related variables
   final AudioPlayer _audioPlayer = AudioPlayer();
   MusicTrack? _currentTrack;
   bool _isPlaying = false;
@@ -31,7 +29,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   Duration _totalDuration = Duration.zero;
   bool _isLoadingAudio = false;
 
-  // API and loading state
   static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
   static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
   List<MusicTrack> _allTracks = [];
@@ -39,7 +36,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   String? _errorMessage;
   MusicTrack? _featuredTrack;
 
-  // Duration cache
   Map<String, Duration> _durationCache = {};
   SharedPreferences? _prefs;
   Set<String> _loadingDurations = {};
@@ -53,6 +49,35 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         track.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
         track.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
         track.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+  }
+
+  // Responsive helpers
+  EdgeInsets _getContentPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return const EdgeInsets.symmetric(horizontal: 32);
+    if (width >= 600) return const EdgeInsets.symmetric(horizontal: 24);
+    return const EdgeInsets.symmetric(horizontal: 16);
+  }
+
+  double _getHeroHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (width >= 800) return height * 0.35;
+    if (width >= 600) return 250;
+    return 200;
+  }
+
+  double _getCardHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return 100;
+    if (width >= 600) return 90;
+    return 80;
+  }
+
+  double _getPlayerHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 600) return 140;
+    return 120;
   }
 
   @override
@@ -132,7 +157,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         await tempPlayer.setSource(AssetSource(track.audioPath));
       }
 
-      // Wait for duration to be available
       Duration? duration;
       int attempts = 0;
       while (duration == null && attempts < 10) {
@@ -147,7 +171,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         await _cacheDuration(track.id, duration);
         if (mounted) {
           setState(() {
-            // Update track with duration
             final index = _allTracks.indexWhere((t) => t.id == track.id);
             if (index != -1) {
               _allTracks[index] = track.copyWith(duration: duration);
@@ -202,7 +225,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         });
       }
       
-      // Cache the duration when it becomes available
       if (_currentTrack != null && duration.inMilliseconds > 0) {
         _cacheDuration(_currentTrack!.id, duration);
       }
@@ -306,9 +328,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
@@ -329,7 +348,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           continue;
         }
 
-        // Get cached duration if available
         final cachedDuration = _getCachedDuration(id.toString());
 
         final musicTrack = MusicTrack(
@@ -349,7 +367,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         debugPrint('✅ Added music track: $title (ID: $id, Category: $category, Cached Duration: ${cachedDuration != null ? _formatDuration(cachedDuration) : 'Not cached'})');
         musicTracks.add(musicTrack);
 
-        // Load duration in background if not cached
         if (cachedDuration == null) {
           _loadTrackDuration(musicTrack);
         }
@@ -511,14 +528,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 16,
+      ),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 48,
-            child: _isSearchFocused 
+            width: _isSearchFocused && width < 600 ? 0 : 48,
+            child: _isSearchFocused && width < 600
                 ? const SizedBox.shrink()
                 : Container(
                     decoration: BoxDecoration(
@@ -541,12 +564,13 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 16,
+            width: _isSearchFocused && width < 600 ? 0 : 16,
           ),
           
           Expanded(
             child: Container(
               height: 48,
+              constraints: const BoxConstraints(maxWidth: 600),
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
@@ -651,28 +675,29 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     }
 
     if (_errorMessage != null) {
+      final padding = _getContentPadding(context);
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load music tracks',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+        child: Padding(
+          padding: padding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.white.withOpacity(0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load music tracks',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
                 _errorMessage!,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.5),
@@ -680,58 +705,62 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4A574),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4A574),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     if (_allTracks.isEmpty) {
+      final padding = _getContentPadding(context);
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.music_note_outlined,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Kagan music tracks available',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Check back later for new music content',
-              style: TextStyle(
+        child: Padding(
+          padding: padding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.music_note_outlined,
+                size: 64,
                 color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4A574),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 16),
+              Text(
+                'No Kagan music tracks available',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: const Text('Refresh'),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Check back later for new music content',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4A574),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Refresh'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -756,7 +785,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(height: _currentTrack != null ? 120 : 20),
+            child: SizedBox(height: _currentTrack != null ? _getPlayerHeight(context) + 20 : 20),
           ),
         ],
       ),
@@ -764,11 +793,16 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildSearchResults() {
+    final padding = _getContentPadding(context);
+    
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: padding.horizontal / 2,
+              vertical: 8,
+            ),
             child: Row(
               children: [
                 Text(
@@ -826,7 +860,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   : ListView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 120 : 20),
+                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? _getPlayerHeight(context) + 20 : 20),
                       ),
                       itemCount: _filteredTracks.length,
                       itemBuilder: (context, index) {
@@ -840,9 +874,19 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildHeroSection() {
+    final height = _getHeroHeight(context);
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      margin: const EdgeInsets.all(16),
-      height: 200,
+      margin: EdgeInsets.fromLTRB(
+        padding.horizontal / 2,
+        16,
+        padding.horizontal / 2,
+        16,
+      ),
+      height: height,
+      constraints: const BoxConstraints(maxWidth: 1200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -907,9 +951,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                     ],
                   ),
                 ),
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(width >= 600 ? 24 : 20),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(width >= 600 ? 20 : 16),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -921,7 +965,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                     'Discover the traditional musical heritage of the Kagan people. Each song carries deep cultural meaning and connects the community to their ancestors through rhythm and melody.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.95),
-                      fontSize: 14,
+                      fontSize: width >= 600 ? 16 : 14,
                       height: 1.4,
                       fontWeight: FontWeight.w500,
                     ),
@@ -939,9 +983,24 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     final isCurrentTrack = _currentTrack?.id == track.id;
     final hasDuration = track.duration != null;
     final isLoadingDuration = _loadingDurations.contains(track.id);
+    final width = MediaQuery.of(context).size.width;
+    final padding = _getContentPadding(context);
+    final cardHeight = _getCardHeight(context);
+    
+    // Responsive sizing
+    final imageSize = width >= 800 ? 80.0 : width >= 600 ? 70.0 : 60.0;
+    final titleFontSize = width >= 800 ? 17.0 : width >= 600 ? 16.0 : 16.0;
+    final descriptionFontSize = width >= 800 ? 15.0 : width >= 600 ? 14.0 : 14.0;
+    final categoryFontSize = width >= 800 ? 13.0 : 12.0;
+    final buttonSize = width >= 800 ? 48.0 : width >= 600 ? 44.0 : 40.0;
+    final iconSize = width >= 800 ? 28.0 : width >= 600 ? 26.0 : 24.0;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 6,
+      ),
+      constraints: const BoxConstraints(maxWidth: 1000),
       decoration: BoxDecoration(
         color: isCurrentTrack 
             ? const Color(0xFFD4A574).withOpacity(0.1)
@@ -963,12 +1022,12 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             _togglePlayPause(track);
           },
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(width >= 600 ? 14 : 12),
             child: Row(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: imageSize,
+                  height: imageSize,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFFD4A574).withOpacity(0.2),
@@ -980,10 +1039,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                             track.imagePath,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
+                              return Icon(
                                 Icons.music_note,
-                                color: Color(0xFFD4A574),
-                                size: 30,
+                                color: const Color(0xFFD4A574),
+                                size: imageSize * 0.5,
                               );
                             },
                             loadingBuilder: (context, child, loadingProgress) {
@@ -1000,17 +1059,17 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                             track.imagePath,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
+                              return Icon(
                                 Icons.music_note,
-                                color: Color(0xFFD4A574),
-                                size: 30,
+                                color: const Color(0xFFD4A574),
+                                size: imageSize * 0.5,
                               );
                             },
                           ),
                   ),
                 ),
                 
-                const SizedBox(width: 16),
+                SizedBox(width: width >= 600 ? 18 : 16),
                 
                 Expanded(
                   child: Column(
@@ -1022,22 +1081,27 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           color: isCurrentTrack 
                               ? const Color(0xFFD4A574)
                               : Colors.white,
-                          fontSize: 16,
+                          fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         track.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: 14,
+                          fontSize: descriptionFontSize,
                         ),
-                        maxLines: 2,
+                        maxLines: width >= 800 ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1047,25 +1111,24 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                             ),
                             child: Text(
                               track.category,
-                              style: const TextStyle(
-                                color: Color(0xFFD4A574),
-                                fontSize: 12,
+                              style: TextStyle(
+                                color: const Color(0xFFD4A574),
+                                fontSize: categoryFontSize,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '• ${track.artist}',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 12,
+                          if (width >= 600)
+                            Flexible(
+                              child: Text(
+                                '• ${track.artist}',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: categoryFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          // Duration display
                           if (hasDuration)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1094,13 +1157,13 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                               ),
                             )
                           else if (isLoadingDuration)
-                            SizedBox(
+                            const SizedBox(
                               width: 12,
                               height: 12,
                               child: CircularProgressIndicator(
                                 strokeWidth: 1.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white.withOpacity(0.4),
+                                  Colors.white54,
                                 ),
                               ),
                             ),
@@ -1110,7 +1173,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   ),
                 ),
                 
-                const SizedBox(width: 8),
+                SizedBox(width: width >= 600 ? 12 : 8),
                 
                 GestureDetector(
                   onTap: () {
@@ -1118,28 +1181,30 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                     _togglePlayPause(track);
                   },
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: buttonSize,
+                    height: buttonSize,
                     decoration: BoxDecoration(
                       color: const Color(0xFFD4A574),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(buttonSize / 2),
                     ),
-                    child: _isLoadingAudio && isCurrentTrack
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    child: Center(
+                      child: _isLoadingAudio && isCurrentTrack
+                          ? SizedBox(
+                              width: iconSize * 0.75,
+                              height: iconSize * 0.75,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Icon(
+                              isCurrentTrack && _isPlaying 
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: Colors.white,
+                              size: iconSize,
                             ),
-                          )
-                        : Icon(
-                            isCurrentTrack && _isPlaying 
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.white,
-                            size: 24,
-                          ),
+                    ),
                   ),
                 ),
               ],
@@ -1151,8 +1216,19 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   Widget _buildInlineMusicPlayer() {
+    final width = MediaQuery.of(context).size.width;
+    final playerHeight = _getPlayerHeight(context);
+    final isTablet = width >= 600;
+    final isDesktop = width >= 800;
+    
+    final imageSize = isDesktop ? 60.0 : isTablet ? 55.0 : 50.0;
+    final titleFontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
+    final artistFontSize = isDesktop ? 14.0 : isTablet ? 13.0 : 12.0;
+    final iconSize = isDesktop ? 22.0 : isTablet ? 21.0 : 20.0;
+    final playButtonSize = isDesktop ? 44.0 : isTablet ? 42.0 : 40.0;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isDesktop ? 20 : isTablet ? 18 : 16),
       decoration: const BoxDecoration(
         color: Color(0xFF1F1F1F),
         border: Border(
@@ -1162,177 +1238,188 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           ),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color(0xFFD4A574).withOpacity(0.2),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _currentTrack!.imagePath.startsWith('http')
-                      ? Image.network(
-                          _currentTrack!.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.music_note,
-                              color: Color(0xFFD4A574),
-                              size: 25,
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          _currentTrack!.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.music_note,
-                              color: Color(0xFFD4A574),
-                              size: 25,
-                            );
-                          },
-                        ),
-                ),
-              ),
-              
-              const SizedBox(width: 12),
-              
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _currentTrack!.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      _currentTrack!.artist,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              
-              IconButton(
-                onPressed: () {
-                  _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
-                },
-                icon: const Icon(Icons.replay_10, color: Colors.white, size: 20),
-              ),
-              
-              IconButton(
-                onPressed: () => _togglePlayPause(_currentTrack!),
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD4A574),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              
-              IconButton(
-                onPressed: () {
-                  _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
-                },
-                icon: const Icon(Icons.forward_30, color: Colors.white, size: 20),
-              ),
-              
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _closeMusicPlayer();
-                },
-                icon: Container(
-                  padding: const EdgeInsets.all(4),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: imageSize,
+                  height: imageSize,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFD4A574).withOpacity(0.2),
                   ),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 16,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _currentTrack!.imagePath.startsWith('http')
+                        ? Image.network(
+                            _currentTrack!.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.music_note,
+                                color: const Color(0xFFD4A574),
+                                size: imageSize * 0.5,
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            _currentTrack!.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.music_note,
+                                color: const Color(0xFFD4A574),
+                                size: imageSize * 0.5,
+                              );
+                            },
+                          ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Column(
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0xFFD4A574),
-                  inactiveTrackColor: const Color(0xFFD4A574).withOpacity(0.3),
-                  thumbColor: const Color(0xFFD4A574),
-                  overlayColor: const Color(0xFFD4A574).withOpacity(0.3),
-                  trackHeight: 4,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                
+                SizedBox(width: isDesktop ? 16 : 12),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _currentTrack!.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        _currentTrack!.artist,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: artistFontSize,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                child: Slider(
-                  value: _totalDuration.inMilliseconds > 0 
-                      ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
-                      : 0.0,
-                  onChanged: (value) {
-                    final position = Duration(
-                      milliseconds: (value * _totalDuration.inMilliseconds).round(),
-                    );
-                    _seekTo(position);
+                
+                if (isTablet) ...[
+                  IconButton(
+                    onPressed: () {
+                      _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
+                    },
+                    icon: Icon(Icons.replay_10, color: Colors.white, size: iconSize),
+                  ),
+                ],
+                
+                IconButton(
+                  onPressed: () => _togglePlayPause(_currentTrack!),
+                  icon: Container(
+                    width: playButtonSize,
+                    height: playButtonSize,
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD4A574),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: iconSize,
+                    ),
+                  ),
+                ),
+                
+                if (isTablet) ...[
+                  IconButton(
+                    onPressed: () {
+                      _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
+                    },
+                    icon: Icon(Icons.forward_30, color: Colors.white, size: iconSize),
+                  ),
+                ],
+                
+                IconButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _closeMusicPlayer();
                   },
-                ),
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _formatDuration(_currentPosition),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
-                      ),
+                  icon: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                    Text(
-                      _formatDuration(_totalDuration),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
-                      ),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: isDesktop ? 18 : 16,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            
+            SizedBox(height: isDesktop ? 12 : 8),
+            
+            Column(
+              children: [
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: const Color(0xFFD4A574),
+                    inactiveTrackColor: const Color(0xFFD4A574).withOpacity(0.3),
+                    thumbColor: const Color(0xFFD4A574),
+                    overlayColor: const Color(0xFFD4A574).withOpacity(0.3),
+                    trackHeight: isDesktop ? 5 : 4,
+                    thumbShape: RoundSliderThumbShape(
+                      enabledThumbRadius: isDesktop ? 7 : 6,
+                    ),
+                  ),
+                  child: Slider(
+                    value: _totalDuration.inMilliseconds > 0 
+                        ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
+                        : 0.0,
+                    onChanged: (value) {
+                      final position = Duration(
+                        milliseconds: (value * _totalDuration.inMilliseconds).round(),
+                      );
+                      _seekTo(position);
+                    },
+                  ),
+                ),
+                
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 18 : 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatDuration(_currentPosition),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: isDesktop ? 13 : 12,
+                        ),
+                      ),
+                      Text(
+                        _formatDuration(_totalDuration),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: isDesktop ? 13 : 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

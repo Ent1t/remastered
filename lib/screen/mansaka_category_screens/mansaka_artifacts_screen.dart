@@ -31,6 +31,45 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
     }).toList();
   }
 
+  // Responsive helper methods
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 4;
+    if (width > 800) return 3;
+    if (width > 600) return 2;
+    return 2;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 0.9;
+    if (width > 800) return 0.85;
+    return 0.85;
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 40;
+    if (width > 800) return 32;
+    if (width > 600) return 24;
+    return 20;
+  }
+
+  double _getFeaturedImageHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (width > 1200) return height * 0.35;
+    if (width > 800) return height * 0.3;
+    if (width > 600) return 250;
+    return 200;
+  }
+
+  double _getGridSpacing(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 800) return 20;
+    return 16;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +85,6 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
 
       debugPrint('Fetching Mansaka artifacts from: $_baseUrl');
       
-      // API call with query parameters for Mansaya artifacts
       const String apiUrl = '$_baseUrl?tribe=mansaka&category=artifact';
       debugPrint('API URL: $apiUrl');
 
@@ -67,12 +105,10 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -100,7 +136,6 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -111,7 +146,6 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -121,31 +155,24 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
-        // Filter: Must be Mansaka tribe
         if (tribe.toLowerCase() != 'mansaka') {
           debugPrint('Skipping non-Mansaka item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Filter: Must be artifact category or image content
         if (category.toLowerCase() != 'artifact' && !_isImageContent(file)) {
           debugPrint('Skipping non-artifact content: $file (category: $category)');
           continue;
         }
 
-        // Create artifact item
         final artifact = ArtifactItem(
           id: id.toString(),
           name: title,
@@ -245,27 +272,27 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
 
   Widget _buildErrorState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load artifacts',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _getHorizontalPadding(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
             ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load artifacts',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               _errorMessage!,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
@@ -273,58 +300,63 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshArtifacts,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4CAF50),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshArtifacts,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4CAF50),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Retry'),
             ),
-            child: const Text('Retry'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.museum_outlined,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No Mansaka artifacts available',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Check back later for new artifacts',
-            style: TextStyle(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _getHorizontalPadding(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.museum_outlined,
+              size: 64,
               color: Colors.white.withOpacity(0.5),
-              fontSize: 14,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshArtifacts,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4CAF50),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 16),
+            Text(
+              'No Mansaka artifacts available',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
             ),
-            child: const Text('Refresh'),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for new artifacts',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshArtifacts,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4CAF50),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Refresh'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -333,31 +365,43 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
     return RefreshIndicator(
       onRefresh: _refreshArtifacts,
       color: const Color(0xFF4CAF50),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildFeaturedImage(),
-            const SizedBox(height: 24),
-            _buildDescription(),
-            const SizedBox(height: 32),
-            _buildBrowseSection(),
-            const SizedBox(height: 20),
-            _buildArtifactsGrid(),
-            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearchBar(),
+                  const SizedBox(height: 20),
+                  _buildFeaturedImage(),
+                  const SizedBox(height: 24),
+                  _buildDescription(),
+                  const SizedBox(height: 32),
+                  _buildBrowseSection(),
+                  const SizedBox(height: 20),
+                  _buildArtifactsGrid(),
+                  SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildHeader() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(horizontalPadding),
       child: Row(
         children: [
           Container(
@@ -370,20 +414,20 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios,
                 color: Colors.white,
-                size: 20,
+                size: isLargeScreen ? 24 : 20,
               ),
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'MANSAKA ARTIFACTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: isLargeScreen ? 24 : 20,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -395,9 +439,13 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   }
 
   Widget _buildSearchBar() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 800),
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12),
@@ -413,16 +461,20 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
               _searchQuery = value;
             });
           },
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isLargeScreen ? 18 : 16,
+          ),
           decoration: InputDecoration(
             hintText: 'Search artifacts',
             hintStyle: TextStyle(
               color: Colors.white.withOpacity(0.6),
-              fontSize: 16,
+              fontSize: isLargeScreen ? 18 : 16,
             ),
             prefixIcon: Icon(
               Icons.search,
               color: Colors.white.withOpacity(0.6),
+              size: isLargeScreen ? 28 : 24,
             ),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
@@ -435,13 +487,14 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                     icon: Icon(
                       Icons.clear,
                       color: Colors.white.withOpacity(0.6),
+                      size: isLargeScreen ? 28 : 24,
                     ),
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 16,
+              vertical: isLargeScreen ? 20 : 16,
             ),
           ),
         ),
@@ -450,48 +503,54 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   }
 
   Widget _buildFeaturedImage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+    final horizontalPadding = _getHorizontalPadding(context);
+    final imageHeight = _getFeaturedImageHeight(context);
+    
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          height: imageHeight,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              'assets/images/mansaka_artifacts_featured.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF4CAF50),
+                        Color(0xFF388E3C),
+                        Color(0xFF2E7D32),
+                      ],
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.museum,
+                      color: Colors.white,
+                      size: 60,
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.asset(
-            'assets/images/mansaka_artifacts_featured.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF4CAF50),
-                      Color(0xFF388E3C),
-                      Color(0xFF2E7D32),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.museum,
-                    color: Colors.white,
-                    size: 60,
-                  ),
-                ),
-              );
-            },
           ),
         ),
       ),
@@ -499,34 +558,46 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   }
 
   Widget _buildDescription() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+    final horizontalPadding = _getHorizontalPadding(context);
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Text(
             'Discover authentic Mansaka artifacts - physical objects that tell the story of this indigenous tribe\'s rich cultural heritage, craftsmanship, and daily life.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+              fontSize: isLargeScreen ? 18 : 16,
               height: 1.6,
               letterSpacing: 0.5,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildBrowseSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        'Browse artifacts (${_filteredArtifacts.length})',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+    final horizontalPadding = _getHorizontalPadding(context);
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          width: double.infinity,
+          child: Text(
+            'Browse artifacts (${_filteredArtifacts.length})',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: isLargeScreen ? 24 : 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -537,28 +608,40 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
       return _buildNoResults();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+    final horizontalPadding = _getHorizontalPadding(context);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final childAspectRatio = _getChildAspectRatio(context);
+    final spacing = _getGridSpacing(context);
+    
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: spacing,
+              childAspectRatio: childAspectRatio,
+            ),
+            itemCount: _filteredArtifacts.length,
+            itemBuilder: (context, index) {
+              return _buildArtifactCard(_filteredArtifacts[index], index);
+            },
+          ),
         ),
-        itemCount: _filteredArtifacts.length,
-        itemBuilder: (context, index) {
-          return _buildArtifactCard(_filteredArtifacts[index], index);
-        },
       ),
     );
   }
 
   Widget _buildNoResults() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -594,6 +677,8 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
   }
 
   Widget _buildArtifactCard(ArtifactItem artifact, int index) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -633,11 +718,11 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.museum,
                                 color: Colors.white,
-                                size: 40,
+                                size: isLargeScreen ? 50 : 40,
                               ),
                             ),
                           );
@@ -670,11 +755,11 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                                 ],
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.museum,
                                 color: Colors.white,
-                                size: 40,
+                                size: isLargeScreen ? 50 : 40,
                               ),
                             ),
                           );
@@ -682,16 +767,16 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                       ),
               ),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isLargeScreen ? 16 : 12),
                 color: const Color(0xFF2A2A2A),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       artifact.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: isLargeScreen ? 16 : 14,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -702,7 +787,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                       artifact.description,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: isLargeScreen ? 14 : 12,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -791,8 +876,11 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
     
     return Container(
+      height: screenHeight * (isLargeScreen ? 0.85 : 0.9),
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -838,25 +926,28 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   }
 
   Widget _buildHeader() {
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    final horizontalPadding = isLargeScreen ? 32.0 : 20.0;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Artifact Details',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: isLargeScreen ? 22 : 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const Spacer(),
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(
+            icon: Icon(
               Icons.close,
               color: Colors.white,
-              size: 24,
+              size: isLargeScreen ? 28 : 24,
             ),
           ),
         ],
@@ -865,152 +956,161 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
   }
 
   Widget _buildArtifactCard(ArtifactItem artifact) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    final horizontalPadding = isLargeScreen ? 32.0 : 20.0;
+    final imageHeight = MediaQuery.of(context).size.height * (isLargeScreen ? 0.4 : 0.3);
+    
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => _showFullScreenImage(artifact),
-            child: Container(
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () => _showFullScreenImage(artifact),
+                child: Container(
+                  height: imageHeight,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  children: [
-                    artifact.isNetworkSource
-                        ? Image.network(
-                            artifact.imagePath,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      widget.accentColor.withOpacity(0.7),
-                                      widget.accentColor,
-                                    ],
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.museum,
-                                    color: Colors.white,
-                                    size: 60,
-                                  ),
-                                ),
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: const Color(0xFF2A2A2A),
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            artifact.imagePath,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      widget.accentColor.withOpacity(0.7),
-                                      widget.accentColor,
-                                    ],
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.museum,
-                                    color: Colors.white,
-                                    size: 60,
-                                  ),
-                                ),
-                              );
-                            },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      children: [
+                        artifact.isNetworkSource
+                            ? Image.network(
+                                artifact.imagePath,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          widget.accentColor.withOpacity(0.7),
+                                          widget.accentColor,
+                                        ],
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.museum,
+                                        color: Colors.white,
+                                        size: 60,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    color: const Color(0xFF2A2A2A),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.asset(
+                                artifact.imagePath,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          widget.accentColor.withOpacity(0.7),
+                                          widget.accentColor,
+                                        ],
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.museum,
+                                        color: Colors.white,
+                                        size: 60,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.fullscreen,
+                              color: Colors.white,
+                              size: isLargeScreen ? 20 : 16,
+                            ),
                           ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
-                          Icons.fullscreen,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(isLargeScreen ? 20 : 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2A2A2A),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      artifact.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isLargeScreen ? 20 : 16,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      artifact.description,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: isLargeScreen ? 16 : 14,
+                        height: 1.5,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+              SizedBox(height: 30 + MediaQuery.of(context).viewInsets.bottom * 0.1),
+            ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2A2A2A),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  artifact.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  artifact.description,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 30 + MediaQuery.of(context).viewInsets.bottom * 0.1),
-        ],
+        ),
       ),
     );
   }
@@ -1098,6 +1198,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -1188,9 +1290,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isLargeScreen ? 32 : 20,
+                        vertical: isLargeScreen ? 20 : 16,
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -1206,10 +1308,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         children: [
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.close,
                               color: Colors.white,
-                              size: 28,
+                              size: isLargeScreen ? 32 : 28,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -1219,9 +1321,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               children: [
                                 Text(
                                   widget.artifact.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: isLargeScreen ? 22 : 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1229,7 +1331,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                   'Mansaka Artifact',
                                   style: TextStyle(
                                     color: widget.accentColor,
-                                    fontSize: 14,
+                                    fontSize: isLargeScreen ? 16 : 14,
                                   ),
                                 ),
                               ],
@@ -1241,7 +1343,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                     const Spacer(),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(isLargeScreen ? 32 : 20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
@@ -1253,13 +1355,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         ),
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
                             'Tap to zoom • Pinch to scale • Drag to pan',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
+                              fontSize: isLargeScreen ? 14 : 12,
                             ),
                             textAlign: TextAlign.center,
                           ),

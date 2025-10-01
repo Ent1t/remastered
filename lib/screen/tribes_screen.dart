@@ -14,10 +14,12 @@ class TribesScreen extends StatefulWidget {
 class _TribesScreenState extends State<TribesScreen> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          // Dark background with subtle pattern
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -31,23 +33,25 @@ class _TribesScreenState extends State<TribesScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.05,
+              vertical: screenHeight * 0.015,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 10),
+                SizedBox(height: screenHeight * 0.015),
                 
                 // Header Section
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(screenWidth * 0.06),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Colors.white.withOpacity(0.3),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(8),
-                    // Subtle background pattern
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -57,24 +61,24 @@ class _TribesScreenState extends State<TribesScreen> {
                       ],
                     ),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'INDIGENOUS TRIBES',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 26,
+                          fontSize: screenWidth * 0.065,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: screenHeight * 0.02),
                       Text(
                         'Explore Cultural\nHeritage',
                         style: TextStyle(
                           color: Colors.white70,
-                          fontSize: 18,
+                          fontSize: screenWidth * 0.045,
                           fontWeight: FontWeight.w300,
                           height: 1.3,
                           letterSpacing: 1,
@@ -84,7 +88,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   ),
                 ),
                 
-                const SizedBox(height: 30),
+                SizedBox(height: screenHeight * 0.04),
                 
                 // Tribe Cards
                 _buildTribeCard(
@@ -92,10 +96,12 @@ class _TribesScreenState extends State<TribesScreen> {
                   description: 'Known for their rich oral tradition and intricate beadwork',
                   categories: '4 Categories',
                   imagePath: 'assets/images/ata_manobo_main.jpg',
-                  onTap: () => _navigateToKaganDetail(), // UPDATED THIS LINE
+                  onTap: () => _navigateToKaganDetail(),
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
                 ),
                 
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.025),
                 
                 _buildTribeCard(
                   tribeName: 'MANSAKA',
@@ -103,9 +109,11 @@ class _TribesScreenState extends State<TribesScreen> {
                   categories: '4 Categories',
                   imagePath: 'assets/images/mansaka_main.jpg',
                   onTap: () => _navigateToMansakaDetail(),
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
                 ),
                 
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.025),
                 
                 _buildTribeCard(
                   tribeName: 'MANDAYA',
@@ -113,10 +121,11 @@ class _TribesScreenState extends State<TribesScreen> {
                   categories: '4 Categories',
                   imagePath: 'assets/images/mandaya_main.jpg',
                   onTap: () => _navigateToMandayaDetail(),
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
                 ),
                 
-                // Bottom padding to ensure last card is fully visible
-                const SizedBox(height: 30),
+                SizedBox(height: screenHeight * 0.04),
               ],
             ),
           ),
@@ -131,13 +140,14 @@ class _TribesScreenState extends State<TribesScreen> {
     required String categories,
     required String imagePath,
     required VoidCallback onTap,
+    required double screenWidth,
+    required double screenHeight,
   }) {
     return Container(
-      constraints: const BoxConstraints(
-        minHeight: 180, // Minimum height to ensure consistent look
+      constraints: BoxConstraints(
+        minHeight: screenHeight * 0.22,
       ),
       decoration: BoxDecoration(
-        // Linear gradient with 80% fill (433D34 to 836F50)
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -160,7 +170,6 @@ class _TribesScreenState extends State<TribesScreen> {
         child: IntrinsicHeight(
           child: Stack(
             children: [
-              // Overlay with the specified gradient (80% opacity)
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -174,13 +183,12 @@ class _TribesScreenState extends State<TribesScreen> {
                 ),
               ),
               
-              // Main content with side-by-side layout
               Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Left side - Image
                   SizedBox(
-                    width: 120,
+                    width: screenWidth * 0.3,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(16),
@@ -190,7 +198,6 @@ class _TribesScreenState extends State<TribesScreen> {
                         imagePath,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          // Fallback image
                           return Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
@@ -205,7 +212,7 @@ class _TribesScreenState extends State<TribesScreen> {
                             child: Center(
                               child: Icon(
                                 Icons.people,
-                                size: 40,
+                                size: screenWidth * 0.1,
                                 color: Colors.white.withOpacity(0.3),
                               ),
                             ),
@@ -218,59 +225,55 @@ class _TribesScreenState extends State<TribesScreen> {
                   // Right side - Content
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(screenWidth * 0.05),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Top content
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Title with underline
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     tribeName,
-                                    style: const TextStyle(
-                                      color: Color(0xFFF8F4E6),
-                                      fontSize: 18,
+                                    style: TextStyle(
+                                      color: const Color(0xFFF8F4E6),
+                                      fontSize: screenWidth * 0.045,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.2,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: screenHeight * 0.005),
                                   Container(
                                     height: 2,
-                                    width: 60,
+                                    width: screenWidth * 0.15,
                                     color: const Color(0xFFF8F4E6),
                                   ),
                                 ],
                               ),
                               
-                              const SizedBox(height: 12),
+                              SizedBox(height: screenHeight * 0.015),
                               
-                              // Description
                               Text(
                                 description,
-                                style: const TextStyle(
-                                  color: Color(0xFFC5C6C7),
-                                  fontSize: 13,
+                                style: TextStyle(
+                                  color: const Color(0xFFC5C6C7),
+                                  fontSize: screenWidth * 0.032,
                                   fontWeight: FontWeight.w400,
                                   height: 1.3,
                                   letterSpacing: 0.3,
                                 ),
                               ),
                               
-                              const SizedBox(height: 8),
+                              SizedBox(height: screenHeight * 0.01),
                               
-                              // Categories
                               Text(
                                 categories,
-                                style: const TextStyle(
-                                  color: Color(0xFFFBFFE6),
-                                  fontSize: 11,
+                                style: TextStyle(
+                                  color: const Color(0xFFFBFFE6),
+                                  fontSize: screenWidth * 0.028,
                                   fontWeight: FontWeight.w300,
                                   letterSpacing: 0.5,
                                 ),
@@ -278,9 +281,8 @@ class _TribesScreenState extends State<TribesScreen> {
                             ],
                           ),
                           
-                          const SizedBox(height: 12),
+                          SizedBox(height: screenHeight * 0.015),
                           
-                          // Click Here Button - Rounded rectangle
                           Align(
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
@@ -289,9 +291,9 @@ class _TribesScreenState extends State<TribesScreen> {
                                 onTap();
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.04,
+                                  vertical: screenHeight * 0.01,
                                 ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF94937C).withOpacity(0.3),
@@ -308,11 +310,11 @@ class _TribesScreenState extends State<TribesScreen> {
                                     ),
                                   ],
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'CLICK HERE',
                                   style: TextStyle(
-                                    color: Color(0xFFF8F4E6),
-                                    fontSize: 10,
+                                    color: const Color(0xFFF8F4E6),
+                                    fontSize: screenWidth * 0.025,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1,
                                   ),
@@ -327,7 +329,6 @@ class _TribesScreenState extends State<TribesScreen> {
                 ],
               ),
               
-              // Tap overlay for entire card
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -351,7 +352,6 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
-  // NEW METHOD: Navigate specifically to Kagan detail screen
   void _navigateToKaganDetail() {
     Navigator.push(
       context,
@@ -377,7 +377,6 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
-  // NEW METHOD: Navigate specifically to Mansaka detail screen
   void _navigateToMansakaDetail() {
     Navigator.push(
       context,
@@ -403,31 +402,30 @@ class _TribesScreenState extends State<TribesScreen> {
     );
   }
 
-  // Update the navigation method for Mandaya to use correct class name
-void _navigateToMandayaDetail() {
-  Navigator.push(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => 
-        const MandayaCulturalDetailScreen(), // Updated class name
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOutCubic;
+  void _navigateToMandayaDetail() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+          const MandayaCulturalDetailScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCubic;
 
-        var tween = Tween(begin: begin, end: end).chain(
-          CurveTween(curve: curve),
-        );
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
 
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 300),
-    ),
-  );
-}
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
 
   void _navigateToTribeDetail(String tribeName) {
     Navigator.push(
@@ -455,7 +453,6 @@ void _navigateToMandayaDetail() {
   }
 }
 
-// Keep the existing TribeDetailScreen for other tribes (Mansaka, Mandaya)
 class TribeDetailScreen extends StatelessWidget {
   final String tribeName;
 
@@ -466,6 +463,9 @@ class TribeDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -477,9 +477,9 @@ class TribeDetailScreen extends StatelessWidget {
         ),
         title: Text(
           tribeName.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: screenWidth * 0.05,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -500,13 +500,13 @@ class TribeDetailScreen extends StatelessWidget {
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(screenWidth * 0.05),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Hero Image
               Container(
-                height: 250,
+                height: screenHeight * 0.3,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -542,15 +542,15 @@ class TribeDetailScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.people,
-                                size: 80,
+                                size: screenWidth * 0.2,
                                 color: Colors.white.withOpacity(0.3),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: screenHeight * 0.02),
                               Text(
                                 tribeName.toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 24,
+                                  fontSize: screenWidth * 0.06,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2,
                                 ),
@@ -564,49 +564,47 @@ class TribeDetailScreen extends StatelessWidget {
                 ),
               ),
               
-              const SizedBox(height: 30),
+              SizedBox(height: screenHeight * 0.04),
               
-              // Description Section
               Text(
                 'About $tribeName',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
                 ),
               ),
               
-              const SizedBox(height: 16),
+              SizedBox(height: screenHeight * 0.02),
               
               Text(
                 _getTribeDescription(tribeName),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
-                  fontSize: 16,
+                  fontSize: screenWidth * 0.04,
                   height: 1.6,
                   letterSpacing: 0.5,
                 ),
               ),
               
-              const SizedBox(height: 30),
+              SizedBox(height: screenHeight * 0.04),
               
-              // Categories Section
-              const Text(
+              Text(
                 'Cultural Categories',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: screenWidth * 0.05,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
                 ),
               ),
               
-              const SizedBox(height: 16),
+              SizedBox(height: screenHeight * 0.02),
               
-              _buildCategoryGrid(),
+              _buildCategoryGrid(screenWidth, screenHeight),
               
-              const SizedBox(height: 40),
+              SizedBox(height: screenHeight * 0.05),
             ],
           ),
         ),
@@ -614,7 +612,7 @@ class TribeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryGrid() {
+  Widget _buildCategoryGrid(double screenWidth, double screenHeight) {
     List<Map<String, dynamic>> categories = [
       {'name': 'Traditional Clothing', 'icon': Icons.checkroom, 'color': const Color(0xFF8B4513)},
       {'name': 'Music & Dance', 'icon': Icons.music_note, 'color': const Color(0xFF654321)},
@@ -625,20 +623,20 @@ class TribeDetailScreen extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        crossAxisSpacing: screenWidth * 0.04,
+        mainAxisSpacing: screenHeight * 0.02,
         childAspectRatio: 1.2,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
-        return _buildCategoryCard(categories[index]);
+        return _buildCategoryCard(categories[index], screenWidth, screenHeight);
       },
     );
   }
 
-  Widget _buildCategoryCard(Map<String, dynamic> category) {
+  Widget _buildCategoryCard(Map<String, dynamic> category, double screenWidth, double screenHeight) {
     return Container(
       decoration: BoxDecoration(
         color: category['color'].withOpacity(0.2),
@@ -653,26 +651,25 @@ class TribeDetailScreen extends StatelessWidget {
         child: InkWell(
           onTap: () {
             HapticFeedback.lightImpact();
-            // Navigate to category detail
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(screenWidth * 0.04),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   category['icon'],
                   color: category['color'],
-                  size: 40,
+                  size: screenWidth * 0.1,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: screenHeight * 0.015),
                 Text(
                   category['name'],
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: screenWidth * 0.035,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),

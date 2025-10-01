@@ -48,6 +48,34 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
         video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
+  // Responsive breakpoints
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= 600;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= 1024;
+  
+  int _getCrossAxisCount(BuildContext context) {
+    if (_isDesktop(context)) return 4;
+    if (_isTablet(context)) return 3;
+    return 2;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    if (_isDesktop(context)) return 0.75;
+    if (_isTablet(context)) return 0.78;
+    return 0.8;
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    if (_isDesktop(context)) return 40;
+    if (_isTablet(context)) return 24;
+    return 16;
+  }
+
+  double _getFeaturedVideoHeight(BuildContext context) {
+    if (_isDesktop(context)) return 400;
+    if (_isTablet(context)) return 300;
+    return 200;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -361,6 +389,8 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -381,7 +411,9 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
-                child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
+                child: (_isHeaderVisible || _isSearchFocused) 
+                    ? _buildHeader(context, horizontalPadding) 
+                    : const SizedBox.shrink(),
               ),
               Expanded(
                 child: _isSearchFocused 
@@ -395,9 +427,9 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, double horizontalPadding) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
       child: Row(
         children: [
           AnimatedContainer(
@@ -430,6 +462,9 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
           Expanded(
             child: Container(
               height: 48,
+              constraints: BoxConstraints(
+                maxWidth: _isDesktop(context) ? 600 : double.infinity,
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
@@ -553,7 +588,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: EdgeInsets.symmetric(horizontal: _getHorizontalPadding(context)),
               child: Text(
                 _errorMessage!,
                 style: TextStyle(
@@ -618,6 +653,10 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
       );
     }
 
+    final horizontalPadding = _getHorizontalPadding(context);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final childAspectRatio = _getChildAspectRatio(context);
+
     return RefreshIndicator(
       onRefresh: _refreshVideos,
       color: const Color(0xFF7FB069),
@@ -633,11 +672,11 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
             child: _buildBrowseSection(),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: childAspectRatio,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
@@ -659,11 +698,15 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   }
 
   Widget _buildSearchResults() {
+    final horizontalPadding = _getHorizontalPadding(context);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final childAspectRatio = _getChildAspectRatio(context);
+
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
             child: Row(
               children: [
                 Text(
@@ -720,13 +763,13 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                   : GridView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
+                        left: horizontalPadding,
+                        right: horizontalPadding,
                         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.8,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        childAspectRatio: childAspectRatio,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                       ),
@@ -744,9 +787,15 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   Widget _buildFeaturedVideo() {
     if (_featuredVideo == null) return const SizedBox.shrink();
 
+    final horizontalPadding = _getHorizontalPadding(context);
+    final featuredHeight = _getFeaturedVideoHeight(context);
+
     return Container(
-      margin: const EdgeInsets.all(20),
-      height: 200,
+      margin: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
+      height: featuredHeight,
+      constraints: BoxConstraints(
+        maxWidth: _isDesktop(context) ? 1200 : double.infinity,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -804,9 +853,9 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                     children: [
                       Text(
                         'Featured: ${_featuredVideo!.title}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: _isTablet(context) ? 22 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -815,7 +864,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                         _featuredVideo!.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
-                          fontSize: 14,
+                          fontSize: _isTablet(context) ? 16 : 14,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -825,15 +874,15 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 ),
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(_isTablet(context) ? 20 : 16),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.play_arrow,
                       color: Colors.white,
-                      size: 40,
+                      size: _isTablet(context) ? 50 : 40,
                     ),
                   ),
                 ),
@@ -846,21 +895,23 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   }
 
   Widget _buildBrowseSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    final horizontalPadding = _getHorizontalPadding(context);
+    
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.video_library,
             color: Color(0xFF7FB069),
             size: 20,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             'Browse Mandaya videos',
             style: TextStyle(
-              color: Color(0xFF7FB069),
-              fontSize: 16,
+              color: const Color(0xFF7FB069),
+              fontSize: _isTablet(context) ? 18 : 16,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
             ),

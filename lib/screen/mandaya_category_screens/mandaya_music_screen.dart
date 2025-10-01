@@ -463,8 +463,29 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
     await _fetchMusicTracks();
   }
 
+  // Helper method to get responsive values
+  double _getResponsiveValue(BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) return mobile;
+    if (width < 1024) return tablet;
+    return desktop;
+  }
+
+  // Helper method to check if device is tablet or larger
+  bool _isTabletOrLarger(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final isDesktop = screenWidth >= 1024;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -484,8 +505,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
-                child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
+                height: (_isHeaderVisible || _isSearchFocused) 
+                    ? _getResponsiveValue(context, mobile: 80, tablet: 90, desktop: 100)
+                    : 0,
+                child: (_isHeaderVisible || _isSearchFocused) 
+                    ? _buildHeader(context) 
+                    : const SizedBox.shrink(),
               ),
               
               Expanded(
@@ -503,13 +528,15 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final isTablet = _isTabletOrLarger(context);
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isTablet ? 20 : 16),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 48,
+            width: _isSearchFocused ? 0 : (isTablet ? 56 : 48),
             child: _isSearchFocused 
                 ? const SizedBox.shrink()
                 : Container(
@@ -522,10 +549,10 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                         HapticFeedback.lightImpact();
                         Navigator.pop(context);
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios,
                         color: Colors.white,
-                        size: 20,
+                        size: isTablet ? 24 : 20,
                       ),
                     ),
                   ),
@@ -538,10 +565,10 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           
           Expanded(
             child: Container(
-              height: 48,
+              height: isTablet ? 56 : 48,
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(isTablet ? 28 : 24),
                 border: Border.all(
                   color: _isSearchFocused 
                       ? const Color(0xFF7FB069) 
@@ -552,19 +579,23 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocusNode,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isTablet ? 16 : 14,
+                ),
                 scrollPhysics: const BouncingScrollPhysics(),
                 decoration: InputDecoration(
                   hintText: 'Search music tracks...',
                   hintStyle: TextStyle(
                     color: Colors.white.withOpacity(0.6),
-                    fontSize: 14,
+                    fontSize: isTablet ? 16 : 14,
                   ),
                   prefixIcon: Icon(
                     Icons.search,
                     color: _isSearchFocused 
                         ? const Color(0xFF7FB069)
                         : Colors.white.withOpacity(0.6),
+                    size: isTablet ? 26 : 22,
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -577,11 +608,15 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                           icon: Icon(
                             Icons.clear,
                             color: Colors.white.withOpacity(0.6),
+                            size: isTablet ? 24 : 20,
                           ),
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 20 : 16,
+                    vertical: isTablet ? 16 : 12,
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -605,11 +640,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                         _isHeaderVisible = true;
                       });
                     },
-                    child: const Text(
+                    child: Text(
                       'Cancel',
                       style: TextStyle(
-                        color: Color(0xFF7FB069),
+                        color: const Color(0xFF7FB069),
                         fontWeight: FontWeight.w500,
+                        fontSize: isTablet ? 16 : 14,
                       ),
                     ),
                   )
@@ -621,20 +657,27 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   Widget _buildMainContent() {
+    final isTablet = _isTabletOrLarger(context);
+    
     if (_isLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+            SizedBox(
+              width: isTablet ? 60 : 48,
+              height: isTablet ? 60 : 48,
+              child: const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
+                strokeWidth: 3,
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isTablet ? 24 : 16),
             Text(
               'Loading Mandaya music tracks...',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
-                fontSize: 14,
+                fontSize: isTablet ? 16 : 14,
               ),
             ),
           ],
@@ -644,86 +687,104 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
 
     if (_errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load music tracks',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 48 : 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: isTablet ? 80 : 64,
+                color: Colors.white.withOpacity(0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
+              SizedBox(height: isTablet ? 24 : 16),
+              Text(
+                'Failed to load music tracks',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: isTablet ? 22 : 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: isTablet ? 12 : 8),
+              Text(
                 _errorMessage!,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.5),
-                  fontSize: 14,
+                  fontSize: isTablet ? 16 : 14,
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7FB069),
-                foregroundColor: Colors.white,
+              SizedBox(height: isTablet ? 32 : 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7FB069),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 32 : 24,
+                    vertical: isTablet ? 16 : 12,
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: isTablet ? 16 : 14,
+                  ),
+                ),
+                child: const Text('Retry'),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     if (_allTracks.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.music_note_outlined,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Mandaya music tracks available',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Check back later for new music content',
-              style: TextStyle(
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 48 : 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.music_note_outlined,
+                size: isTablet ? 80 : 64,
                 color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7FB069),
-                foregroundColor: Colors.white,
+              SizedBox(height: isTablet ? 24 : 16),
+              Text(
+                'No Mandaya music tracks available',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: isTablet ? 22 : 18,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
               ),
-              child: const Text('Refresh'),
-            ),
-          ],
+              SizedBox(height: isTablet ? 12 : 8),
+              Text(
+                'Check back later for new music content',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: isTablet ? 16 : 14,
+                ),
+              ),
+              SizedBox(height: isTablet ? 32 : 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7FB069),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 32 : 24,
+                    vertical: isTablet ? 16 : 12,
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: isTablet ? 16 : 14,
+                  ),
+                ),
+                child: const Text('Refresh'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -738,17 +799,22 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           SliverToBoxAdapter(
             child: _buildHeroSection(),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final track = _filteredTracks[index];
-                return _buildMusicCard(track);
-              },
-              childCount: _filteredTracks.length,
+          SliverPadding(
+            padding: EdgeInsets.symmetric(
+              horizontal: _getResponsiveValue(context, mobile: 0, tablet: 24, desktop: 48),
+            ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final track = _filteredTracks[index];
+                  return _buildMusicCard(track);
+                },
+                childCount: _filteredTracks.length,
+              ),
             ),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(height: _currentTrack != null ? 120 : 20),
+            child: SizedBox(height: _currentTrack != null ? 140 : 20),
           ),
         ],
       ),
@@ -756,18 +822,23 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   Widget _buildSearchResults() {
+    final isTablet = _isTabletOrLarger(context);
+    
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 24 : 16,
+              vertical: isTablet ? 12 : 8,
+            ),
             child: Row(
               children: [
                 Text(
                   '${_filteredTracks.length} result${_filteredTracks.length == 1 ? '' : 's'} for "$_searchQuery"',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
+                    fontSize: isTablet ? 16 : 14,
                   ),
                 ),
               ],
@@ -781,7 +852,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                     'Start typing to search...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
-                      fontSize: 16,
+                      fontSize: isTablet ? 18 : 16,
                     ),
                   ),
                 )
@@ -792,24 +863,24 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                         children: [
                           Icon(
                             Icons.search_off,
-                            size: 48,
+                            size: isTablet ? 64 : 48,
                             color: Colors.white.withOpacity(0.3),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: isTablet ? 20 : 16),
                           Text(
                             'No tracks found',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.5),
-                              fontSize: 18,
+                              fontSize: isTablet ? 20 : 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: isTablet ? 12 : 8),
                           Text(
                             'Try different keywords',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
-                              fontSize: 14,
+                              fontSize: isTablet ? 16 : 14,
                             ),
                           ),
                         ],
@@ -818,7 +889,9 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   : ListView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 120 : 20),
+                        left: isTablet ? 24 : 0,
+                        right: isTablet ? 24 : 0,
+                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 140 : 20),
                       ),
                       itemCount: _filteredTracks.length,
                       itemBuilder: (context, index) {
@@ -832,21 +905,31 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   Widget _buildHeroSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final isDesktop = screenWidth >= 1024;
+    
+    final height = isDesktop ? 300.0 : (isTablet ? 250.0 : 200.0);
+    final margin = EdgeInsets.symmetric(
+      horizontal: isDesktop ? 48 : (isTablet ? 24 : 16),
+      vertical: isTablet ? 20 : 16,
+    );
+    
     return Container(
-      margin: const EdgeInsets.all(16),
-      height: 200,
+      margin: margin,
+      height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.4),
-            blurRadius: 8,
+            blurRadius: isTablet ? 12 : 8,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
         child: Stack(
           children: [
             Image.asset(
@@ -899,12 +982,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                     ],
                   ),
                 ),
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(isTablet ? 24 : 20),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(isTablet ? 20 : 16),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
                     ),
@@ -913,10 +996,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                     'Experience the rich musical traditions of the Mandaya people. From epic dagit chants to ceremonial dances, each melody tells the story of their ancestral heritage and connection to nature.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.95),
-                      fontSize: 14,
+                      fontSize: isDesktop ? 16 : (isTablet ? 15 : 14),
                       height: 1.4,
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: isDesktop ? 4 : 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -931,14 +1016,22 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
     final isCurrentTrack = _currentTrack?.id == track.id;
     final hasDuration = track.duration != null;
     final isLoadingDuration = _loadingDurations.contains(track.id);
+    final isTablet = _isTabletOrLarger(context);
+    
+    final cardPadding = isTablet ? 16.0 : 12.0;
+    final imageSize = isTablet ? 70.0 : 60.0;
+    final playButtonSize = isTablet ? 48.0 : 40.0;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: EdgeInsets.symmetric(
+        horizontal: isTablet ? 0 : 16,
+        vertical: isTablet ? 8 : 6,
+      ),
       decoration: BoxDecoration(
         color: isCurrentTrack 
             ? const Color(0xFF7FB069).withOpacity(0.1)
             : const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
         border: Border.all(
           color: isCurrentTrack 
               ? const Color(0xFF7FB069)
@@ -949,33 +1042,33 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
           onTap: () {
             HapticFeedback.mediumImpact();
             _togglePlayPause(track);
           },
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(cardPadding),
             child: Row(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: imageSize,
+                  height: imageSize,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(isTablet ? 12 : 8),
                     color: const Color(0xFF7FB069).withOpacity(0.2),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(isTablet ? 12 : 8),
                     child: track.imagePath.startsWith('http')
                         ? Image.network(
                             track.imagePath,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
+                              return Icon(
                                 Icons.music_note,
-                                color: Color(0xFF7FB069),
-                                size: 30,
+                                color: const Color(0xFF7FB069),
+                                size: isTablet ? 35 : 30,
                               );
                             },
                             loadingBuilder: (context, child, loadingProgress) {
@@ -992,17 +1085,17 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                             track.imagePath,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
+                              return Icon(
                                 Icons.music_note,
-                                color: Color(0xFF7FB069),
-                                size: 30,
+                                color: const Color(0xFF7FB069),
+                                size: isTablet ? 35 : 30,
                               );
                             },
                           ),
                   ),
                 ),
                 
-                const SizedBox(width: 16),
+                SizedBox(width: isTablet ? 20 : 16),
                 
                 Expanded(
                   child: Column(
@@ -1014,71 +1107,75 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                           color: isCurrentTrack 
                               ? const Color(0xFF7FB069)
                               : Colors.white,
-                          fontSize: 16,
+                          fontSize: isTablet ? 18 : 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: isTablet ? 6 : 4),
                       Text(
                         track.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: 14,
+                          fontSize: isTablet ? 15 : 14,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
+                      SizedBox(height: isTablet ? 6 : 4),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isTablet ? 10 : 8,
+                              vertical: isTablet ? 4 : 2,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF7FB069).withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(isTablet ? 14 : 12),
                             ),
                             child: Text(
                               track.category,
-                              style: const TextStyle(
-                                color: Color(0xFF7FB069),
-                                fontSize: 12,
+                              style: TextStyle(
+                                color: const Color(0xFF7FB069),
+                                fontSize: isTablet ? 13 : 12,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '• ${track.artist}',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: 12,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            '• ${track.artist}',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: isTablet ? 13 : 12,
                             ),
                           ),
-                          // Duration display
                           if (hasDuration)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isTablet ? 8 : 6,
+                                vertical: isTablet ? 4 : 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.black.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(isTablet ? 10 : 8),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.access_time,
-                                    size: 10,
+                                    size: isTablet ? 12 : 10,
                                     color: Colors.white.withOpacity(0.6),
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: isTablet ? 5 : 4),
                                   Text(
                                     _formatDuration(track.duration!),
                                     style: TextStyle(
                                       color: Colors.white.withOpacity(0.6),
-                                      fontSize: 11,
+                                      fontSize: isTablet ? 12 : 11,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -1087,8 +1184,8 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                             )
                           else if (isLoadingDuration)
                             SizedBox(
-                              width: 12,
-                              height: 12,
+                              width: isTablet ? 14 : 12,
+                              height: isTablet ? 14 : 12,
                               child: CircularProgressIndicator(
                                 strokeWidth: 1.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -1102,7 +1199,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   ),
                 ),
                 
-                const SizedBox(width: 8),
+                SizedBox(width: isTablet ? 12 : 8),
                 
                 GestureDetector(
                   onTap: () {
@@ -1110,19 +1207,19 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                     _togglePlayPause(track);
                   },
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: playButtonSize,
+                    height: playButtonSize,
                     decoration: BoxDecoration(
                       color: const Color(0xFF7FB069),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(playButtonSize / 2),
                     ),
                     child: _isLoadingAudio && isCurrentTrack
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: isTablet ? 2.5 : 2,
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : Icon(
@@ -1130,7 +1227,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                                 ? Icons.pause
                                 : Icons.play_arrow,
                             color: Colors.white,
-                            size: 24,
+                            size: isTablet ? 28 : 24,
                           ),
                   ),
                 ),
@@ -1143,8 +1240,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 
   Widget _buildInlineMusicPlayer() {
+    final isTablet = _isTabletOrLarger(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= 1024;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isTablet ? 20 : 16),
       decoration: const BoxDecoration(
         color: Color(0xFF1F1F1F),
         border: Border(
@@ -1160,23 +1261,23 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: isTablet ? 60.0 : 50.0,
+                height: isTablet ? 60.0 : 50.0,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(isTablet ? 12 : 8),
                   color: const Color(0xFF7FB069).withOpacity(0.2),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(isTablet ? 12 : 8),
                   child: _currentTrack!.imagePath.startsWith('http')
                       ? Image.network(
                           _currentTrack!.imagePath,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
+                            return Icon(
                               Icons.music_note,
-                              color: Color(0xFF7FB069),
-                              size: 25,
+                              color: const Color(0xFF7FB069),
+                              size: isTablet ? 30 : 25,
                             );
                           },
                         )
@@ -1184,17 +1285,17 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                           _currentTrack!.imagePath,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
+                            return Icon(
                               Icons.music_note,
-                              color: Color(0xFF7FB069),
-                              size: 25,
+                              color: const Color(0xFF7FB069),
+                              size: isTablet ? 30 : 25,
                             );
                           },
                         ),
                 ),
               ),
               
-              const SizedBox(width: 12),
+              SizedBox(width: isTablet ? 16 : 12),
               
               Expanded(
                 child: Column(
@@ -1202,19 +1303,20 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   children: [
                     Text(
                       _currentTrack!.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: isTablet ? 16 : 14,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    SizedBox(height: isTablet ? 4 : 2),
                     Text(
                       _currentTrack!.artist,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: isTablet ? 14 : 12,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1223,17 +1325,20 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                 ),
               ),
               
-              IconButton(
-                onPressed: () {
-                  _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
-                },
-                icon: const Icon(Icons.replay_10, color: Colors.white, size: 20),
-              ),
+              if (isDesktop) ...[
+                IconButton(
+                  onPressed: () {
+                    _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
+                  },
+                  icon: const Icon(Icons.replay_10, color: Colors.white, size: 24),
+                ),
+              ],
               
               IconButton(
+                iconSize: isTablet ? 24 : 20,
                 onPressed: () => _togglePlayPause(_currentTrack!),
                 icon: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(isTablet ? 10 : 8),
                   decoration: const BoxDecoration(
                     color: Color(0xFF7FB069),
                     shape: BoxShape.circle,
@@ -1241,40 +1346,43 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   child: Icon(
                     _isPlaying ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
-                    size: 20,
+                    size: isTablet ? 24 : 20,
                   ),
                 ),
               ),
               
-              IconButton(
-                onPressed: () {
-                  _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
-                },
-                icon: const Icon(Icons.forward_30, color: Colors.white, size: 20),
-              ),
+              if (isDesktop) ...[
+                IconButton(
+                  onPressed: () {
+                    _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
+                  },
+                  icon: const Icon(Icons.forward_30, color: Colors.white, size: 24),
+                ),
+              ],
               
               IconButton(
+                iconSize: isTablet ? 20 : 16,
                 onPressed: () {
                   HapticFeedback.lightImpact();
                   _closeMusicPlayer();
                 },
                 icon: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: EdgeInsets.all(isTablet ? 6 : 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
                     color: Colors.white,
-                    size: 16,
+                    size: isTablet ? 18 : 16,
                   ),
                 ),
               ),
             ],
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: isTablet ? 12 : 8),
           
           Column(
             children: [
@@ -1284,8 +1392,10 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   inactiveTrackColor: const Color(0xFF7FB069).withOpacity(0.3),
                   thumbColor: const Color(0xFF7FB069),
                   overlayColor: const Color(0xFF7FB069).withOpacity(0.3),
-                  trackHeight: 4,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  trackHeight: isTablet ? 5 : 4,
+                  thumbShape: RoundSliderThumbShape(
+                    enabledThumbRadius: isTablet ? 8 : 6,
+                  ),
                 ),
                 child: Slider(
                   value: _totalDuration.inMilliseconds > 0 
@@ -1301,7 +1411,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
               ),
               
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: isTablet ? 20 : 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1309,14 +1419,14 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                       _formatDuration(_currentPosition),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: isTablet ? 13 : 12,
                       ),
                     ),
                     Text(
                       _formatDuration(_totalDuration),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: isTablet ? 13 : 12,
                       ),
                     ),
                   ],
