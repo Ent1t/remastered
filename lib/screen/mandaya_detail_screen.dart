@@ -1,4 +1,3 @@
-// Responsive lib/screen/mandaya_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'learn_more_screen/mandaya_learn_more_screen.dart';
@@ -12,7 +11,6 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
   
   const MandayaCulturalDetailScreen({super.key, this.contentData});
 
-  // Navigation methods
   void _navigateToLearnMore(BuildContext context) {
     Navigator.push(
       context,
@@ -60,9 +58,8 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isTablet = size.width > 600;
-    final maxWidth = isTablet ? 800.0 : size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     
     final data = contentData ?? 
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
@@ -82,46 +79,41 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  hasQRContent 
-                    ? _buildQRContentSection(context, data, size, isTablet)
-                    : _buildHeaderSection(context, size, isTablet),
-                  SizedBox(height: size.height * 0.03),
-                  if (!hasQRContent) _buildInfoSection(size, isTablet),
-                  if (!hasQRContent) SizedBox(height: size.height * 0.04),
-                  _buildCategoriesSection(context, size, isTablet),
-                  SizedBox(height: size.height * 0.05),
-                ],
-              ),
-            ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              hasQRContent 
+                ? _buildQRContentSection(context, data, screenWidth, screenHeight)
+                : _buildHeaderSection(context, screenWidth, screenHeight),
+              SizedBox(height: (screenHeight * 0.03).clamp(12.0, 30.0)),
+              if (!hasQRContent) _buildInfoSection(screenWidth, screenHeight),
+              if (!hasQRContent) SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
+              _buildCategoriesSection(context, screenWidth, screenHeight),
+              SizedBox(height: (screenHeight * 0.05).clamp(20.0, 50.0)),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildQRContentSection(BuildContext context, Map<String, dynamic> data, Size size, bool isTablet) {
+  Widget _buildQRContentSection(BuildContext context, Map<String, dynamic> data, double screenWidth, double screenHeight) {
     String? fileUrl;
     if (data['file'] != null) {
       fileUrl = 'https://huni-cms.ionvop.com/uploads/${data['file']}';
     }
-
-    final horizontalPadding = isTablet ? 40.0 : 20.0;
-    final imageHeight = size.height * 0.25;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: (screenWidth * 0.05).clamp(12.0, 24.0),
+              vertical: (screenHeight * 0.02).clamp(8.0, 20.0),
+            ),
             child: Row(
               children: [
                 Container(
@@ -137,25 +129,32 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                     icon: Icon(
                       Icons.arrow_back_ios,
                       color: Colors.white,
-                      size: isTablet ? 24 : 20,
+                      size: (screenWidth * 0.05).clamp(18.0, 24.0),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: (screenWidth * 0.04).clamp(12.0, 20.0)),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: (screenWidth * 0.03).clamp(8.0, 16.0),
+                      vertical: (screenHeight * 0.008).clamp(4.0, 10.0),
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
-                      'MANDAYA CONTENT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isTablet ? 24 : 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'MANDAYA CONTENT',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: (screenWidth * 0.05).clamp(16.0, 22.0),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -166,9 +165,12 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
         ),
 
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
           child: Container(
             width: double.infinity,
+            constraints: BoxConstraints(
+              minHeight: (screenHeight * 0.3).clamp(200.0, 400.0),
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(16),
@@ -186,52 +188,57 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                       topLeft: Radius.circular(14),
                       topRight: Radius.circular(14),
                     ),
-                    child: SizedBox(
-                      height: imageHeight,
-                      width: double.infinity,
-                      child: Image.network(
-                        fileUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            height: imageHeight,
-                            color: Colors.grey[800],
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFF8FC475),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: (screenHeight * 0.2).clamp(150.0, 250.0),
+                        maxHeight: (screenHeight * 0.3).clamp(200.0, 300.0),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Image.network(
+                          fileUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: (screenHeight * 0.25).clamp(150.0, 250.0),
+                              color: Colors.grey[800],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFF8FC475),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: imageHeight,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF4A5D23),
-                                  Color(0xFF2F3E15),
-                                ],
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: (screenHeight * 0.25).clamp(150.0, 250.0),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF4A5D23),
+                                    Color(0xFF2F3E15),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_not_supported,
-                                size: 60,
-                                color: Colors.white54,
+                              child: Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: (screenWidth * 0.15).clamp(40.0, 60.0),
+                                  color: Colors.white54,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
 
                 Padding(
-                  padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+                  padding: EdgeInsets.all((screenWidth * 0.05).clamp(12.0, 24.0)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -239,33 +246,35 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                         data['title'] ?? 'Mandaya Cultural Content',
                         style: TextStyle(
                           color: const Color(0xFF8FC475),
-                          fontSize: isTablet ? 28 : 24,
+                          fontSize: (screenWidth * 0.06).clamp(18.0, 28.0),
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
 
-                      SizedBox(height: isTablet ? 16 : 12),
+                      SizedBox(height: (screenHeight * 0.015).clamp(8.0, 16.0)),
 
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: (screenWidth * 0.02).clamp(6.0, 12.0),
+                        runSpacing: (screenHeight * 0.01).clamp(4.0, 8.0),
                         children: [
                           _buildMetadataChip(
                             label: 'Category',
                             value: data['category']?.toString().toUpperCase() ?? 'ARTIFACT',
                             color: const Color(0xFF7BB061),
-                            isTablet: isTablet,
+                            screenWidth: screenWidth,
                           ),
                           _buildMetadataChip(
                             label: 'Tribe',
                             value: data['tribe']?.toString().toUpperCase() ?? 'MANDAYA',
                             color: const Color(0xFF689C4D),
-                            isTablet: isTablet,
+                            screenWidth: screenWidth,
                           ),
                         ],
                       ),
 
-                      SizedBox(height: isTablet ? 20 : 16),
+                      SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
 
                       if (data['description'] != null && 
                           data['description'].toString().trim().isNotEmpty)
@@ -276,26 +285,28 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                               'Description',
                               style: TextStyle(
                                 color: const Color(0xFF8FC475),
-                                fontSize: isTablet ? 18 : 16,
+                                fontSize: (screenWidth * 0.04).clamp(14.0, 20.0),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: isTablet ? 12 : 8),
+                            SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
                             Text(
                               data['description'],
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: isTablet ? 16 : 14,
+                                fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
                                 height: 1.5,
                               ),
+                              maxLines: 10,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
 
-                      SizedBox(height: isTablet ? 24 : 20),
+                      SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
 
                       Container(
-                        padding: EdgeInsets.all(isTablet ? 16 : 12),
+                        padding: EdgeInsets.all((screenWidth * 0.03).clamp(8.0, 16.0)),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(8),
@@ -305,16 +316,20 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                             Icon(
                               Icons.qr_code,
                               color: const Color(0xFF8FC475),
-                              size: isTablet ? 20 : 16,
+                              size: (screenWidth * 0.04).clamp(14.0, 20.0),
                             ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                'Content ID: ${data['id']}',
-                                style: TextStyle(
-                                  color: const Color(0xFF8FC475),
-                                  fontSize: isTablet ? 14 : 12,
-                                  fontWeight: FontWeight.w500,
+                            SizedBox(width: (screenWidth * 0.02).clamp(6.0, 12.0)),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Content ID: ${data['id']}',
+                                  style: TextStyle(
+                                    color: const Color(0xFF8FC475),
+                                    fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
@@ -336,12 +351,12 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     required String label,
     required String value,
     required Color color,
-    required bool isTablet,
+    required double screenWidth,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 12 : 8,
-        vertical: isTablet ? 6 : 4,
+        horizontal: (screenWidth * 0.02).clamp(6.0, 12.0),
+        vertical: (screenWidth * 0.01).clamp(4.0, 8.0),
       ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
@@ -351,27 +366,29 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Text(
-        value,
-        style: TextStyle(
-          color: color,
-          fontSize: isTablet ? 14 : 12,
-          fontWeight: FontWeight.w600,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeaderSection(BuildContext context, Size size, bool isTablet) {
-    final headerHeight = size.height * 0.35;
-    final horizontalPadding = isTablet ? 40.0 : 20.0;
-
-    return SizedBox(
-      height: headerHeight,
+  Widget _buildHeaderSection(BuildContext context, double screenWidth, double screenHeight) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.35).clamp(250.0, 400.0),
+        maxHeight: (screenHeight * 0.45).clamp(300.0, 500.0),
+      ),
       child: Stack(
         children: [
           SizedBox(
-            height: headerHeight,
             width: double.infinity,
             child: Container(
               decoration: const BoxDecoration(
@@ -411,7 +428,6 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
           ),
           
           Container(
-            height: headerHeight,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -427,7 +443,10 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
           
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+              padding: EdgeInsets.symmetric(
+                horizontal: (screenWidth * 0.05).clamp(12.0, 24.0),
+                vertical: (screenHeight * 0.02).clamp(8.0, 20.0),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -444,7 +463,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                       icon: Icon(
                         Icons.arrow_back_ios,
                         color: Colors.white,
-                        size: isTablet ? 24 : 20,
+                        size: (screenWidth * 0.05).clamp(18.0, 24.0),
                       ),
                     ),
                   ),
@@ -456,48 +475,46 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: isTablet ? 16 : 12,
-                          vertical: isTablet ? 8 : 6,
+                          horizontal: (screenWidth * 0.03).clamp(8.0, 16.0),
+                          vertical: (screenHeight * 0.008).clamp(4.0, 10.0),
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          'MANDAYA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: isTablet ? 48 : 36,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                            shadows: const [
-                              Shadow(
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                color: Colors.black54,
-                              ),
-                            ],
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'MANDAYA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.09).clamp(28.0, 42.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                              shadows: const [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black54,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  
-                  SizedBox(height: isTablet ? 20 : 16),
-                  
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: isTablet ? 20.0 : 16.0),
-                      child: GestureDetector(
+                      
+                      SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
+                      
+                      GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
                           _navigateToLearnMore(context);
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 2,
-                            vertical: 4,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: (screenWidth * 0.005).clamp(2.0, 6.0),
+                            vertical: (screenHeight * 0.001).clamp(1.0, 4.0),
                           ),
                           decoration: const BoxDecoration(
                             border: Border(
@@ -507,21 +524,25 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: Text(
-                            'Learn more',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: isTablet ? 18 : 16,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 0.5,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Learn more',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   
-                  SizedBox(height: isTablet ? 20 : 16),
+                  SizedBox(height: (screenHeight * 0.03).clamp(12.0, 30.0)),
                 ],
               ),
             ),
@@ -531,84 +552,41 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection(Size size, bool isTablet) {
-    final horizontalPadding = isTablet ? 40.0 : 20.0;
-    final cardHeight = isTablet ? 140.0 : 120.0;
-
+  Widget _buildInfoSection(double screenWidth, double screenHeight) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 600) {
-            return Row(
-              children: [
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.location_on,
-                    label: 'ORIGIN',
-                    value: 'Davao Oriental,\nCaraga Region',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.groups,
-                    label: 'POPULATION',
-                    value: '~40,000',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.language,
-                    label: 'LANGUAGE',
-                    value: 'Mandaya',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Row(
-              children: [
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.location_on,
-                    label: 'ORIGIN',
-                    value: 'Davao Oriental,\nCaraga Region',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.groups,
-                    label: 'POPULATION',
-                    value: '~40,000',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildInfoCard(
-                    icon: Icons.language,
-                    label: 'LANGUAGE',
-                    value: 'Mandaya',
-                    cardHeight: cardHeight,
-                    isTablet: isTablet,
-                  ),
-                ),
-              ],
-            );
-          }
-        },
+      padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildInfoCard(
+              icon: Icons.location_on,
+              label: 'ORIGIN',
+              value: 'Davao Oriental,\nCaraga Region',
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
+          ),
+          SizedBox(width: (screenWidth * 0.03).clamp(8.0, 16.0)),
+          Expanded(
+            child: _buildInfoCard(
+              icon: Icons.groups,
+              label: 'POPULATION',
+              value: '~40,000',
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
+          ),
+          SizedBox(width: (screenWidth * 0.03).clamp(8.0, 16.0)),
+          Expanded(
+            child: _buildInfoCard(
+              icon: Icons.language,
+              label: 'LANGUAGE',
+              value: 'Mandaya',
+              screenWidth: screenWidth,
+              screenHeight: screenHeight,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -617,12 +595,15 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     required String value,
-    required double cardHeight,
-    required bool isTablet,
+    required double screenWidth,
+    required double screenHeight,
   }) {
     return Container(
-      height: cardHeight,
-      padding: EdgeInsets.all(isTablet ? 16 : 12),
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.12).clamp(100.0, 150.0),
+        maxHeight: (screenHeight * 0.18).clamp(120.0, 180.0),
+      ),
+      padding: EdgeInsets.all((screenWidth * 0.03).clamp(8.0, 16.0)),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12),
@@ -633,9 +614,10 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(isTablet ? 8 : 6),
+            padding: EdgeInsets.all((screenWidth * 0.015).clamp(4.0, 8.0)),
             decoration: BoxDecoration(
               color: const Color(0xFF8FC475).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
@@ -643,36 +625,40 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
             child: Icon(
               icon,
               color: const Color(0xFF8FC475),
-              size: isTablet ? 22 : 18,
+              size: (screenWidth * 0.045).clamp(16.0, 22.0),
             ),
           ),
           
-          SizedBox(height: isTablet ? 10 : 8),
+          SizedBox(height: (screenHeight * 0.01).clamp(4.0, 10.0)),
           
-          Text(
-            label,
-            style: TextStyle(
-              color: const Color(0xFF8FC475),
-              fontSize: isTablet ? 10 : 8,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: const Color(0xFF8FC475),
+                fontSize: (screenWidth * 0.02).clamp(9.0, 12.0),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
             ),
           ),
           
-          SizedBox(height: isTablet ? 6 : 4),
+          SizedBox(height: (screenHeight * 0.005).clamp(2.0, 6.0)),
           
           Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: isTablet ? 12 : 10,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: (screenWidth * 0.025).clamp(10.0, 14.0),
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                ),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -680,71 +666,75 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoriesSection(BuildContext context, Size size, bool isTablet) {
-    final horizontalPadding = isTablet ? 40.0 : 20.0;
-
+  Widget _buildCategoriesSection(BuildContext context, double screenWidth, double screenHeight) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
           child: Row(
             children: [
               Icon(
                 Icons.explore,
                 color: const Color(0xFF8FC475),
-                size: isTablet ? 24 : 20,
+                size: (screenWidth * 0.05).clamp(18.0, 24.0),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'EXPLORE CATEGORIES',
-                style: TextStyle(
-                  color: const Color(0xFF8FC475),
-                  fontSize: isTablet ? 18 : 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+              SizedBox(width: (screenWidth * 0.02).clamp(6.0, 12.0)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'EXPLORE CATEGORIES',
+                    style: TextStyle(
+                      color: const Color(0xFF8FC475),
+                      fontSize: (screenWidth * 0.04).clamp(14.0, 20.0),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
         
-        SizedBox(height: isTablet ? 24 : 20),
+        SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
         
-      _buildCategoryCard(
-        title: 'MUSIC',
-        imagePath: 'assets/images/mandaya_music.jpg',
-        gradientColors: const [Color(0xFF8FC475), Color(0xFF7BB061)],
-        onTap: () => _navigateToMusic(context),
-        horizontalPadding: horizontalPadding,
-        isTablet: isTablet,
-      ),
-      
-      _buildCategoryCard(
-        title: 'VIDEO',
-        imagePath: 'assets/images/mandaya_video.jpg',
-        gradientColors: const [Color(0xFF7BB061), Color(0xFF689C4D)],
-        onTap: () => _navigateToVideo(context),
-        horizontalPadding: horizontalPadding,
-        isTablet: isTablet,
-      ),
-      
-      _buildCategoryCard(
-        title: 'ARTIFACTS',
-        imagePath: 'assets/images/mandaya_artifacts.jpg',
-        gradientColors: const [Color(0xFF689C4D), Color(0xFF558839)],
-        onTap: () => _navigateToArtifacts(context),
-        horizontalPadding: horizontalPadding,
-        isTablet: isTablet,
-      ),
-      
-      _buildCategoryCard(
-        title: 'EVENTS',
-        imagePath: 'assets/images/mandaya_images.jpg',
-        gradientColors: const [Color(0xFF558839), Color(0xFF427425)],
-        onTap: () => _navigateToImages(context),
-        horizontalPadding: horizontalPadding,
-        isTablet: isTablet,
+        _buildCategoryCard(
+          title: 'MUSIC',
+          imagePath: 'assets/images/mandaya_music.jpg',
+          gradientColors: const [Color(0xFF8FC475), Color(0xFF7BB061)],
+          onTap: () => _navigateToMusic(context),
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+        ),
+        
+        _buildCategoryCard(
+          title: 'VIDEO',
+          imagePath: 'assets/images/mandaya_video.jpg',
+          gradientColors: const [Color(0xFF7BB061), Color(0xFF689C4D)],
+          onTap: () => _navigateToVideo(context),
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+        ),
+        
+        _buildCategoryCard(
+          title: 'ARTIFACTS',
+          imagePath: 'assets/images/mandaya_artifacts.jpg',
+          gradientColors: const [Color(0xFF689C4D), Color(0xFF558839)],
+          onTap: () => _navigateToArtifacts(context),
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+        ),
+        
+        _buildCategoryCard(
+          title: 'EVENTS',
+          imagePath: 'assets/images/mandaya_images.jpg',
+          gradientColors: const [Color(0xFF558839), Color(0xFF427425)],
+          onTap: () => _navigateToImages(context),
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
         ),
       ],
     );
@@ -755,15 +745,19 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
     required String imagePath,
     required List<Color> gradientColors,
     required VoidCallback onTap,
-    required double horizontalPadding,
-    required bool isTablet,
+    required double screenWidth,
+    required double screenHeight,
   }) {
-    final cardHeight = isTablet ? 140.0 : 120.0;
-    final imageWidth = isTablet ? 140.0 : 120.0;
-
     return Container(
-      margin: EdgeInsets.only(bottom: 16, left: horizontalPadding, right: horizontalPadding),
-      height: cardHeight,
+      margin: EdgeInsets.only(
+        bottom: (screenHeight * 0.02).clamp(10.0, 20.0),
+        left: (screenWidth * 0.05).clamp(12.0, 24.0),
+        right: (screenWidth * 0.05).clamp(12.0, 24.0),
+      ),
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.12).clamp(100.0, 140.0),
+        maxHeight: (screenHeight * 0.18).clamp(120.0, 180.0),
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -786,8 +780,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: imageWidth,
-                  height: cardHeight,
+                  width: (screenWidth * 0.3).clamp(100.0, 150.0),
                   child: Image.asset(
                     imagePath,
                     fit: BoxFit.cover,
@@ -804,7 +797,7 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                           child: Icon(
                             _getCategoryIcon(title),
                             color: Colors.white.withOpacity(0.7),
-                            size: isTablet ? 50 : 40,
+                            size: (screenWidth * 0.1).clamp(32.0, 48.0),
                           ),
                         ),
                       );
@@ -814,7 +807,6 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                 
                 Expanded(
                   child: Container(
-                    height: cardHeight,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.centerLeft,
@@ -826,13 +818,21 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: isTablet ? 28 : 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: (screenWidth * 0.02).clamp(6.0, 12.0),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.06).clamp(18.0, 28.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -854,6 +854,8 @@ class MandayaCulturalDetailScreen extends StatelessWidget {
         return Icons.play_circle_outline;
       case 'artifacts':
         return Icons.museum;
+      case 'events':
+        return Icons.event;
       case 'images':
         return Icons.photo_library;
       default:

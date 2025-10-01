@@ -87,11 +87,11 @@ class KaganCulturalDetailScreen extends StatelessWidget {
               hasQRContent 
                 ? _buildQRContentSection(context, data, screenWidth, screenHeight)
                 : _buildHeaderSection(context, screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: (screenHeight * 0.03).clamp(12.0, 30.0)),
               if (!hasQRContent) _buildInfoSection(screenWidth, screenHeight),
-              if (!hasQRContent) SizedBox(height: screenHeight * 0.04),
+              if (!hasQRContent) SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
               _buildCategoriesSection(context, screenWidth, screenHeight),
-              SizedBox(height: screenHeight * 0.05),
+              SizedBox(height: (screenHeight * 0.05).clamp(20.0, 50.0)),
             ],
           ),
         ),
@@ -111,8 +111,8 @@ class KaganCulturalDetailScreen extends StatelessWidget {
         SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.05,
-              vertical: screenHeight * 0.02,
+              horizontal: (screenWidth * 0.05).clamp(12.0, 24.0),
+              vertical: (screenHeight * 0.02).clamp(8.0, 20.0),
             ),
             child: Row(
               children: [
@@ -129,28 +129,32 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                     icon: Icon(
                       Icons.arrow_back_ios,
                       color: Colors.white,
-                      size: screenWidth * 0.05,
+                      size: (screenWidth * 0.05).clamp(18.0, 24.0),
                     ),
                   ),
                 ),
-                SizedBox(width: screenWidth * 0.04),
+                SizedBox(width: (screenWidth * 0.04).clamp(12.0, 20.0)),
                 Expanded(
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.03,
-                      vertical: screenHeight * 0.008,
+                      horizontal: (screenWidth * 0.03).clamp(8.0, 16.0),
+                      vertical: (screenHeight * 0.008).clamp(4.0, 10.0),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
-                      'KAGAN CONTENT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'KAGAN CONTENT',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: (screenWidth * 0.05).clamp(16.0, 22.0),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -161,9 +165,12 @@ class KaganCulturalDetailScreen extends StatelessWidget {
         ),
 
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
           child: Container(
             width: double.infinity,
+            constraints: BoxConstraints(
+              minHeight: (screenHeight * 0.3).clamp(200.0, 400.0),
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(16),
@@ -181,52 +188,57 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                       topLeft: Radius.circular(14),
                       topRight: Radius.circular(14),
                     ),
-                    child: SizedBox(
-                      height: screenHeight * 0.25,
-                      width: double.infinity,
-                      child: Image.network(
-                        fileUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            height: screenHeight * 0.25,
-                            color: Colors.grey[800],
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFE0D4BE),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: (screenHeight * 0.2).clamp(150.0, 250.0),
+                        maxHeight: (screenHeight * 0.3).clamp(200.0, 300.0),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Image.network(
+                          fileUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: (screenHeight * 0.25).clamp(150.0, 250.0),
+                              color: Colors.grey[800],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFE0D4BE),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: screenHeight * 0.25,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF8B4513),
-                                  Color(0xFF654321),
-                                ],
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: (screenHeight * 0.25).clamp(150.0, 250.0),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF8B4513),
+                                    Color(0xFF654321),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.image_not_supported,
-                                size: screenWidth * 0.15,
-                                color: Colors.white54,
+                              child: Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: (screenWidth * 0.15).clamp(40.0, 60.0),
+                                  color: Colors.white54,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
 
                 Padding(
-                  padding: EdgeInsets.all(screenWidth * 0.05),
+                  padding: EdgeInsets.all((screenWidth * 0.05).clamp(12.0, 24.0)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -234,14 +246,18 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                         data['title'] ?? 'Kagan Cultural Content',
                         style: TextStyle(
                           color: const Color(0xFFE0D4BE),
-                          fontSize: screenWidth * 0.06,
+                          fontSize: (screenWidth * 0.06).clamp(18.0, 28.0),
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
 
-                      SizedBox(height: screenHeight * 0.015),
+                      SizedBox(height: (screenHeight * 0.015).clamp(8.0, 16.0)),
 
-                      Row(
+                      Wrap(
+                        spacing: (screenWidth * 0.02).clamp(6.0, 12.0),
+                        runSpacing: (screenHeight * 0.01).clamp(4.0, 8.0),
                         children: [
                           _buildMetadataChip(
                             label: 'Category',
@@ -249,7 +265,6 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                             color: const Color(0xFF8B7355),
                             screenWidth: screenWidth,
                           ),
-                          SizedBox(width: screenWidth * 0.02),
                           _buildMetadataChip(
                             label: 'Tribe',
                             value: data['tribe']?.toString().toUpperCase() ?? 'KAGAN',
@@ -259,7 +274,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                         ],
                       ),
 
-                      SizedBox(height: screenHeight * 0.02),
+                      SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
 
                       if (data['description'] != null && 
                           data['description'].toString().trim().isNotEmpty)
@@ -270,26 +285,28 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                               'Description',
                               style: TextStyle(
                                 color: const Color(0xFFE0D4BE),
-                                fontSize: screenWidth * 0.04,
+                                fontSize: (screenWidth * 0.04).clamp(14.0, 20.0),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: screenHeight * 0.01),
+                            SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
                             Text(
                               data['description'],
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: screenWidth * 0.035,
+                                fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
                                 height: 1.5,
                               ),
+                              maxLines: 10,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
 
-                      SizedBox(height: screenHeight * 0.025),
+                      SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
 
                       Container(
-                        padding: EdgeInsets.all(screenWidth * 0.03),
+                        padding: EdgeInsets.all((screenWidth * 0.03).clamp(8.0, 16.0)),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(8),
@@ -299,15 +316,21 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                             Icon(
                               Icons.qr_code,
                               color: const Color(0xFFE0D4BE),
-                              size: screenWidth * 0.04,
+                              size: (screenWidth * 0.04).clamp(14.0, 20.0),
                             ),
-                            SizedBox(width: screenWidth * 0.02),
-                            Text(
-                              'Content ID: ${data['id']}',
-                              style: TextStyle(
-                                color: const Color(0xFFE0D4BE),
-                                fontSize: screenWidth * 0.03,
-                                fontWeight: FontWeight.w500,
+                            SizedBox(width: (screenWidth * 0.02).clamp(6.0, 12.0)),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Content ID: ${data['id']}',
+                                  style: TextStyle(
+                                    color: const Color(0xFFE0D4BE),
+                                    fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -332,8 +355,8 @@ class KaganCulturalDetailScreen extends StatelessWidget {
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.02,
-        vertical: screenWidth * 0.01,
+        horizontal: (screenWidth * 0.02).clamp(6.0, 12.0),
+        vertical: (screenWidth * 0.01).clamp(4.0, 8.0),
       ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
@@ -343,24 +366,29 @@ class KaganCulturalDetailScreen extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Text(
-        value,
-        style: TextStyle(
-          color: color,
-          fontSize: screenWidth * 0.03,
-          fontWeight: FontWeight.w600,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildHeaderSection(BuildContext context, double screenWidth, double screenHeight) {
-    return SizedBox(
-      height: screenHeight * 0.42,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.35).clamp(250.0, 400.0),
+        maxHeight: (screenHeight * 0.45).clamp(300.0, 500.0),
+      ),
       child: Stack(
         children: [
           SizedBox(
-            height: screenHeight * 0.42,
             width: double.infinity,
             child: Container(
               decoration: const BoxDecoration(
@@ -371,36 +399,35 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-                child: Image.asset(
-                  'assets/images/kagan_main.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF8B4513),
-                            Color(0xFF654321),
-                            Color(0xFF2F1B14),
-                          ],
-                        ),
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Color(0xFFE0D4BE),
-                            width: 2,
-                          ),
+              child: Image.asset(
+                'assets/images/kagan_main.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF8B4513),
+                          Color(0xFF654321),
+                          Color(0xFF2F1B14),
+                        ],
+                      ),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color(0xFFE0D4BE),
+                          width: 2,
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
+            ),
           ),
           
           Container(
-            height: screenHeight * 0.42,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -417,8 +444,8 @@ class KaganCulturalDetailScreen extends StatelessWidget {
           SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
-                vertical: screenHeight * 0.02,
+                horizontal: (screenWidth * 0.05).clamp(12.0, 24.0),
+                vertical: (screenHeight * 0.02).clamp(8.0, 20.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +463,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                       icon: Icon(
                         Icons.arrow_back_ios,
                         color: Colors.white,
-                        size: screenWidth * 0.05,
+                        size: (screenWidth * 0.05).clamp(18.0, 24.0),
                       ),
                     ),
                   ),
@@ -448,32 +475,36 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.03,
-                          vertical: screenHeight * 0.008,
+                          horizontal: (screenWidth * 0.03).clamp(8.0, 16.0),
+                          vertical: (screenHeight * 0.008).clamp(4.0, 10.0),
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          'KAGAN',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.09,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                            shadows: const [
-                              Shadow(
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                color: Colors.black54,
-                              ),
-                            ],
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'KAGAN',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.09).clamp(28.0, 42.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                              shadows: const [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black54,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       
-                      SizedBox(height: screenHeight * 0.02),
+                      SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
                       
                       GestureDetector(
                         onTap: () {
@@ -482,8 +513,8 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.005,
-                            vertical: screenHeight * 0.001,
+                            horizontal: (screenWidth * 0.005).clamp(2.0, 6.0),
+                            vertical: (screenHeight * 0.001).clamp(1.0, 4.0),
                           ),
                           decoration: const BoxDecoration(
                             border: Border(
@@ -493,13 +524,17 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: Text(
-                            'Learn more',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.04,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 0.5,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Learn more',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ),
@@ -507,7 +542,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                     ],
                   ),
                   
-                  SizedBox(height: screenHeight * 0.03),
+                  SizedBox(height: (screenHeight * 0.03).clamp(12.0, 30.0)),
                 ],
               ),
             ),
@@ -519,7 +554,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
 
   Widget _buildInfoSection(double screenWidth, double screenHeight) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+      padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
       child: Row(
         children: [
           Expanded(
@@ -531,7 +566,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
               screenHeight: screenHeight,
             ),
           ),
-          SizedBox(width: screenWidth * 0.03),
+          SizedBox(width: (screenWidth * 0.03).clamp(8.0, 16.0)),
           Expanded(
             child: _buildInfoCard(
               icon: Icons.groups,
@@ -541,7 +576,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
               screenHeight: screenHeight,
             ),
           ),
-          SizedBox(width: screenWidth * 0.03),
+          SizedBox(width: (screenWidth * 0.03).clamp(8.0, 16.0)),
           Expanded(
             child: _buildInfoCard(
               icon: Icons.language,
@@ -564,8 +599,11 @@ class KaganCulturalDetailScreen extends StatelessWidget {
     required double screenHeight,
   }) {
     return Container(
-      height: screenHeight * 0.15,
-      padding: EdgeInsets.all(screenWidth * 0.03),
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.12).clamp(100.0, 150.0),
+        maxHeight: (screenHeight * 0.18).clamp(120.0, 180.0),
+      ),
+      padding: EdgeInsets.all((screenWidth * 0.03).clamp(8.0, 16.0)),
       decoration: BoxDecoration(
         color: const Color(0xFF3A382F),
         borderRadius: BorderRadius.circular(12),
@@ -576,9 +614,10 @@ class KaganCulturalDetailScreen extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(screenWidth * 0.015),
+            padding: EdgeInsets.all((screenWidth * 0.015).clamp(4.0, 8.0)),
             decoration: BoxDecoration(
               color: const Color(0xFFE0D4BE).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
@@ -586,36 +625,40 @@ class KaganCulturalDetailScreen extends StatelessWidget {
             child: Icon(
               icon,
               color: const Color(0xFFE0D4BE),
-              size: screenWidth * 0.045,
+              size: (screenWidth * 0.045).clamp(16.0, 22.0),
             ),
           ),
           
-          SizedBox(height: screenHeight * 0.01),
+          SizedBox(height: (screenHeight * 0.01).clamp(4.0, 10.0)),
           
-          Text(
-            label,
-            style: TextStyle(
-              color: const Color(0xFFE0D4BE),
-              fontSize: screenWidth * 0.02,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: const Color(0xFFE0D4BE),
+                fontSize: (screenWidth * 0.02).clamp(9.0, 12.0),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
             ),
           ),
           
-          SizedBox(height: screenHeight * 0.005),
+          SizedBox(height: (screenHeight * 0.005).clamp(2.0, 6.0)),
           
           Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.025,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: (screenWidth * 0.025).clamp(10.0, 14.0),
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                ),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -628,29 +671,35 @@ class KaganCulturalDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)),
           child: Row(
             children: [
               Icon(
                 Icons.explore,
                 color: const Color(0xFFE0D4BE),
-                size: screenWidth * 0.05,
+                size: (screenWidth * 0.05).clamp(18.0, 24.0),
               ),
-              SizedBox(width: screenWidth * 0.02),
-              Text(
-                'EXPLORE CATEGORIES',
-                style: TextStyle(
-                  color: const Color(0xFFE0D4BE),
-                  fontSize: screenWidth * 0.04,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+              SizedBox(width: (screenWidth * 0.02).clamp(6.0, 12.0)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'EXPLORE CATEGORIES',
+                    style: TextStyle(
+                      color: const Color(0xFFE0D4BE),
+                      fontSize: (screenWidth * 0.04).clamp(14.0, 20.0),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
         
-        SizedBox(height: screenHeight * 0.025),
+        SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
         
         _buildCategoryCard(
           title: 'MUSIC',
@@ -701,11 +750,14 @@ class KaganCulturalDetailScreen extends StatelessWidget {
   }) {
     return Container(
       margin: EdgeInsets.only(
-        bottom: screenHeight * 0.02,
-        left: screenWidth * 0.05,
-        right: screenWidth * 0.05,
+        bottom: (screenHeight * 0.02).clamp(10.0, 20.0),
+        left: (screenWidth * 0.05).clamp(12.0, 24.0),
+        right: (screenWidth * 0.05).clamp(12.0, 24.0),
       ),
-      height: screenHeight * 0.15,
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.12).clamp(100.0, 140.0),
+        maxHeight: (screenHeight * 0.18).clamp(120.0, 180.0),
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -728,8 +780,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: screenWidth * 0.3,
-                  height: screenHeight * 0.15,
+                  width: (screenWidth * 0.3).clamp(100.0, 150.0),
                   child: Image.asset(
                     imagePath,
                     fit: BoxFit.cover,
@@ -746,7 +797,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                           child: Icon(
                             _getCategoryIcon(title),
                             color: Colors.white.withOpacity(0.7),
-                            size: screenWidth * 0.1,
+                            size: (screenWidth * 0.1).clamp(32.0, 48.0),
                           ),
                         ),
                       );
@@ -756,7 +807,6 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                 
                 Expanded(
                   child: Container(
-                    height: screenHeight * 0.15,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.centerLeft,
@@ -768,13 +818,21 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: screenWidth * 0.06,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: (screenWidth * 0.02).clamp(6.0, 12.0),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.06).clamp(18.0, 28.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -796,6 +854,8 @@ class KaganCulturalDetailScreen extends StatelessWidget {
         return Icons.play_circle_outline;
       case 'artifacts':
         return Icons.museum;
+      case 'events':
+        return Icons.event;
       case 'images':
         return Icons.photo_library;
       default:
