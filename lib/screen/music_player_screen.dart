@@ -1,4 +1,3 @@
-// lib/screen/music_player_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -24,7 +23,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
   bool _isShuffled = false;
   bool _isRepeated = false;
   double _currentPosition = 0.0;
-  final double _totalDuration = 240.0; // 4 minutes in seconds
+  final double _totalDuration = 240.0;
   Timer? _progressTimer;
   
   late AnimationController _playButtonController;
@@ -111,6 +110,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     
     return Scaffold(
@@ -130,28 +131,28 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
           ),
         ),
         child: SafeArea(
-          bottom: false, // We'll handle bottom padding manually
+          bottom: false,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewPadding.top,
+                minHeight: screenHeight - MediaQuery.of(context).viewPadding.top,
               ),
               child: IntrinsicHeight(
                 child: Column(
                   children: [
-                    _buildHeader(),
-                    const SizedBox(height: 20),
-                    _buildAlbumArt(),
-                    const SizedBox(height: 30),
-                    _buildTrackInfo(),
-                    const SizedBox(height: 40),
-                    _buildProgressBar(),
-                    const SizedBox(height: 40),
-                    _buildControlButtons(),
+                    _buildHeader(screenWidth, screenHeight),
+                    SizedBox(height: (screenHeight * 0.025).clamp(15.0, 25.0)),
+                    _buildAlbumArt(screenWidth, screenHeight),
+                    SizedBox(height: (screenHeight * 0.04).clamp(20.0, 35.0)),
+                    _buildTrackInfo(screenWidth, screenHeight),
+                    SizedBox(height: (screenHeight * 0.05).clamp(25.0, 45.0)),
+                    _buildProgressBar(screenWidth, screenHeight),
+                    SizedBox(height: (screenHeight * 0.05).clamp(25.0, 45.0)),
+                    _buildControlButtons(screenWidth, screenHeight),
                     const Spacer(),
-                    _buildBottomControls(),
-                    SizedBox(height: bottomPadding > 0 ? bottomPadding + 20 : 40), // Safe bottom padding
+                    _buildBottomControls(screenWidth, screenHeight),
+                    SizedBox(height: ((bottomPadding > 0 ? bottomPadding + 20 : 40).toDouble()).clamp(30.0, 60.0)),
                   ],
                 ),
               ),
@@ -162,9 +163,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(double screenWidth, double screenHeight) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: (screenWidth * 0.05).clamp(16.0, 24.0),
+        vertical: (screenHeight * 0.015).clamp(8.0, 16.0),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -174,55 +178,62 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               Navigator.pop(context);
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.keyboard_arrow_down,
                 color: Colors.white,
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
-          Column(
-            children: [
-              Text(
-                'PLAYING FROM PLAYLIST',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1,
+          Flexible(
+            child: Column(
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'PLAYING FROM PLAYLIST',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: (screenWidth * 0.03).clamp(10.0, 13.0),
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                widget.track.category,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: (screenHeight * 0.003).clamp(2.0, 4.0)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.track.category,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // Add more options functionality
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.more_vert,
                 color: Colors.white,
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
@@ -231,9 +242,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
     );
   }
 
-  Widget _buildAlbumArt() {
+  Widget _buildAlbumArt(double screenWidth, double screenHeight) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40),
+      margin: EdgeInsets.symmetric(
+        horizontal: (screenWidth * 0.1).clamp(30.0, 50.0),
+      ),
       child: AspectRatio(
         aspectRatio: 1,
         child: Container(
@@ -242,13 +255,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
             boxShadow: [
               BoxShadow(
                 color: widget.themeColor.withOpacity(0.3),
-                blurRadius: 30,
+                blurRadius: (screenWidth * 0.075).clamp(20.0, 35.0),
                 spreadRadius: 2,
                 offset: const Offset(0, 10),
               ),
               BoxShadow(
                 color: Colors.black.withOpacity(0.5),
-                blurRadius: 20,
+                blurRadius: (screenWidth * 0.05).clamp(15.0, 25.0),
                 offset: const Offset(0, 5),
               ),
             ],
@@ -276,10 +289,10 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
                             ],
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.music_note,
                           color: Colors.white,
-                          size: 80,
+                          size: (screenWidth * 0.2).clamp(60.0, 90.0),
                         ),
                       );
                     },
@@ -293,40 +306,46 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
     );
   }
 
-  Widget _buildTrackInfo() {
+  Widget _buildTrackInfo(double screenWidth, double screenHeight) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        horizontal: (screenWidth * 0.1).clamp(30.0, 50.0),
+      ),
       child: Column(
         children: [
           Text(
             widget.track.title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: (screenWidth * 0.06).clamp(20.0, 28.0),
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: (screenHeight * 0.01).clamp(6.0, 10.0)),
           Text(
             widget.track.artist ?? 'Unknown Artist',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
-              fontSize: 16,
+              fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(double screenWidth, double screenHeight) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        horizontal: (screenWidth * 0.1).clamp(30.0, 50.0),
+      ),
       child: Column(
         children: [
           SliderTheme(
@@ -335,9 +354,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               inactiveTrackColor: Colors.white.withOpacity(0.2),
               thumbColor: widget.themeColor,
               overlayColor: widget.themeColor.withOpacity(0.2),
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-              trackHeight: 4,
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: (screenWidth * 0.015).clamp(5.0, 8.0),
+              ),
+              overlayShape: RoundSliderOverlayShape(
+                overlayRadius: (screenWidth * 0.04).clamp(14.0, 18.0),
+              ),
+              trackHeight: (screenWidth * 0.01).clamp(3.0, 5.0),
             ),
             child: Slider(
               value: _currentPosition,
@@ -353,7 +376,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               },
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: (screenHeight * 0.01).clamp(6.0, 10.0)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -361,14 +384,14 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
                 _formatDuration(_currentPosition),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.6),
-                  fontSize: 12,
+                  fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
                 ),
               ),
               Text(
                 _formatDuration(_totalDuration),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.6),
-                  fontSize: 12,
+                  fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
                 ),
               ),
             ],
@@ -378,9 +401,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
     );
   }
 
-  Widget _buildControlButtons() {
+  Widget _buildControlButtons(double screenWidth, double screenHeight) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(
+        vertical: (screenHeight * 0.015).clamp(8.0, 14.0),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -392,25 +417,24 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               });
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               child: Icon(
                 Icons.shuffle,
                 color: _isShuffled ? widget.themeColor : Colors.white.withOpacity(0.6),
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              // Previous track functionality
             },
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all((screenWidth * 0.03).clamp(10.0, 14.0)),
               child: Icon(
                 Icons.skip_previous,
                 color: Colors.white.withOpacity(0.8),
-                size: 32,
+                size: (screenWidth * 0.08).clamp(28.0, 36.0),
               ),
             ),
           ),
@@ -420,15 +444,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               _togglePlayPause();
             },
             child: Container(
-              width: 70,
-              height: 70,
+              width: (screenWidth * 0.175).clamp(60.0, 80.0),
+              height: (screenWidth * 0.175).clamp(60.0, 80.0),
               decoration: BoxDecoration(
                 color: widget.themeColor,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: widget.themeColor.withOpacity(0.4),
-                    blurRadius: 15,
+                    blurRadius: (screenWidth * 0.0375).clamp(12.0, 18.0),
                     spreadRadius: 2,
                   ),
                 ],
@@ -439,7 +463,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
                   return Icon(
                     _isPlaying ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
-                    size: 32,
+                    size: (screenWidth * 0.08).clamp(28.0, 36.0),
                   );
                 },
               ),
@@ -448,14 +472,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              // Next track functionality
             },
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all((screenWidth * 0.03).clamp(10.0, 14.0)),
               child: Icon(
                 Icons.skip_next,
                 color: Colors.white.withOpacity(0.8),
-                size: 32,
+                size: (screenWidth * 0.08).clamp(28.0, 36.0),
               ),
             ),
           ),
@@ -467,11 +490,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               });
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               child: Icon(
                 Icons.repeat,
                 color: _isRepeated ? widget.themeColor : Colors.white.withOpacity(0.6),
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
@@ -480,23 +503,25 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
     );
   }
 
-  Widget _buildBottomControls() {
+  Widget _buildBottomControls(double screenWidth, double screenHeight) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: (screenWidth * 0.1).clamp(30.0, 50.0),
+        vertical: (screenHeight * 0.015).clamp(8.0, 14.0),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // Share functionality
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               child: Icon(
                 Icons.share_outlined,
                 color: Colors.white.withOpacity(0.6),
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
@@ -508,25 +533,24 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               });
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               child: Icon(
                 _isFavorited ? Icons.favorite : Icons.favorite_border,
                 color: _isFavorited ? widget.themeColor : Colors.white.withOpacity(0.6),
-                size: 28,
+                size: (screenWidth * 0.07).clamp(24.0, 32.0),
               ),
             ),
           ),
           GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // Add to playlist functionality
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(6.0, 10.0)),
               child: Icon(
                 Icons.playlist_add,
                 color: Colors.white.withOpacity(0.6),
-                size: 24,
+                size: (screenWidth * 0.06).clamp(20.0, 28.0),
               ),
             ),
           ),
@@ -536,7 +560,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
   }
 }
 
-// Updated MusicTrack class to include artist
 class MusicTrack {
   final String title;
   final String description;

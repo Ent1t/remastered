@@ -38,22 +38,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   late AnimationController _controlsAnimationController;
   late Animation<double> _controlsOpacity;
 
-  // Responsive helper methods
-  bool get _isLargeScreen => MediaQuery.of(context).size.width > 600;
-  bool get _isTablet => MediaQuery.of(context).size.width > 800;
-  
-  double get _iconSize => _isTablet ? 28 : _isLargeScreen ? 24 : 20;
-  double get _mainButtonSize => _isTablet ? 40 : _isLargeScreen ? 36 : 32;
-  double get _controlButtonSize => _isTablet ? 28 : _isLargeScreen ? 26 : 24;
-  double get _titleFontSize => _isTablet ? 22 : _isLargeScreen ? 20 : 16;
-  double get _subtitleFontSize => _isTablet ? 16 : _isLargeScreen ? 14 : 12;
-  double get _timeFontSize => _isTablet ? 16 : _isLargeScreen ? 14 : 12;
-  double get _padding => _isTablet ? 32 : _isLargeScreen ? 28 : 20;
-  double get _borderRadius => _isTablet ? 16 : 12;
-  
-  double get _mainControlButtonPadding => _isTablet ? 20 : _isLargeScreen ? 18 : 16;
-  double get _secondaryControlButtonPadding => _isTablet ? 16 : _isLargeScreen ? 14 : 12;
-
   @override
   void initState() {
     super.initState();
@@ -246,7 +230,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
   }
 
-  Widget _buildVideoPlayer() {
+  Widget _buildVideoPlayer(double screenWidth, double screenHeight) {
     if (_isVideoLoading) {
       return Container(
         width: double.infinity,
@@ -266,19 +250,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: _isTablet ? 60 : _isLargeScreen ? 50 : 40,
-                height: _isTablet ? 60 : _isLargeScreen ? 50 : 40,
+                width: (screenWidth * 0.1).clamp(35.0, 60.0),
+                height: (screenWidth * 0.1).clamp(35.0, 60.0),
                 child: const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   strokeWidth: 3,
                 ),
               ),
-              SizedBox(height: _isLargeScreen ? 24 : 16),
+              SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
               Text(
                 'Loading video...',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: _titleFontSize,
+                  fontSize: (screenWidth * 0.04).clamp(14.0, 20.0),
                 ),
               ),
             ],
@@ -303,43 +287,49 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         ),
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: _padding),
+            padding: EdgeInsets.symmetric(
+              horizontal: (screenWidth * 0.05).clamp(16.0, 32.0),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.error_outline,
                   color: Colors.white,
-                  size: _isTablet ? 80 : _isLargeScreen ? 72 : 64,
+                  size: (screenWidth * 0.15).clamp(50.0, 80.0),
                 ),
-                SizedBox(height: _isLargeScreen ? 24 : 16),
+                SizedBox(height: (screenHeight * 0.03).clamp(16.0, 24.0)),
                 Text(
                   'Failed to load video',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: _titleFontSize + 2,
+                    fontSize: (screenWidth * 0.045).clamp(16.0, 22.0),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: _isLargeScreen ? 12 : 8),
+                SizedBox(height: (screenHeight * 0.015).clamp(8.0, 12.0)),
                 Text(
                   _errorMessage!,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: _subtitleFontSize,
+                    fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: _isLargeScreen ? 12 : 8),
+                SizedBox(height: (screenHeight * 0.015).clamp(8.0, 12.0)),
                 Text(
                   'URL: ${widget.videoUrl ?? 'No URL'}',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
-                    fontSize: _subtitleFontSize - 2,
+                    fontSize: (screenWidth * 0.03).clamp(10.0, 14.0),
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: _isLargeScreen ? 32 : 24),
+                SizedBox(height: (screenHeight * 0.04).clamp(24.0, 32.0)),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -352,13 +342,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     backgroundColor: Colors.white,
                     foregroundColor: widget.accentColor,
                     padding: EdgeInsets.symmetric(
-                      horizontal: _isTablet ? 32 : _isLargeScreen ? 28 : 24,
-                      vertical: _isTablet ? 16 : _isLargeScreen ? 14 : 12,
+                      horizontal: (screenWidth * 0.06).clamp(20.0, 32.0),
+                      vertical: (screenHeight * 0.015).clamp(10.0, 16.0),
                     ),
                   ),
                   child: Text(
                     'Retry',
-                    style: TextStyle(fontSize: _subtitleFontSize),
+                    style: TextStyle(
+                      fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                    ),
                   ),
                 ),
               ],
@@ -391,7 +383,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     child: Icon(
                       Icons.videocam,
                       color: Colors.white,
-                      size: _isTablet ? 80 : _isLargeScreen ? 70 : 60,
+                      size: (screenWidth * 0.15).clamp(50.0, 80.0),
                     ),
                   );
                 },
@@ -404,7 +396,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     child: Icon(
                       Icons.videocam,
                       color: Colors.white,
-                      size: _isTablet ? 80 : _isLargeScreen ? 70 : 60,
+                      size: (screenWidth * 0.15).clamp(50.0, 80.0),
                     ),
                   );
                 },
@@ -428,8 +420,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         if (_isBuffering)
           Center(
             child: SizedBox(
-              width: _isTablet ? 60 : _isLargeScreen ? 50 : 40,
-              height: _isTablet ? 60 : _isLargeScreen ? 50 : 40,
+              width: (screenWidth * 0.1).clamp(35.0, 60.0),
+              height: (screenWidth * 0.1).clamp(35.0, 60.0),
               child: const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 strokeWidth: 3,
@@ -442,7 +434,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             child: GestureDetector(
               onTap: _togglePlayPause,
               child: Container(
-                padding: EdgeInsets.all(_mainControlButtonPadding + 4),
+                padding: EdgeInsets.all((screenWidth * 0.06).clamp(20.0, 30.0)),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.7),
                   shape: BoxShape.circle,
@@ -450,7 +442,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 child: Icon(
                   Icons.play_arrow,
                   color: widget.accentColor,
-                  size: _mainButtonSize + 18,
+                  size: (screenWidth * 0.12).clamp(40.0, 60.0),
                 ),
               ),
             ),
@@ -459,23 +451,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     );
   }
 
-  Widget _buildScrollingTitle() {
-    return Text(
-      widget.videoTitle,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: _titleFontSize,
-        fontWeight: FontWeight.bold,
-        height: 1.4,
-      ),
-      textAlign: TextAlign.center,
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -485,11 +465,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             builder: (context, constraints) {
               return Stack(
                 children: [
-                  // Video Content Area
                   Center(
                     child: Container(
                       constraints: BoxConstraints(
-                        maxWidth: _isTablet ? constraints.maxWidth * 0.9 : constraints.maxWidth,
+                        maxWidth: constraints.maxWidth,
                         maxHeight: constraints.maxHeight,
                       ),
                       child: AspectRatio(
@@ -498,25 +477,31 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                             : 16 / 9,
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(_borderRadius),
+                            borderRadius: BorderRadius.circular(
+                              (screenWidth * 0.03).clamp(10.0, 16.0),
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.5),
-                                blurRadius: _isLargeScreen ? 30 : 20,
-                                offset: Offset(0, _isLargeScreen ? 15 : 10),
+                                blurRadius: (screenWidth * 0.05).clamp(15.0, 30.0),
+                                offset: Offset(
+                                  0,
+                                  (screenHeight * 0.015).clamp(8.0, 15.0),
+                                ),
                               ),
                             ],
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(_borderRadius),
-                            child: _buildVideoPlayer(),
+                            borderRadius: BorderRadius.circular(
+                              (screenWidth * 0.03).clamp(10.0, 16.0),
+                            ),
+                            child: _buildVideoPlayer(screenWidth, screenHeight),
                           ),
                         ),
                       ),
                     ),
                   ),
                   
-                  // Top Controls
                   if (_showControls)
                     AnimatedBuilder(
                       animation: _controlsOpacity,
@@ -524,7 +509,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                         return Opacity(
                           opacity: _controlsOpacity.value,
                           child: Container(
-                            padding: EdgeInsets.all(_padding),
+                            padding: EdgeInsets.all(
+                              (screenWidth * 0.05).clamp(16.0, 24.0),
+                            ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -536,6 +523,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                               ),
                             ),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
@@ -550,32 +538,44 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                     icon: Icon(
                                       Icons.arrow_back_ios,
                                       color: Colors.white,
-                                      size: _iconSize,
+                                      size: (screenWidth * 0.05).clamp(18.0, 24.0),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: _isLargeScreen ? 16 : 12),
+                                SizedBox(width: (screenWidth * 0.03).clamp(10.0, 16.0)),
                                 Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        widget.tribalName.toUpperCase(),
-                                        style: TextStyle(
-                                          color: widget.accentColor,
-                                          fontSize: _subtitleFontSize,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1,
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          widget.tribalName.toUpperCase(),
+                                          style: TextStyle(
+                                            color: widget.accentColor,
+                                            fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1,
+                                          ),
                                         ),
+                                      ),
+                                      SizedBox(height: (screenHeight * 0.008).clamp(4.0, 8.0)),
+                                      Text(
+                                        widget.videoTitle,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.3,
+                                        ),
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      SizedBox(height: 6),
-                                      _buildScrollingTitle(),
                                     ],
                                   ),
                                 ),
-                                SizedBox(width: _isLargeScreen ? 16 : 12),
-                                SizedBox(width: _iconSize + 32),
                               ],
                             ),
                           ),
@@ -583,7 +583,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                       },
                     ),
                   
-                  // Bottom Controls
                   if (_showControls && _isVideoInitialized && _videoController != null)
                     Positioned(
                       bottom: 0,
@@ -595,7 +594,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                           return Opacity(
                             opacity: _controlsOpacity.value,
                             child: Container(
-                              padding: EdgeInsets.all(_padding),
+                              padding: EdgeInsets.all(
+                                (screenWidth * 0.05).clamp(16.0, 24.0),
+                              ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.bottomCenter,
@@ -609,18 +610,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Progress Bar
                                   Row(
                                     children: [
                                       Text(
                                         _formatDuration(_videoController!.value.position),
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: _timeFontSize,
+                                          fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      SizedBox(width: _isLargeScreen ? 16 : 12),
+                                      SizedBox(width: (screenWidth * 0.03).clamp(10.0, 16.0)),
                                       Expanded(
                                         child: SliderTheme(
                                           data: SliderTheme.of(context).copyWith(
@@ -628,11 +628,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                             inactiveTrackColor: Colors.white.withOpacity(0.3),
                                             thumbColor: widget.accentColor,
                                             thumbShape: RoundSliderThumbShape(
-                                              enabledThumbRadius: _isTablet ? 8 : _isLargeScreen ? 7 : 6,
+                                              enabledThumbRadius: (screenWidth * 0.015).clamp(5.0, 8.0),
                                             ),
-                                            trackHeight: _isLargeScreen ? 4 : 3,
+                                            trackHeight: (screenWidth * 0.008).clamp(3.0, 4.0),
                                             overlayShape: RoundSliderOverlayShape(
-                                              overlayRadius: _isTablet ? 16 : _isLargeScreen ? 14 : 12,
+                                              overlayRadius: (screenWidth * 0.03).clamp(10.0, 16.0),
                                             ),
                                           ),
                                           child: Slider(
@@ -652,25 +652,26 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: _isLargeScreen ? 16 : 12),
+                                      SizedBox(width: (screenWidth * 0.03).clamp(10.0, 16.0)),
                                       Text(
                                         _formatDuration(_videoController!.value.duration),
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: _timeFontSize,
+                                          fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: _isLargeScreen ? 24 : 16),
-                                  // Control Buttons
+                                  SizedBox(height: (screenHeight * 0.025).clamp(12.0, 24.0)),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       _buildControlButton(
                                         icon: Icons.replay_10,
                                         onTap: _skipBackward,
+                                        screenWidth: screenWidth,
+                                        screenHeight: screenHeight,
                                       ),
                                       _buildControlButton(
                                         icon: _videoController!.value.isPlaying 
@@ -678,10 +679,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                             : Icons.play_arrow,
                                         onTap: _togglePlayPause,
                                         isMainButton: true,
+                                        screenWidth: screenWidth,
+                                        screenHeight: screenHeight,
                                       ),
                                       _buildControlButton(
                                         icon: Icons.forward_10,
                                         onTap: _skipForward,
+                                        screenWidth: screenWidth,
+                                        screenHeight: screenHeight,
                                       ),
                                     ],
                                   ),
@@ -704,13 +709,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   Widget _buildControlButton({
     required IconData icon,
     required VoidCallback onTap,
+    required double screenWidth,
+    required double screenHeight,
     bool isMainButton = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(
-          isMainButton ? _mainControlButtonPadding : _secondaryControlButtonPadding,
+          isMainButton 
+            ? (screenWidth * 0.04).clamp(14.0, 20.0)
+            : (screenWidth * 0.03).clamp(10.0, 16.0),
         ),
         decoration: BoxDecoration(
           color: isMainButton 
@@ -720,14 +729,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           border: isMainButton
             ? Border.all(
                 color: widget.accentColor, 
-                width: _isLargeScreen ? 3 : 2,
+                width: (screenWidth * 0.006).clamp(2.0, 3.0),
               )
             : null,
         ),
         child: Icon(
           icon,
           color: isMainButton ? widget.accentColor : Colors.white,
-          size: isMainButton ? _mainButtonSize : _controlButtonSize,
+          size: isMainButton 
+            ? (screenWidth * 0.08).clamp(28.0, 40.0)
+            : (screenWidth * 0.06).clamp(20.0, 28.0),
         ),
       ),
     );
