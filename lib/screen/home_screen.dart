@@ -1158,7 +1158,7 @@ Widget _buildExploreButton(String title) {
       children: [
         // Bottom layer (darkest shadow) - moderate extension for subtle effect
         Positioned(
-          right: 195,  // More reasonable extension - not too dramatic
+          right: 165,  // More reasonable extension - not too dramatic
           top: 0,     // Same vertical position
           child: Container(
             width: 160,
@@ -1179,7 +1179,7 @@ Widget _buildExploreButton(String title) {
         
         // Second layer (medium shadow) - just slightly bigger than main button
         Positioned(
-          right: 100,  // Small offset from main button
+          right: 80,  // Small offset from main button
           top: 0,     // Same vertical position
           child: Container(
             width: 140,

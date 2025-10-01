@@ -120,7 +120,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     'Saint Lorenzo Ruiz Academy',
     'Saint Marys College of Tagum',
     'St. Thomas More School of Law and Business',
-    'System Technology Institute',
+    'STI College Tagum',
     'Tagum City College of Science and Technology Foundation Incorporated',
     'Tagum City National Highschool (City High)',
     'Tagum Doctors College, Inc.',
