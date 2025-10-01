@@ -414,7 +414,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     return Column(
       children: [
         Container(
-          margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+          margin: EdgeInsets.only(bottom: (screenHeight * 0.02).clamp(12.0, 25.0)),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -443,8 +443,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(
-                  vertical: screenHeight * 0.015,
-                  horizontal: screenWidth * 0.04,
+                  vertical: (screenHeight * 0.015).clamp(8.0, 18.0),
+                  horizontal: (screenWidth * 0.04).clamp(12.0, 20.0),
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEADCB6).withOpacity(0.15),
@@ -458,29 +458,34 @@ class _TranslationScreenState extends State<TranslationScreen> {
                         Icon(
                           Icons.celebration,
                           color: const Color(0xFFEADCB6),
-                          size: screenWidth * 0.04,
+                          size: (screenWidth * 0.04).clamp(14.0, 20.0),
                         ),
-                        SizedBox(width: screenWidth * 0.015),
-                        Text(
-                          'Cultural Signature Phrase',
-                          style: TextStyle(
-                            color: const Color(0xFFEADCB6),
-                            fontSize: screenWidth * 0.03,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.8,
+                        SizedBox(width: (screenWidth * 0.015).clamp(4.0, 8.0)),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Cultural Signature Phrase',
+                              style: TextStyle(
+                                color: const Color(0xFFEADCB6),
+                                fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(width: screenWidth * 0.015),
+                        SizedBox(width: (screenWidth * 0.015).clamp(4.0, 8.0)),
                         Icon(
                           Icons.celebration,
                           color: const Color(0xFFEADCB6),
-                          size: screenWidth * 0.04,
+                          size: (screenWidth * 0.04).clamp(14.0, 20.0),
                         ),
                       ],
                     ),
-                    SizedBox(height: screenHeight * 0.005),
+                    SizedBox(height: (screenHeight * 0.005).clamp(2.0, 6.0)),
                     Container(
-                      width: screenWidth * 0.15,
+                      width: (screenWidth * 0.15).clamp(40.0, 80.0),
                       height: 1.5,
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -497,7 +502,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
               ),
               
               Container(
-                padding: EdgeInsets.all(screenWidth * 0.05),
+                padding: EdgeInsets.all((screenWidth * 0.05).clamp(12.0, 24.0)),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.4),
                   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10.5)),
@@ -533,63 +538,76 @@ class _TranslationScreenState extends State<TranslationScreen> {
         Expanded(
           child: Column(
             children: [
-              Text(
-                'FEATURED CULTURAL PHRASE',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.025,
-                  color: const Color(0xFFEADCB6).withOpacity(0.8),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.5,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'FEATURED CULTURAL PHRASE',
+                  style: TextStyle(
+                    fontSize: (screenWidth * 0.025).clamp(10.0, 12.0),
+                    color: const Color(0xFFEADCB6).withOpacity(0.8),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.5,
+                  ),
                 ),
               ),
-              SizedBox(height: screenHeight * 0.015),
-              Text(
-                phraseKey,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: screenWidth * 0.06,
-                  color: const Color(0xFFEADCB6),
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
+              SizedBox(height: (screenHeight * 0.015).clamp(8.0, 16.0)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  phraseKey,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: (screenWidth * 0.06).clamp(18.0, 28.0),
+                    color: const Color(0xFFEADCB6),
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
                 ),
               ),
-              SizedBox(height: screenHeight * 0.01),
+              SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.headphones,
-                    size: screenWidth * 0.035,
+                    size: (screenWidth * 0.035).clamp(12.0, 16.0),
                     color: Colors.white.withOpacity(0.6),
                   ),
-                  SizedBox(width: screenWidth * 0.01),
-                  Text(
-                    'Tap to hear pronunciation',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.03,
-                      color: Colors.white.withOpacity(0.7),
-                      fontStyle: FontStyle.italic,
+                  SizedBox(width: (screenWidth * 0.01).clamp(4.0, 8.0)),
+                  Flexible(
+                    child: Text(
+                      'Tap to hear pronunciation',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: (screenWidth * 0.03).clamp(10.0, 14.0),
+                        color: Colors.white.withOpacity(0.7),
+                        fontStyle: FontStyle.italic,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
                   ),
                 ],
               ),
               if (availableLanguage == null && !hasStandaloneAudio) ...[
-                SizedBox(height: screenHeight * 0.01),
+                SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.volume_off,
-                      size: screenWidth * 0.03,
+                      size: (screenWidth * 0.03).clamp(10.0, 14.0),
                       color: Colors.orange.withOpacity(0.7),
                     ),
-                    SizedBox(width: screenWidth * 0.01),
-                    Text(
-                      'Audio not available',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.025,
-                        color: Colors.orange.withOpacity(0.7),
+                    SizedBox(width: (screenWidth * 0.01).clamp(4.0, 8.0)),
+                    Flexible(
+                      child: Text(
+                        'Audio not available',
+                        style: TextStyle(
+                          fontSize: (screenWidth * 0.025).clamp(10.0, 12.0),
+                          color: Colors.orange.withOpacity(0.7),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -600,7 +618,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         ),
         
         if (availableLanguage != null || hasStandaloneAudio) ...[
-          SizedBox(width: screenWidth * 0.04),
+          SizedBox(width: (screenWidth * 0.04).clamp(12.0, 20.0)),
           
           GestureDetector(
             onTap: () {
@@ -616,7 +634,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              padding: EdgeInsets.all(screenWidth * 0.04),
+              padding: EdgeInsets.all((screenWidth * 0.04).clamp(12.0, 18.0)),
               decoration: BoxDecoration(
                 color: isCurrentlyPlaying
                     ? Colors.red.withOpacity(0.2)
@@ -644,13 +662,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
                     ? Icon(
                         Icons.stop_rounded,
                         color: Colors.red,
-                        size: screenWidth * 0.08,
+                        size: (screenWidth * 0.08).clamp(24.0, 36.0),
                         key: const ValueKey('stop_signature'),
                       )
                     : Icon(
                         Icons.play_arrow_rounded,
                         color: const Color(0xFFEADCB6),
-                        size: screenWidth * 0.08,
+                        size: (screenWidth * 0.08).clamp(24.0, 36.0),
                         key: const ValueKey('play_signature'),
                       ),
               ),
@@ -673,8 +691,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
       right: 10,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.02,
-          vertical: screenWidth * 0.01,
+          horizontal: (screenWidth * 0.02).clamp(8.0, 12.0),
+          vertical: (screenWidth * 0.01).clamp(4.0, 8.0),
         ),
         decoration: BoxDecoration(
           color: Colors.green.withOpacity(0.8),
@@ -686,14 +704,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
             Icon(
               Icons.offline_bolt,
               color: Colors.white,
-              size: screenWidth * 0.04,
+              size: (screenWidth * 0.04).clamp(14.0, 18.0),
             ),
-            SizedBox(width: screenWidth * 0.01),
+            SizedBox(width: (screenWidth * 0.01).clamp(4.0, 6.0)),
             Text(
               'Offline',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: screenWidth * 0.03,
+                fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -732,15 +750,15 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 color: Colors.black.withOpacity(0.4),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.06).clamp(16.0, 30.0)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: screenHeight * 0.05),
+                    SizedBox(height: (screenHeight * 0.05).clamp(20.0, 50.0)),
                     
                     _buildTitleSection(screenWidth, screenHeight),
                     
-                    SizedBox(height: screenHeight * 0.04),
+                    SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
                     
                     _buildSignatureWelcomeSection(
                       _phrases.entries.firstWhere((entry) => entry.key == 'Signature Phrase'),
@@ -748,11 +766,11 @@ class _TranslationScreenState extends State<TranslationScreen> {
                       screenHeight,
                     ),
                     
-                    SizedBox(height: screenHeight * 0.04),
+                    SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
                     
                     _buildLanguageSelectionSection(screenWidth, screenHeight),
                     
-                    SizedBox(height: screenHeight * 0.04),
+                    SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
                     
                     if (isPlaying) _buildAudioStatusIndicator(screenWidth, screenHeight),
                     
@@ -760,7 +778,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                       return _buildCategorySection(categoryEntry, screenWidth, screenHeight);
                     }),
                     
-                    SizedBox(height: screenHeight * 0.1),
+                    SizedBox(height: (screenHeight * 0.1).clamp(40.0, 100.0)),
                   ],
                 ),
               ),
@@ -775,43 +793,54 @@ class _TranslationScreenState extends State<TranslationScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Indigenous Language',
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: screenWidth * 0.04,
-            fontWeight: FontWeight.w300,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Indigenous Language',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+              fontWeight: FontWeight.w300,
+            ),
           ),
         ),
-        Text(
-          'Phrase Book',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: screenWidth * 0.07,
-            fontWeight: FontWeight.bold,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Phrase Book',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: (screenWidth * 0.07).clamp(20.0, 32.0),
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        SizedBox(height: screenHeight * 0.01),
+        SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
         Row(
           children: [
             Container(
-              width: screenWidth * 0.2,
+              width: (screenWidth * 0.2).clamp(60.0, 100.0),
               height: 3,
               color: const Color(0xFFEADCB6),
             ),
-            SizedBox(width: screenWidth * 0.02),
+            SizedBox(width: (screenWidth * 0.02).clamp(6.0, 10.0)),
             Icon(
               Icons.offline_bolt,
               color: const Color(0xFFEADCB6),
-              size: screenWidth * 0.04,
+              size: (screenWidth * 0.04).clamp(14.0, 18.0),
             ),
-            SizedBox(width: screenWidth * 0.01),
-            Text(
-              'Works Offline',
-              style: TextStyle(
-                color: const Color(0xFFEADCB6),
-                fontSize: screenWidth * 0.03,
-                fontWeight: FontWeight.w500,
+            SizedBox(width: (screenWidth * 0.01).clamp(4.0, 6.0)),
+            Flexible(
+              child: Text(
+                'Works Offline',
+                style: TextStyle(
+                  color: const Color(0xFFEADCB6),
+                  fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -822,7 +851,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   Widget _buildLanguageSelectionSection(double screenWidth, double screenHeight) {
     return Container(
-      padding: EdgeInsets.all(screenWidth * 0.05),
+      padding: EdgeInsets.all((screenWidth * 0.05).clamp(12.0, 24.0)),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(16),
@@ -834,15 +863,19 @@ class _TranslationScreenState extends State<TranslationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Language Selection',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: screenWidth * 0.045,
-              fontWeight: FontWeight.w600,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Language Selection',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: (screenWidth * 0.045).clamp(16.0, 20.0),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
           
           _buildLanguageDropdown(
             value: _selectedSourceLanguage,
@@ -857,7 +890,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             screenHeight: screenHeight,
           ),
           
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
           
           Center(
             child: GestureDetector(
@@ -872,7 +905,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 }
               },
               child: Container(
-                padding: EdgeInsets.all(screenWidth * 0.03),
+                padding: EdgeInsets.all((screenWidth * 0.03).clamp(10.0, 14.0)),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEADCB6).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -884,13 +917,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 child: Icon(
                   Icons.swap_vert,
                   color: const Color(0xFFEADCB6),
-                  size: screenWidth * 0.06,
+                  size: (screenWidth * 0.06).clamp(20.0, 28.0),
                 ),
               ),
             ),
           ),
           
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: (screenHeight * 0.02).clamp(10.0, 20.0)),
           
           _buildLanguageDropdown(
             value: _selectedTargetLanguage,
@@ -919,7 +952,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+      padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.04).clamp(12.0, 18.0)),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12.0),
@@ -935,14 +968,15 @@ class _TranslationScreenState extends State<TranslationScreen> {
             hint,
             style: TextStyle(
               color: Colors.white70,
-              fontSize: screenWidth * 0.035,
+              fontSize: (screenWidth * 0.035).clamp(13.0, 16.0),
             ),
+            overflow: TextOverflow.ellipsis,
           ),
           isExpanded: true,
           dropdownColor: Colors.grey[800],
           style: TextStyle(
             color: Colors.white,
-            fontSize: screenWidth * 0.04,
+            fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
           ),
           items: items.map((String language) {
             return DropdownMenuItem<String>(
@@ -951,8 +985,9 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 language,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: screenWidth * 0.04,
+                  fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             );
           }).toList(),
@@ -964,10 +999,10 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   Widget _buildAudioStatusIndicator(double screenWidth, double screenHeight) {
     return Container(
-      margin: EdgeInsets.only(bottom: screenHeight * 0.025),
+      margin: EdgeInsets.only(bottom: (screenHeight * 0.025).clamp(12.0, 30.0)),
       padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.04,
-        vertical: screenHeight * 0.015,
+        horizontal: (screenWidth * 0.04).clamp(12.0, 18.0),
+        vertical: (screenHeight * 0.015).clamp(8.0, 16.0),
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFEADCB6).withOpacity(0.1),
@@ -980,22 +1015,24 @@ class _TranslationScreenState extends State<TranslationScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: screenWidth * 0.05,
-            height: screenWidth * 0.05,
+            width: (screenWidth * 0.05).clamp(18.0, 24.0),
+            height: (screenWidth * 0.05).clamp(18.0, 24.0),
             child: const CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEADCB6)),
             ),
           ),
-          SizedBox(width: screenWidth * 0.03),
+          SizedBox(width: (screenWidth * 0.03).clamp(10.0, 14.0)),
           Expanded(
             child: Text(
               'Playing: ${currentlyPlayingPhrase?.replaceAll('_', ' - ') ?? 'Audio'}',
               style: TextStyle(
                 color: const Color(0xFFEADCB6),
                 fontWeight: FontWeight.w500,
-                fontSize: screenWidth * 0.035,
+                fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
           GestureDetector(
@@ -1003,7 +1040,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             child: Icon(
               Icons.stop,
               color: const Color(0xFFEADCB6),
-              size: screenWidth * 0.05,
+              size: (screenWidth * 0.05).clamp(18.0, 24.0),
             ),
           ),
         ],
@@ -1020,21 +1057,27 @@ class _TranslationScreenState extends State<TranslationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
+          padding: EdgeInsets.symmetric(vertical: (screenHeight * 0.015).clamp(8.0, 18.0)),
           child: Row(
             children: [
               Icon(
                 _getCategoryIcon(categoryEntry.key),
                 color: const Color(0xFFEADCB6),
-                size: screenWidth * 0.05,
+                size: (screenWidth * 0.05).clamp(18.0, 24.0),
               ),
-              SizedBox(width: screenWidth * 0.02),
-              Text(
-                categoryEntry.key,
-                style: TextStyle(
-                  color: const Color(0xFFEADCB6),
-                  fontSize: screenWidth * 0.045,
-                  fontWeight: FontWeight.w600,
+              SizedBox(width: (screenWidth * 0.02).clamp(6.0, 10.0)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    categoryEntry.key,
+                    style: TextStyle(
+                      color: const Color(0xFFEADCB6),
+                      fontSize: (screenWidth * 0.045).clamp(16.0, 20.0),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -1045,7 +1088,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           return _buildPhraseCard(phraseEntry, screenWidth, screenHeight);
         }),
         
-        SizedBox(height: screenHeight * 0.025),
+        SizedBox(height: (screenHeight * 0.025).clamp(12.0, 30.0)),
       ],
     );
   }
@@ -1060,7 +1103,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     final phraseKey = phraseEntry.key;
     
     return Container(
-      margin: EdgeInsets.only(bottom: screenHeight * 0.015),
+      margin: EdgeInsets.only(bottom: (screenHeight * 0.015).clamp(8.0, 18.0)),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(12.0),
@@ -1113,7 +1156,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     final hasAudio = _hasAudioFile(phraseKey, language);
     
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.04),
+      padding: EdgeInsets.all((screenWidth * 0.04).clamp(12.0, 18.0)),
       child: Row(
         children: [
           Expanded(
@@ -1122,35 +1165,42 @@ class _TranslationScreenState extends State<TranslationScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      language,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.03,
-                        color: Colors.white.withOpacity(0.6),
-                        fontWeight: FontWeight.w500,
+                    Flexible(
+                      child: Text(
+                        language,
+                        style: TextStyle(
+                          fontSize: (screenWidth * 0.03).clamp(11.0, 14.0),
+                          color: Colors.white.withOpacity(0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: screenWidth * 0.02),
+                    SizedBox(width: (screenWidth * 0.02).clamp(6.0, 10.0)),
                     if (!hasAudio)
                       Icon(
                         Icons.volume_off,
-                        size: screenWidth * 0.03,
+                        size: (screenWidth * 0.03).clamp(10.0, 14.0),
                         color: Colors.orange.withOpacity(0.7),
                       ),
                   ],
                 ),
-                SizedBox(height: screenHeight * 0.005),
+                SizedBox(height: (screenHeight * 0.005).clamp(2.0, 6.0)),
                 Text(
                   text,
                   style: TextStyle(
-                    fontSize: screenWidth * 0.04,
+                    fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
                     color: textColor,
                     fontWeight: isSource ? FontWeight.w500 : FontWeight.w600,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
                 ),
               ],
             ),
           ),
+          
+          SizedBox(width: (screenWidth * 0.03).clamp(10.0, 14.0)),
           
           GestureDetector(
             onTap: hasAudio ? () {
@@ -1164,7 +1214,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.all(screenWidth * 0.02),
+              padding: EdgeInsets.all((screenWidth * 0.02).clamp(8.0, 12.0)),
               decoration: BoxDecoration(
                 color: isCurrentlyPlaying 
                     ? Colors.red.withOpacity(0.2)
@@ -1179,20 +1229,20 @@ class _TranslationScreenState extends State<TranslationScreen> {
                     ? Icon(
                         Icons.stop,
                         color: Colors.red,
-                        size: screenWidth * 0.06,
+                        size: (screenWidth * 0.06).clamp(20.0, 28.0),
                         key: const ValueKey('stop'),
                       )
                     : hasAudio
                         ? Icon(
                             isSource ? Icons.play_circle_outline : Icons.play_circle_filled,
                             color: textColor,
-                            size: screenWidth * 0.06,
+                            size: (screenWidth * 0.06).clamp(20.0, 28.0),
                             key: const ValueKey('play'),
                           )
                         : Icon(
                             Icons.volume_off,
                             color: Colors.grey,
-                            size: screenWidth * 0.06,
+                            size: (screenWidth * 0.06).clamp(20.0, 28.0),
                             key: const ValueKey('no_audio'),
                           ),
               ),

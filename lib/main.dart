@@ -121,14 +121,37 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    
+    // Add listeners to handle keyboard interactions
+    _nameFocusNode.addListener(() {
+      if (_nameFocusNode.hasFocus) {
+        setState(() {});
+      }
+    });
+    
+    _customSchoolFocusNode.addListener(() {
+      if (_customSchoolFocusNode.hasFocus) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = keyboardHeight > 0;
     
+    // Calculate available height
+    final topPadding = MediaQuery.of(context).padding.top;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final availableHeight = screenHeight - topPadding - bottomPadding - keyboardHeight;
+    
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
@@ -146,72 +169,105 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Container(
             color: Colors.black.withOpacity(0.5),
             child: SafeArea(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: screenHeight - 
-                               MediaQuery.of(context).padding.top - 
-                               MediaQuery.of(context).padding.bottom,
-                  ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                        maxWidth: screenWidth,
+                      ),
                   child: IntrinsicHeight(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.05,
-                        vertical: screenHeight * 0.02,
+                        horizontal: (screenWidth * 0.05).clamp(16.0, 40.0),
+                        vertical: (screenHeight * 0.02).clamp(12.0, 24.0),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: isKeyboardVisible ? screenHeight * 0.02 : screenHeight * 0.05),
+                          SizedBox(
+                            height: isKeyboardVisible 
+                              ? (screenHeight * 0.02).clamp(8.0, 16.0)
+                              : (screenHeight * 0.05).clamp(20.0, 40.0)
+                          ),
                           
                           // Logo/Title Box - centered and responsive
                           Center(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.08,
-                                vertical: screenHeight * 0.018,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: screenWidth * 0.85,
+                                minHeight: (screenHeight * 0.06).clamp(40.0, 60.0),
                               ),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white, width: 2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'HUNI SA TRIBU',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.06,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: (screenWidth * 0.08).clamp(20.0, 50.0),
+                                  vertical: (screenHeight * 0.018).clamp(12.0, 20.0),
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'HUNI SA TRIBU',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: (screenWidth * 0.06).clamp(18.0, 30.0),
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                           
-                          SizedBox(height: isKeyboardVisible ? screenHeight * 0.02 : screenHeight * 0.04),
+                          SizedBox(
+                            height: isKeyboardVisible 
+                              ? (screenHeight * 0.02).clamp(8.0, 16.0)
+                              : (screenHeight * 0.04).clamp(16.0, 32.0)
+                          ),
                           
                           // Welcome Text - responsive
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Welcome!',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: screenWidth * 0.07,
-                                fontWeight: FontWeight.w300,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Welcome!',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: (screenWidth * 0.07).clamp(20.0, 32.0),
+                                  fontWeight: FontWeight.w300,
+                                ),
                               ),
                             ),
                           ),
                           
-                          SizedBox(height: isKeyboardVisible ? screenHeight * 0.02 : screenHeight * 0.04),
+                          SizedBox(
+                            height: isKeyboardVisible 
+                              ? (screenHeight * 0.02).clamp(8.0, 16.0)
+                              : (screenHeight * 0.04).clamp(16.0, 32.0)
+                          ),
                           
                           // Transparent container with form inputs
                           Container(
-                            padding: EdgeInsets.all(screenWidth * 0.05),
+                            constraints: BoxConstraints(
+                              minHeight: (availableHeight * 0.3).clamp(200.0, 400.0),
+                              maxWidth: screenWidth,
+                            ),
+                            padding: EdgeInsets.all((screenWidth * 0.05).clamp(16.0, 30.0)),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 // Name Input Field
                                 _buildInputField(
@@ -232,20 +288,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   },
                                 ),
                                 
-                                SizedBox(height: screenHeight * 0.02),
+                                SizedBox(height: (screenHeight * 0.02).clamp(12.0, 20.0)),
                                 
                                 // Role Selection Dropdown
                                 _buildRoleDropdown(screenWidth, screenHeight),
                                 
                                 // School Selection Dropdown
                                 if (_showSchoolField) ...[
-                                  SizedBox(height: screenHeight * 0.02),
+                                  SizedBox(height: (screenHeight * 0.02).clamp(12.0, 20.0)),
                                   _buildSchoolDropdown(screenWidth, screenHeight),
                                 ],
                                 
                                 // Custom School Input Field
                                 if (_showSchoolField && _showCustomSchoolField) ...[
-                                  SizedBox(height: screenHeight * 0.02),
+                                  SizedBox(height: (screenHeight * 0.02).clamp(12.0, 20.0)),
                                   _buildInputField(
                                     label: 'Please specify your school',
                                     controller: _customSchoolController,
@@ -269,31 +325,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                           ),
                           
-                          SizedBox(height: isKeyboardVisible ? screenHeight * 0.02 : screenHeight * 0.04),
+                          SizedBox(
+                            height: isKeyboardVisible 
+                              ? (screenHeight * 0.02).clamp(8.0, 16.0)
+                              : (screenHeight * 0.04).clamp(16.0, 32.0)
+                          ),
                           
                           // Proceed Button - responsive
                           Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                                _proceedToNext();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFDF8D7),
-                                foregroundColor: Colors.black,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.1,
-                                  vertical: screenHeight * 0.018,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minWidth: (screenWidth * 0.4).clamp(120.0, 200.0),
+                                maxWidth: (screenWidth * 0.7).clamp(200.0, 300.0),
+                                minHeight: (screenHeight * 0.06).clamp(40.0, 60.0),
                               ),
-                              child: Text(
-                                'PROCEED',
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.04,
-                                  fontWeight: FontWeight.bold,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  _proceedToNext();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFDF8D7),
+                                  foregroundColor: Colors.black,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: (screenWidth * 0.1).clamp(24.0, 48.0),
+                                    vertical: (screenHeight * 0.018).clamp(12.0, 20.0),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'PROCEED',
+                                    style: TextStyle(
+                                      fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -301,12 +371,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           
                           const Expanded(child: SizedBox()),
                           
-                          SizedBox(height: isKeyboardVisible ? screenHeight * 0.02 : 0),
+                          SizedBox(
+                            height: isKeyboardVisible 
+                              ? (screenHeight * 0.02).clamp(8.0, 16.0)
+                              : 0
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -327,252 +403,321 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     required TextCapitalization textCapitalization,
     required Function(String) onSubmitted,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(8),
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.08).clamp(50.0, 80.0),
+        maxWidth: screenWidth,
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: screenHeight * 0.01,
-            left: screenWidth * 0.04,
-            child: Text(
-              label,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: (screenHeight * 0.01).clamp(6.0, 12.0),
+              left: (screenWidth * 0.04).clamp(12.0, 20.0),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: (screenWidth * 0.03).clamp(10.0, 14.0),
+                  fontWeight: FontWeight.w300,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            TextField(
+              controller: controller,
+              focusNode: focusNode,
               style: TextStyle(
-                color: Colors.white70,
-                fontSize: screenWidth * 0.03,
-                fontWeight: FontWeight.w300,
+                color: Colors.white,
+                fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.name,
+              textInputAction: textInputAction,
+              textCapitalization: textCapitalization,
+              inputFormatters: inputFormatters,
+              onTap: () {
+                focusNode.requestFocus();
+              },
+              onSubmitted: onSubmitted,
+              onTapOutside: (event) {
+                // Dismiss keyboard when tapping outside
+                FocusScope.of(context).unfocus();
+              },
+              decoration: InputDecoration(
+                hintText: hintText,
+                hintStyle: TextStyle(
+                  color: Colors.white54,
+                  fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                ),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.only(
+                  left: (screenWidth * 0.05).clamp(16.0, 30.0),
+                  right: (screenWidth * 0.05).clamp(16.0, 30.0),
+                  top: (screenHeight * 0.04).clamp(24.0, 36.0),
+                  bottom: (screenHeight * 0.018).clamp(12.0, 20.0),
+                ),
               ),
             ),
-          ),
-          TextField(
-            controller: controller,
-            focusNode: focusNode,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: screenWidth * 0.04,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.name,
-            textInputAction: textInputAction,
-            textCapitalization: textCapitalization,
-            inputFormatters: inputFormatters,
-            onTap: () {
-              focusNode.requestFocus();
-            },
-            onSubmitted: onSubmitted,
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: const TextStyle(color: Colors.white54),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(
-                left: screenWidth * 0.05,
-                right: screenWidth * 0.05,
-                top: screenHeight * 0.04,
-                bottom: screenHeight * 0.018,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildRoleDropdown(double screenWidth, double screenHeight) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(8),
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.08).clamp(50.0, 80.0),
+        maxWidth: screenWidth,
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: screenHeight * 0.01,
-            left: screenWidth * 0.04,
-            child: Text(
-              'Role',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: screenWidth * 0.03,
-                fontWeight: FontWeight.w300,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: (screenHeight * 0.01).clamp(6.0, 12.0),
+              left: (screenWidth * 0.04).clamp(12.0, 20.0),
+              child: Text(
+                'Role',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: (screenWidth * 0.03).clamp(10.0, 14.0),
+                  fontWeight: FontWeight.w300,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: screenHeight * 0.03, bottom: screenHeight * 0.01),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedRole,
-                isExpanded: true,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: screenWidth * 0.045,
-                  fontWeight: FontWeight.w500,
-                ),
-                dropdownColor: Colors.white,
-                items: <String>['Visitor', 'Student'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Center(
-                      child: Text(
-                        value,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: screenWidth * 0.045,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedRole = newValue!;
-                    _showSchoolField = (_selectedRole == 'Student');
-                    if (!_showSchoolField) {
-                      _selectedSchool = null;
-                    }
-                  });
-                  FocusScope.of(context).unfocus();
-                },
-                selectedItemBuilder: (BuildContext context) {
-                  return <String>['Visitor', 'Student'].map((String value) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.005),
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.045,
-                            fontWeight: FontWeight.w500,
+            Padding(
+              padding: EdgeInsets.only(
+                top: (screenHeight * 0.03).clamp(20.0, 30.0),
+                bottom: (screenHeight * 0.01).clamp(6.0, 12.0),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedRole,
+                  isExpanded: true,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: (screenWidth * 0.045).clamp(14.0, 18.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  dropdownColor: Colors.white,
+                  items: <String>['Visitor', 'Student'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: (screenWidth * 0.045).clamp(14.0, 18.0),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
                     );
-                  }).toList();
-                },
-                icon: Padding(
-                  padding: EdgeInsets.only(right: screenWidth * 0.05),
-                  child: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.white,
-                    size: screenWidth * 0.07,
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    // Dismiss keyboard first
+                    FocusScope.of(context).unfocus();
+                    
+                    // Then update state
+                    setState(() {
+                      _selectedRole = newValue!;
+                      _showSchoolField = (_selectedRole == 'Student');
+                      if (!_showSchoolField) {
+                        _selectedSchool = null;
+                        _showCustomSchoolField = false;
+                        _customSchoolController.clear();
+                      }
+                    });
+                  },
+                  selectedItemBuilder: (BuildContext context) {
+                    return <String>['Visitor', 'Student'].map((String value) {
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: (screenHeight * 0.005).clamp(4.0, 8.0)
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.045).clamp(14.0, 18.0),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList();
+                  },
+                  icon: Padding(
+                    padding: EdgeInsets.only(right: (screenWidth * 0.05).clamp(12.0, 20.0)),
+                    child: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                      size: (screenWidth * 0.07).clamp(24.0, 32.0),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSchoolDropdown(double screenWidth, double screenHeight) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(8),
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: (screenHeight * 0.08).clamp(50.0, 80.0),
+        maxWidth: screenWidth,
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: screenHeight * 0.01,
-            left: screenWidth * 0.04,
-            child: Text(
-              'What School?',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: screenWidth * 0.03,
-                fontWeight: FontWeight.w300,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: (screenHeight * 0.01).clamp(6.0, 12.0),
+              left: (screenWidth * 0.04).clamp(12.0, 20.0),
+              child: Text(
+                'What School?',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: (screenWidth * 0.03).clamp(10.0, 14.0),
+                  fontWeight: FontWeight.w300,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: screenHeight * 0.03, bottom: screenHeight * 0.01),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedSchool,
-                hint: Center(
-                  child: Text(
-                    'Select your school',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-                isExpanded: true,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: screenWidth * 0.04,
-                  fontWeight: FontWeight.w500,
-                ),
-                dropdownColor: Colors.white,
-                menuMaxHeight: screenHeight * 0.4,
-                items: _schoolOptions.map((String school) {
-                  return DropdownMenuItem<String>(
-                    value: school,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+            Padding(
+              padding: EdgeInsets.only(
+                top: (screenHeight * 0.03).clamp(20.0, 30.0),
+                bottom: (screenHeight * 0.01).clamp(6.0, 12.0),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedSchool,
+                  hint: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
                       child: Text(
-                        school,
+                        'Select your school',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: screenWidth * 0.035,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.white54,
+                          fontSize: (screenWidth * 0.04).clamp(12.0, 16.0),
+                          fontWeight: FontWeight.w400,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedSchool = newValue;
-                    _showCustomSchoolField = (newValue == 'Others');
-                    if (!_showCustomSchoolField) {
-                      _customSchoolController.clear();
-                    }
-                  });
-                  FocusScope.of(context).unfocus();
-                },
-                selectedItemBuilder: (BuildContext context) {
-                  return _schoolOptions.map((String school) {
-                    return Center(
+                  ),
+                  isExpanded: true,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: (screenWidth * 0.04).clamp(12.0, 16.0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  dropdownColor: Colors.white,
+                  menuMaxHeight: (screenHeight * 0.4).clamp(200.0, 350.0),
+                  items: _schoolOptions.map((String school) {
+                    return DropdownMenuItem<String>(
+                      value: school,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.005),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: (screenWidth * 0.02).clamp(6.0, 12.0)
+                        ),
                         child: Text(
                           school,
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.04,
+                            color: Colors.black,
+                            fontSize: (screenWidth * 0.035).clamp(11.0, 14.0),
                             fontWeight: FontWeight.w500,
                           ),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          maxLines: 2,
                         ),
                       ),
                     );
-                  }).toList();
-                },
-                icon: Padding(
-                  padding: EdgeInsets.only(right: screenWidth * 0.05),
-                  child: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.white,
-                    size: screenWidth * 0.07,
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    // Dismiss keyboard first
+                    FocusScope.of(context).unfocus();
+                    
+                    // Then update state
+                    setState(() {
+                      _selectedSchool = newValue;
+                      _showCustomSchoolField = (newValue == 'Others');
+                      if (!_showCustomSchoolField) {
+                        _customSchoolController.clear();
+                      } else {
+                        // Auto-focus custom school field after dropdown closes
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          if (mounted) {
+                            _customSchoolFocusNode.requestFocus();
+                          }
+                        });
+                      }
+                    });
+                  },
+                  selectedItemBuilder: (BuildContext context) {
+                    return _schoolOptions.map((String school) {
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: (screenHeight * 0.005).clamp(4.0, 8.0),
+                            horizontal: (screenWidth * 0.02).clamp(6.0, 12.0),
+                          ),
+                          child: Text(
+                            school,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.04).clamp(12.0, 16.0),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList();
+                  },
+                  icon: Padding(
+                    padding: EdgeInsets.only(right: (screenWidth * 0.05).clamp(12.0, 20.0)),
+                    child: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                      size: (screenWidth * 0.07).clamp(24.0, 32.0),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -666,118 +811,148 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-            padding: EdgeInsets.all(screenWidth * 0.06),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF2a2a2a),
-                  Color(0xFF1a1a1a),
-                  Color(0xFF0d0d0d),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: (screenWidth * 0.9).clamp(280.0, 400.0),
+              maxHeight: (screenHeight * 0.5).clamp(250.0, 400.0),
+            ),
+            child: Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: (screenWidth * 0.05).clamp(12.0, 24.0)
+              ),
+              padding: EdgeInsets.all((screenWidth * 0.06).clamp(16.0, 32.0)),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF2a2a2a),
+                    Color(0xFF1a1a1a),
+                    Color(0xFF0d0d0d),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.red.withOpacity(0.5),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.8),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.red.withOpacity(0.5),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.8),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: screenWidth * 0.18,
-                  height: screenWidth * 0.18,
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(screenWidth * 0.09),
-                    border: Border.all(
-                      color: Colors.red.withOpacity(0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.red,
-                    size: screenWidth * 0.09,
-                  ),
-                ),
-                
-                SizedBox(height: screenHeight * 0.025),
-                
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                SizedBox(height: screenHeight * 0.015),
-                
-                Text(
-                  message,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: screenWidth * 0.04,
-                    fontWeight: FontWeight.w300,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                SizedBox(height: screenHeight * 0.03),
-                
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.of(context).pop();
-                      
-                      if (title.contains('Name')) {
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          _nameFocusNode.requestFocus();
-                        });
-                      } else if (title.contains('Custom School') || (title.contains('School') && _selectedSchool == 'Others')) {
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          _customSchoolFocusNode.requestFocus();
-                        });
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFDF8D7),
-                      foregroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.018),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: (screenWidth * 0.18).clamp(50.0, 80.0),
+                    height: (screenWidth * 0.18).clamp(50.0, 80.0),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular((screenWidth * 0.09).clamp(25.0, 40.0)),
+                      border: Border.all(
+                        color: Colors.red.withOpacity(0.3),
+                        width: 2,
                       ),
-                      elevation: 2,
                     ),
+                    child: Icon(
+                      icon,
+                      color: Colors.red,
+                      size: (screenWidth * 0.09).clamp(28.0, 40.0),
+                    ),
+                  ),
+                  
+                  SizedBox(height: (screenHeight * 0.025).clamp(12.0, 20.0)),
+                  
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: (screenWidth * 0.05).clamp(16.0, 22.0),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  
+                  SizedBox(height: (screenHeight * 0.015).clamp(8.0, 16.0)),
+                  
+                  Flexible(
                     child: Text(
-                      'GOT IT',
+                      message,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: (screenWidth * 0.04).clamp(12.0, 16.0),
+                        fontWeight: FontWeight.w300,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  
+                  SizedBox(height: (screenHeight * 0.03).clamp(16.0, 24.0)),
+                  
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: (screenHeight * 0.06).clamp(40.0, 60.0),
+                      maxWidth: double.infinity,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.of(context).pop();
+                          
+                          if (title.contains('Name')) {
+                            Future.delayed(const Duration(milliseconds: 100), () {
+                              _nameFocusNode.requestFocus();
+                            });
+                          } else if (title.contains('Custom School') || (title.contains('School') && _selectedSchool == 'Others')) {
+                            Future.delayed(const Duration(milliseconds: 100), () {
+                              _customSchoolFocusNode.requestFocus();
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFDF8D7),
+                          foregroundColor: Colors.black,
+                          padding: EdgeInsets.symmetric(
+                            vertical: (screenHeight * 0.018).clamp(12.0, 18.0)
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'GOT IT',
+                            style: TextStyle(
+                              fontSize: (screenWidth * 0.04).clamp(14.0, 18.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

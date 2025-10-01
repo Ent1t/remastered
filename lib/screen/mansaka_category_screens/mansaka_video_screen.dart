@@ -724,11 +724,14 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
             child: Row(
               children: [
-                Text(
-                  '${_filteredVideos.length} result${_filteredVideos.length == 1 ? '' : 's'} for "$_searchQuery"',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: _getFontSize(context, 14),
+                Flexible(
+                  child: Text(
+                    '${_filteredVideos.length} result${_filteredVideos.length == 1 ? '' : 's'} for "$_searchQuery"',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: _getFontSize(context, 14),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -861,6 +864,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                   right: 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         'Featured: ${_featuredVideo!.title}',
@@ -869,6 +873,8 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                           fontSize: _getFontSize(context, 18),
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -877,7 +883,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                           color: Colors.white.withOpacity(0.8),
                           fontSize: _getFontSize(context, 14),
                         ),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -916,13 +922,16 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
             size: 20,
           ),
           const SizedBox(width: 8),
-          Text(
-            'Browse Mansaka videos',
-            style: TextStyle(
-              color: const Color(0xFFB19CD9),
-              fontSize: _getFontSize(context, 16),
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+          Flexible(
+            child: Text(
+              'Browse Mansaka videos',
+              style: TextStyle(
+                color: const Color(0xFFB19CD9),
+                fontSize: _getFontSize(context, 16),
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -1043,36 +1052,46 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                     flex: 2,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       color: const Color(0xFF2A2A2A),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            video.title,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: _getFontSize(context, 14),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
                           Expanded(
-                            child: Text(
-                              video.description,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: _getFontSize(context, 12),
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  video.title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: _getFontSize(context, 13),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Expanded(
+                                  child: Text(
+                                    video.description,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.6),
+                                      fontSize: _getFontSize(context, 11),
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFB19CD9).withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
@@ -1084,6 +1103,8 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                                 fontSize: _getFontSize(context, 10),
                                 fontWeight: FontWeight.w500,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

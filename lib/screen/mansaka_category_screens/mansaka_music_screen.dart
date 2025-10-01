@@ -1055,6 +1055,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
             padding: EdgeInsets.all(isLarge ? 16 : 12),
             child: Row(
               children: [
+                // Album Art
                 Container(
                   width: isLarge ? 70 : 60,
                   height: isLarge ? 70 : 60,
@@ -1101,10 +1102,13 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                 
                 SizedBox(width: isLarge ? 20 : 16),
                 
+                // Track Info - Fixed to handle long titles properly
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Title - handles long text properly
                       Text(
                         track.title,
                         style: TextStyle(
@@ -1113,45 +1117,35 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               : Colors.white,
                           fontSize: _getResponsiveFontSize(context, 16),
                           fontWeight: FontWeight.bold,
+                          height: 1.2,
                         ),
-<<<<<<< HEAD
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: isLarge ? 6 : 4),
+                      
+                      // Description - handles long text
                       Text(
                         track.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: _getResponsiveFontSize(context, 14),
+                          fontSize: _getResponsiveFontSize(context, 13),
+                          height: 1.3,
                         ),
-                        maxLines: isLarge ? 1 : 2,
+                        maxLines: isLarge ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: isLarge ? 6 : 4),
-=======
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: isLarge ? 6 : 4),
-                      Text(
-                        track.description,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: _getResponsiveFontSize(context, 14),
-                        ),
-                        maxLines: isLarge ? 1 : 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: isLarge ? 6 : 4),
->>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
+                      
+                      // Category, Artist, and Duration - wrapped for flexibility
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
+                          // Category badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFB19CD9).withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
@@ -1160,22 +1154,29 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               track.category,
                               style: TextStyle(
                                 color: const Color(0xFFB19CD9),
-                                fontSize: _getResponsiveFontSize(context, 12),
-                                fontWeight: FontWeight.w500,
+                                fontSize: _getResponsiveFontSize(context, 11),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          Text(
-                            '• ${track.artist}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
-                              fontSize: _getResponsiveFontSize(context, 12),
+                          
+                          // Artist - flexible width
+                          Flexible(
+                            child: Text(
+                              '• ${track.artist}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: _getResponsiveFontSize(context, 12),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
+                          
+                          // Duration badge
                           if (hasDuration)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                               decoration: BoxDecoration(
                                 color: Colors.black.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(8),
@@ -1188,7 +1189,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                                     size: 10,
                                     color: Colors.white.withOpacity(0.6),
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 3),
                                   Text(
                                     _formatDuration(track.duration!),
                                     style: TextStyle(
@@ -1219,6 +1220,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                 
                 const SizedBox(width: 8),
                 
+                // Play/Pause Button
                 GestureDetector(
                   onTap: () {
                     HapticFeedback.mediumImpact();
@@ -1231,22 +1233,24 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                       color: const Color(0xFFB19CD9),
                       borderRadius: BorderRadius.circular(isLarge ? 24 : 20),
                     ),
-                    child: _isLoadingAudio && isCurrentTrack
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    child: Center(
+                      child: _isLoadingAudio && isCurrentTrack
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Icon(
+                              isCurrentTrack && _isPlaying 
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: Colors.white,
+                              size: isLarge ? 28 : 24,
                             ),
-                          )
-                        : Icon(
-                            isCurrentTrack && _isPlaying 
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.white,
-                            size: isLarge ? 28 : 24,
-                          ),
+                    ),
                   ),
                 ),
               ],
@@ -1317,6 +1321,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _currentTrack!.title,
@@ -1324,17 +1329,19 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                         color: Colors.white,
                         fontSize: _getResponsiveFontSize(context, 14),
                         fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       _currentTrack!.artist,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: _getResponsiveFontSize(context, 12),
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],

@@ -69,9 +69,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
   double _getCardHeight(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 800) return 100;
-    if (width >= 600) return 90;
-    return 80;
+    if (width >= 800) return 110;
+    if (width >= 600) return 100;
+    return 90;
   }
 
   double _getPlayerHeight(BuildContext context) {
@@ -1083,12 +1083,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                               : Colors.white,
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
+                          height: 1.3,
                         ),
-<<<<<<< HEAD
-                        maxLines: 3,
-=======
-                        maxLines: 1,
->>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
@@ -1097,8 +1094,9 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
                           fontSize: descriptionFontSize,
+                          height: 1.3,
                         ),
-                        maxLines: width >= 800 ? 2 : 1,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
@@ -1296,25 +1294,20 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                           color: Colors.white,
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
+                          height: 1.3,
                         ),
-<<<<<<< HEAD
-                        maxLines: 3,
-=======
                         maxLines: 1,
->>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         _currentTrack!.artist,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
                           fontSize: artistFontSize,
+                          height: 1.2,
                         ),
-<<<<<<< HEAD
-                        maxLines: 3,
-=======
                         maxLines: 1,
->>>>>>> de1a22781842b2a4c8cbfae27f2e04abbda8f376
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

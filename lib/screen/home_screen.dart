@@ -526,10 +526,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     
-    // Responsive zone heights based on screen height
-    final zone1Height = screenHeight * 0.35;
-    final zone2Height = screenHeight * 0.65;
-    final zone3Height = screenHeight * 0.15;
+    // Responsive zone heights with minimum constraints
+    final zone1Height = (screenHeight * 0.35).clamp(200.0, double.infinity);
+    final zone2Height = (screenHeight * 0.65).clamp(400.0, double.infinity);
+    final zone3Height = (screenHeight * 0.15).clamp(80.0, 150.0);
     
     return SingleChildScrollView(
       controller: _scrollController,
@@ -543,26 +543,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // ZONE 1 - Top content section
           Container(
             width: double.infinity,
+            constraints: BoxConstraints(
+              minHeight: zone1Height,
+            ),
             decoration: const BoxDecoration(
               color: Colors.black,
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.06,
-                vertical: screenHeight * 0.015,
+                horizontal: (screenWidth * 0.06).clamp(16.0, 30.0),
+                vertical: (screenHeight * 0.015).clamp(8.0, 20.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(height: screenHeight * 0.015),
+                  SizedBox(height: (screenHeight * 0.015).clamp(8.0, 20.0)),
                   
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.08,
-                        vertical: screenHeight * 0.02,
+                        horizontal: (screenWidth * 0.08).clamp(20.0, 40.0),
+                        vertical: (screenHeight * 0.02).clamp(12.0, 25.0),
                       ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.white, width: 2),
@@ -570,25 +573,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'HUNI SA TRIBU',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.06,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'HUNI SA TRIBU',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.06).clamp(16.0, 28.0),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                              ),
                             ),
                           ),
-                          SizedBox(height: screenHeight * 0.01),
+                          SizedBox(height: (screenHeight * 0.01).clamp(4.0, 12.0)),
                           Padding(
-                            padding: EdgeInsets.only(left: screenWidth * 0.07),
-                            child: Text(
-                              'Cultural Heritage Museum',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: screenWidth * 0.035,
-                                letterSpacing: 1,
+                            padding: EdgeInsets.only(left: (screenWidth * 0.07).clamp(12.0, 30.0)),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Cultural Heritage Museum',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                                  letterSpacing: 1,
+                                ),
                               ),
                             ),
                           ),
@@ -597,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  SizedBox(height: screenHeight * 0.02),
+                  SizedBox(height: (screenHeight * 0.02).clamp(12.0, 25.0)),
                   
                   Align(
                     alignment: Alignment.centerLeft,
@@ -605,27 +617,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'Your Portal to a',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.05,
-                            fontWeight: FontWeight.w300,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Your Portal to a',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.05).clamp(14.0, 22.0),
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ),
-                        Text(
-                          'Rich Heritage.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.06,
-                            fontWeight: FontWeight.bold,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Rich Heritage.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: (screenWidth * 0.06).clamp(16.0, 26.0),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                   
-                  SizedBox(height: screenHeight * 0.015),
+                  SizedBox(height: (screenHeight * 0.015).clamp(8.0, 20.0)),
                 ],
               ),
             ),
@@ -639,7 +659,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           
           // ZONE 2 - Journey begins section
           Container(
-            height: zone2Height,
+            constraints: BoxConstraints(
+              minHeight: zone2Height,
+            ),
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -653,141 +675,161 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.black.withOpacity(0.2),
               ),
               child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.06),
+                padding: EdgeInsets.all((screenWidth * 0.06).clamp(16.0, 30.0)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: screenHeight * 0.01),
+                    SizedBox(height: (screenHeight * 0.01).clamp(8.0, 15.0)),
                     
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Your journey',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.045,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            'begins with a scan.',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.045,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: screenHeight * 0.01),
-                          Wrap(
-                            children: [
-                              Text(
-                                'Scan QR codes on museum exhibits to ',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: screenWidth * 0.035,
-                                ),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Your journey',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.045).clamp(14.0, 20.0),
+                                fontWeight: FontWeight.w500,
                               ),
-                              Text(
-                                'explore',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.035,
-                                  fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'begins with a scan.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (screenWidth * 0.045).clamp(14.0, 20.0),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: (screenHeight * 0.01).clamp(6.0, 12.0)),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              return RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Scan QR codes on museum exhibits to ',
+                                    ),
+                                    TextSpan(
+                                      text: 'explore',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: ' the rich culture of indigenous tribes',
+                                    ),
+                                  ],
                                 ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(height: (screenHeight * 0.04).clamp(20.0, 50.0)),
+                    
+                    // QR Scanner Card - Responsive with constraints
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final maxSize = constraints.maxWidth * 0.7;
+                        final containerSize = maxSize.clamp(200.0, 300.0);
+                        
+                        return Container(
+                          width: containerSize,
+                          height: containerSize,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border.all(
+                              color: const Color(0xFFE0D4BE),
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.2),
+                                blurRadius: 2,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          Text(
-                            'the rich culture of indigenous tribes',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: screenWidth * 0.035,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.black.withOpacity(0.6),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: screenHeight * 0.04),
-                    
-                    // QR Scanner Card - Responsive
-                    Container(
-                      width: screenWidth * 0.7,
-                      height: screenWidth * 0.7,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(
-                          color: const Color(0xFFE0D4BE),
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withOpacity(0.2),
-                            blurRadius: 2,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.black.withOpacity(0.6),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: GestureDetector(
-                                onTap: () {
-                                  HapticFeedback.lightImpact();
-                                  _openQRScanner();
-                                },
-                                child: _buildQRScanButton(screenWidth),
-                              ),
-                            ),
-                            
-                            SizedBox(height: screenHeight * 0.03),
-                            
-                            Center(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.04,
-                                  vertical: screenHeight * 0.01,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'SCAN HERE',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: const Color(0xFFE0D4BE),
-                                    fontSize: screenWidth * 0.045,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 4,
-                                        color: Colors.black.withOpacity(0.8),
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      HapticFeedback.lightImpact();
+                                      _openQRScanner();
+                                    },
+                                    child: _buildQRScanButton(containerSize),
                                   ),
                                 ),
-                              ),
+                                
+                                SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
+                                
+                                Center(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: (screenWidth * 0.04).clamp(12.0, 20.0),
+                                      vertical: (screenHeight * 0.01).clamp(6.0, 12.0),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        'SCAN HERE',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: const Color(0xFFE0D4BE),
+                                          fontSize: (screenWidth * 0.045).clamp(14.0, 20.0),
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 2,
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 4,
+                                              color: Colors.black.withOpacity(0.8),
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                     
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: (screenHeight * 0.03).clamp(15.0, 40.0)),
                   ],
                 ),
               ),
@@ -796,7 +838,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           
           // ZONE 3 - About the Tribes header
           Container(
-            height: zone3Height,
+            constraints: BoxConstraints(
+              minHeight: zone3Height,
+            ),
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -814,25 +858,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.black.withOpacity(0.5),
               ),
               child: Center(
-                child: Text(
-                  'ABOUT THE TRIBES',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: screenWidth * 0.08,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
-                    shadows: const [
-                      Shadow(
-                        blurRadius: 8,
-                        color: Colors.black,
-                        offset: Offset(0, 2),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'ABOUT THE TRIBES',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: (screenWidth * 0.08).clamp(20.0, 36.0),
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 8,
+                            color: Colors.black,
+                            offset: Offset(0, 2),
+                          ),
+                          Shadow(
+                            blurRadius: 4,
+                            color: Colors.black,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
                       ),
-                      Shadow(
-                        blurRadius: 4,
-                        color: Colors.black,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -862,10 +912,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                padding: EdgeInsets.symmetric(horizontal: (screenWidth * 0.06).clamp(16.0, 30.0)),
                 child: Column(
                   children: [
-                    SizedBox(height: screenHeight * 0.05),
+                    SizedBox(height: (screenHeight * 0.05).clamp(20.0, 50.0)),
                     _buildTribeCard(
                       title: "KAGAN",
                       description: "The Kagan people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
@@ -873,7 +923,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                     ),
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
                     _buildTribeCard(
                       title: "MANDAYA",
                       description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
@@ -881,7 +931,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                     ),
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
                     _buildTribeCard(
                       title: "MANSAKA",
                       description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
@@ -889,7 +939,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                     ),
-                    SizedBox(height: screenHeight * 0.1),
+                    SizedBox(height: (screenHeight * 0.1).clamp(40.0, 100.0)),
                   ],
                 ),
               ),
@@ -900,8 +950,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQRScanButton(double screenWidth) {
-    final buttonSize = screenWidth * 0.35;
+  Widget _buildQRScanButton(double containerSize) {
+    final buttonSize = (containerSize * 0.35).clamp(60.0, 120.0);
     final innerSize = buttonSize * 0.9;
     final gridSize = buttonSize * 0.35;
     
@@ -1001,30 +1051,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }) {
     return Container(
       margin: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.01,
-        horizontal: screenWidth * 0.01,
+        vertical: (screenHeight * 0.01).clamp(6.0, 15.0),
+        horizontal: (screenWidth * 0.01).clamp(4.0, 10.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: screenHeight * 0.015),
+            padding: EdgeInsets.only(bottom: (screenHeight * 0.015).clamp(8.0, 20.0)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: const Color(0xFFDBCCB5),
-                    fontSize: screenWidth * 0.07,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 1.2,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: const Color(0xFFDBCCB5),
+                      fontSize: (screenWidth * 0.07).clamp(20.0, 32.0),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.008),
+                SizedBox(height: (screenHeight * 0.008).clamp(4.0, 10.0)),
                 Container(
-                  width: screenWidth * 0.2,
+                  width: (screenWidth * 0.2).clamp(60.0, 100.0),
                   height: 3,
                   color: const Color(0xFFEADCB6),
                 ),
@@ -1049,7 +1103,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Column(
                 children: [
                   SizedBox(
-                    height: screenHeight * 0.25,
+                    height: (screenHeight * 0.25).clamp(150.0, 300.0),
                     width: double.infinity,
                     child: Stack(
                       children: [
@@ -1101,12 +1155,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(screenWidth * 0.05),
+                    padding: EdgeInsets.all((screenWidth * 0.05).clamp(12.0, 24.0)),
                     child: Text(
                       description,
                       style: TextStyle(
                         color: const Color(0xFFC5C6C7),
-                        fontSize: screenWidth * 0.04,
+                        fontSize: (screenWidth * 0.04).clamp(13.0, 18.0),
                         fontFamily: 'Regular',
                         height: 1.6,
                         letterSpacing: 0.3,
@@ -1120,7 +1174,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           
           Padding(
-            padding: EdgeInsets.only(top: screenHeight * 0.02),
+            padding: EdgeInsets.only(top: (screenHeight * 0.02).clamp(12.0, 25.0)),
             child: Align(
               alignment: Alignment.centerRight,
               child: _buildExploreButton(title, screenWidth, screenHeight),
@@ -1132,94 +1186,102 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildExploreButton(String title, double screenWidth, double screenHeight) {
-    final buttonWidth = screenWidth * 0.3;
-    final buttonHeight = screenHeight * 0.045;
+    final buttonWidth = (screenWidth * 0.3).clamp(90.0, 130.0);
+    final buttonHeight = (screenHeight * 0.045).clamp(35.0, 55.0);
     
-    return SizedBox(
-      height: buttonHeight * 1.5,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Positioned(
-            right: buttonWidth * 1.4,
-            top: 0,
-            child: Container(
-              width: buttonWidth * 1.3,
-              height: buttonHeight,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromARGB(200, 96, 95, 91),
-                    Color.fromARGB(200, 96, 95, 91),
-                  ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          height: buttonHeight * 1.5,
+          width: constraints.maxWidth,
+          child: Stack(
+            children: [
+              Positioned(
+                right: buttonWidth * 1.4,
+                top: 0,
+                child: Container(
+                  width: buttonWidth * 1.3,
+                  height: buttonHeight,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.fromARGB(200, 96, 95, 91),
+                        Color.fromARGB(200, 96, 95, 91),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(15),
               ),
-            ),
-          ),
-          
-          Positioned(
-            right: buttonWidth * 0.7,
-            top: 0,
-            child: Container(
-              width: buttonWidth * 1.15,
-              height: buttonHeight,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromARGB(255, 148, 147, 145),
-                    Color.fromARGB(255, 148, 147, 145),
-                  ],
+              
+              Positioned(
+                right: buttonWidth * 0.7,
+                top: 0,
+                child: Container(
+                  width: buttonWidth * 1.15,
+                  height: buttonHeight,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.fromARGB(255, 148, 147, 145),
+                        Color.fromARGB(255, 148, 147, 145),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(15),
               ),
-            ),
-          ),
 
-          Positioned(
-            right: screenWidth * 0.02,
-            top: 0,
-            child: Container(
-              width: buttonWidth,
-              height: buttonHeight,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFDF8D7),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                  color: const Color(0xFF8B6F47),
-                  width: 1,
-                ),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    _exploreMore(title);
-                  },
-                  borderRadius: BorderRadius.circular(15),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Explore more',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: screenWidth * 0.035,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
+              Positioned(
+                right: (screenWidth * 0.02).clamp(6.0, 15.0),
+                top: 0,
+                child: Container(
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFDF8D7),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: const Color(0xFF8B6F47),
+                      width: 1,
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _exploreMore(title);
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Explore more',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

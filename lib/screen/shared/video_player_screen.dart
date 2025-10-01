@@ -459,6 +459,21 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     );
   }
 
+  Widget _buildScrollingTitle() {
+    return Text(
+      widget.videoTitle,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: _titleFontSize,
+        fontWeight: FontWeight.bold,
+        height: 1.4,
+      ),
+      textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -539,8 +554,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                     ),
                                   ),
                                 ),
-                                const Spacer(),
-                                Flexible(
+                                SizedBox(width: _isLargeScreen ? 16 : 12),
+                                Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -554,21 +569,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      Text(
-                                        widget.videoTitle,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: _titleFontSize,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: _isLargeScreen ? 2 : 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                      SizedBox(height: 6),
+                                      _buildScrollingTitle(),
                                     ],
                                   ),
                                 ),
-                                const Spacer(),
+                                SizedBox(width: _isLargeScreen ? 16 : 12),
                                 SizedBox(width: _iconSize + 32),
                               ],
                             ),
