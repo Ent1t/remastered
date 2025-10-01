@@ -31,6 +31,36 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     }).toList();
   }
 
+  // Responsive helper methods
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 4; // Desktop large
+    if (width > 900) return 3;  // Desktop/Tablet landscape
+    if (width > 600) return 3;  // Tablet
+    return 2;                    // Mobile
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 40;
+    if (width > 900) return 32;
+    if (width > 600) return 24;
+    return 20;
+  }
+
+  double _getFeaturedImageHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 900) return 300;
+    if (width > 600) return 250;
+    return 200;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 900) return 0.9;
+    return 0.85;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +76,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
 
       debugPrint('Fetching Kagan events from: $_baseUrl');
       
-      // API call with query parameters for Kagan events
       const String apiUrl = '$_baseUrl?tribe=kagan&category=event';
       debugPrint('API URL: $apiUrl');
 
@@ -67,12 +96,10 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -100,7 +127,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -110,7 +136,6 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         final String? file = item['file']?.toString();
         final dynamic isArchived = item['is_archived'];
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -119,31 +144,24 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             file == null || file.isEmpty ||
             isArchived == null) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived');
           continue;
         }
         
-        // Filter: Must be Kagan tribe
         if (tribe.toLowerCase() != 'kagan') {
           debugPrint('Skipping non-Kagan item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Filter: Must be event category or image content
         if (category.toLowerCase() != 'event' && !_isImageContent(file)) {
           debugPrint('Skipping non-event content: $file (category: $category)');
           continue;
         }
 
-        // Create event item
         final event = EventItem(
           id: id.toString(),
           name: title,
@@ -242,28 +260,30 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildErrorState() {
+    final padding = _getHorizontalPadding(context);
+    
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load events',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: padding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
             ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load events',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               _errorMessage!,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
@@ -271,17 +291,17 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshEvents,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD4A574),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshEvents,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Retry'),
             ),
-            child: const Text('Retry'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -331,31 +351,46 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
     return RefreshIndicator(
       onRefresh: _refreshEvents,
       color: const Color(0xFFD4A574),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildFeaturedImage(),
-            const SizedBox(height: 24),
-            _buildDescription(),
-            const SizedBox(height: 32),
-            _buildBrowseSection(),
-            const SizedBox(height: 20),
-            _buildEventsGrid(),
-            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 1400,
+              ),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchBar(),
+                    const SizedBox(height: 20),
+                    _buildFeaturedImage(),
+                    const SizedBox(height: 24),
+                    _buildDescription(),
+                    const SizedBox(height: 32),
+                    _buildBrowseSection(),
+                    const SizedBox(height: 20),
+                    _buildEventsGrid(),
+                    SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildHeader() {
+    final padding = _getHorizontalPadding(context);
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = width > 600 ? 22.0 : 20.0;
+    
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(padding),
       child: Row(
         children: [
           Container(
@@ -376,12 +411,12 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'KAGAN EVENTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -393,8 +428,10 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildSearchBar() {
+    final padding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
@@ -448,10 +485,13 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildFeaturedImage() {
+    final padding = _getHorizontalPadding(context);
+    final height = _getFeaturedImageHeight(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: Container(
-        height: 200,
+        height: height,
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -497,8 +537,12 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildDescription() {
+    final padding = _getHorizontalPadding(context);
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = width > 600 ? 17.0 : 16.0;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -506,7 +550,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
             'Browse through a collection of historical and contemporary photographs showcasing Kagan events, ceremonies, and cultural celebrations that preserve their rich heritage.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+              fontSize: fontSize,
               height: 1.6,
               letterSpacing: 0.5,
             ),
@@ -517,13 +561,17 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildBrowseSection() {
+    final padding = _getHorizontalPadding(context);
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = width > 600 ? 22.0 : 20.0;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: Text(
         'Browse events (${_filteredEvents.length})',
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -535,16 +583,22 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
       return _buildNoResults();
     }
 
+    final padding = _getHorizontalPadding(context);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final width = MediaQuery.of(context).size.width;
+    final spacing = width > 900 ? 20.0 : 16.0;
+    final aspectRatio = _getChildAspectRatio(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          childAspectRatio: aspectRatio,
         ),
         itemCount: _filteredEvents.length,
         itemBuilder: (context, index) {
@@ -555,8 +609,10 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
   }
 
   Widget _buildNoResults() {
+    final padding = _getHorizontalPadding(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -789,8 +845,19 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxHeight = screenHeight * 0.9;
     
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: maxHeight,
+        maxWidth: 800,
+      ),
+      margin: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width > 800 
+            ? (MediaQuery.of(context).size.width - 800) / 2 
+            : 0,
+      ),
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -798,10 +865,11 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildHandle(),
           _buildHeader(),
-          Expanded(
+          Flexible(
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
@@ -863,6 +931,9 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   }
 
   Widget _buildEventCard(EventItem event) {
+    final width = MediaQuery.of(context).size.width;
+    final imageHeight = width > 600 ? 300.0 : 250.0;
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -872,7 +943,7 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           GestureDetector(
             onTap: () => _showFullScreenImage(event),
             child: Container(
-              height: 250,
+              height: imageHeight,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -1222,6 +1293,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   'Kagan Event',

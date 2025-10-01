@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Add this import for haptic feedback
-import 'qr_scanner_screen.dart'; // Add this import
-import 'translation_screen.dart'; // ADD THIS IMPORT
+import 'package:flutter/services.dart';
+import 'qr_scanner_screen.dart';
+import 'translation_screen.dart';
 import 'tribes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,30 +17,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
   
-  // Animation controllers for scroll indicator
   late AnimationController _fadeController;
   late AnimationController _pulseController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _pulseAnimation;
-  
-  // Animation controller for back button fade
   late AnimationController _backButtonFadeController;
   late Animation<double> _backButtonFadeAnimation;
   
   bool _showScrollIndicator = true;
-  bool _userHasScrolled = false; // Track if user has scrolled
-
-  // Background zone heights (adjusted for better proportions)
-  static const double zone1Height = 303.0; // Increased to fix 17px overflow
-  static const double zone2Height = 560.0; // Increased to show full QR content
-  static const double zone3Height = 130.0; // "About the Tribes" header section
-  // Zone 4 continues for the rest of the scrollable content
+  bool _userHasScrolled = false;
 
   @override
   void initState() {
     super.initState();
     
-    // Initialize animation controllers
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -51,13 +41,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
     );
     
-    // Initialize back button fade controller
     _backButtonFadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     
-    // Initialize animations
     _fadeAnimation = Tween<double>(
       begin: 1.0,
       end: 0.0,
@@ -74,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
     
-    // Initialize back button fade animation (0.0 = hidden, 1.0 = visible)
     _backButtonFadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -83,19 +70,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
     
-    // Start the initial animations
     _startInitialAnimations();
-    
-    // Add scroll listener
     _scrollController.addListener(_onScroll);
   }
   
   void _startInitialAnimations() {
-    // Start with full opacity
     _fadeController.reset();
-    _backButtonFadeController.forward(); // Start with back button visible at top
-    
-    // Start pulsing animation and keep it running until user scrolls
+    _backButtonFadeController.forward();
     _pulseController.repeat(reverse: true);
   }
   
@@ -110,22 +91,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    // Hide scroll indicator when user starts scrolling (only on home screen)
     if (_currentIndex == 0 && _scrollController.offset > 10 && _showScrollIndicator && !_userHasScrolled) {
-      _userHasScrolled = true; // Mark that user has scrolled
+      _userHasScrolled = true;
       _hideScrollIndicator();
     }
     
-    // Handle back button fade based on scroll position - should come back when at very top
     if (_currentIndex == 0) {
       if (_scrollController.offset <= 5) {
-        // Show back button when very close to top (within 5px)
         if (_backButtonFadeController.status != AnimationStatus.forward && 
             _backButtonFadeController.status != AnimationStatus.completed) {
           _backButtonFadeController.forward();
         }
       } else {
-        // Hide back button when scrolled away from top
         if (_backButtonFadeController.status != AnimationStatus.reverse && 
             _backButtonFadeController.status != AnimationStatus.dismissed) {
           _backButtonFadeController.reverse();
@@ -135,14 +112,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showScrollIndicatorForCurrentTab() {
-    // Reset and show scroll indicator when switching to home tab
     if (mounted) {
       setState(() {
         _showScrollIndicator = true;
-        _userHasScrolled = false; // Reset scroll tracking
+        _userHasScrolled = false;
       });
       _fadeController.reset();
-      _backButtonFadeController.forward(); // Show back button when returning to top
+      _backButtonFadeController.forward();
       _pulseController.repeat(reverse: true);
     }
   }
@@ -154,14 +130,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       body: SafeArea(
         child: Stack(
           children: [
-            // Main content based on current index
             _currentIndex == 0 
               ? _buildWelcomeScreenWithScrollingBackgrounds() 
               : _currentIndex == 1 
                 ? const TribesScreen()
                 : const TranslationScreen(),
             
-            // Back Button - Only visible on Home screen with fade animation
             if (_currentIndex == 0)
               Positioned(
                 top: 16,
@@ -177,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             
-            // Scroll Indicator - Only visible on Home screen and when user hasn't scrolled
             if (_currentIndex == 0 && _showScrollIndicator)
               Positioned(
                 bottom: 8,
@@ -328,7 +301,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Info Icon
                 Container(
                   width: 70,
                   height: 70,
@@ -349,7 +321,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 
                 const SizedBox(height: 20),
                 
-                // Dialog Title
                 const Text(
                   'Return to Login?',
                   style: TextStyle(
@@ -363,7 +334,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 
                 const SizedBox(height: 12),
                 
-                // Current user info
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -466,7 +436,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 
                 const SizedBox(height: 16),
                 
-                // Dialog Message
                 Text(
                   'Going back will allow you to change your name, role, or school information. Are you sure you want to return to the login screen?',
                   style: TextStyle(
@@ -480,7 +449,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 
                 const SizedBox(height: 24),
                 
-                // Action Buttons
                 Row(
                   children: [
                     Expanded(
@@ -548,19 +516,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _returnToLogin() {
     HapticFeedback.mediumImpact();
-    
-    // Clear the global user data
-    // GlobalData.userData = null;
-    // Global.userData = null;
-    
-    // Navigate back to the welcome screen (login screen)
     Navigator.of(context).pushNamedAndRemoveUntil(
-      '/', // This assumes your main route is the WelcomeScreen
-      (route) => false, // Remove all previous routes
+      '/',
+      (route) => false,
     );
   }
 
   Widget _buildWelcomeScreenWithScrollingBackgrounds() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Responsive zone heights based on screen height
+    final zone1Height = screenHeight * 0.35;
+    final zone2Height = screenHeight * 0.65;
+    final zone3Height = screenHeight * 0.15;
+    
     return SingleChildScrollView(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(
@@ -570,71 +540,76 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ZONE 1 - Top content section with solid black background
+          // ZONE 1 - Top content section
           Container(
-            height: zone1Height - 50, // Leave space for the divider
             width: double.infinity,
             decoration: const BoxDecoration(
-              color: Colors.black, // Changed to solid black background
+              color: Colors.black,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.06,
+                vertical: screenHeight * 0.015,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 15), // Reduced from 20
+                  SizedBox(height: screenHeight * 0.015),
                   
-                  // Main Title Box
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18), // Reduced from 20
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.08,
+                        vertical: screenHeight * 0.02,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.white, width: 2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'HUNI SA TRIBU',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 24,
+                              fontSize: screenWidth * 0.06,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 2,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: screenHeight * 0.01),
                           Padding(
-                            padding: EdgeInsets.only(left: 28),
+                            padding: EdgeInsets.only(left: screenWidth * 0.07),
                             child: Text(
                               'Cultural Heritage Museum',
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 14,
+                                fontSize: screenWidth * 0.035,
                                 letterSpacing: 1,
                               ),
-                            ),  
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
                   
-                  const SizedBox(height: 25), // Reduced from 30
+                  SizedBox(height: screenHeight * 0.02),
                   
-                  // Portal Text
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'Your Portal to a',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: screenWidth * 0.05,
                             fontWeight: FontWeight.w300,
                           ),
                         ),
@@ -642,28 +617,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           'Rich Heritage.',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: screenWidth * 0.06,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
                   ),
+                  
+                  SizedBox(height: screenHeight * 0.015),
                 ],
               ),
             ),
           ),
           
-          // Divider line between Zone 1 and Zone 2
           Container(
             width: double.infinity,
             height: 3,
             color: Colors.white.withOpacity(0.3),
           ),
           
-          // ZONE 2 - Journey begins section with background image
+          // ZONE 2 - Journey begins section
           Container(
-            height: zone2Height - 50,
+            height: zone2Height,
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -673,19 +649,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             child: Container(
-              // Very light overlay to maintain some text readability
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.2),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(screenWidth * 0.06),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 5), // Reduced from 13 - move text higher
+                    SizedBox(height: screenHeight * 0.01),
                     
-                    // Journey begins text - moved higher
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             'Your journey',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: screenWidth * 0.045,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -702,25 +676,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             'begins with a scan.',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: screenWidth * 0.045,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5), // Reduced from 16 - move text higher
-                          Row(
+                          SizedBox(height: screenHeight * 0.01),
+                          Wrap(
                             children: [
                               Text(
                                 'Scan QR codes on museum exhibits to ',
                                 style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 14,
+                                  fontSize: screenWidth * 0.035,
                                 ),
                               ),
                               Text(
                                 'explore',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: screenWidth * 0.035,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -730,61 +704,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             'the rich culture of indigenous tribes',
                             style: TextStyle(
                               color: Colors.white70,
-                              fontSize: 14,
+                              fontSize: screenWidth * 0.035,
                             ),
                           ),
                         ],
                       ),
                     ),
                     
-                    const SizedBox(height: 35), // Reduced from 50 - move QR scanner higher
+                    SizedBox(height: screenHeight * 0.04),
                     
-                    // QR Scanner Card - transparent with border and black overlay inside
+                    // QR Scanner Card - Responsive
                     Container(
-                      width: 280, // Same width
-                      height: 280, // Increased height from 200 to 280
+                      width: screenWidth * 0.7,
+                      height: screenWidth * 0.7,
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(0, 255, 249, 249), // Fully transparent background
+                        color: Colors.transparent,
                         border: Border.all(
-                          color: const Color(0xFFE0D4BE), // Border color as requested
+                          color: const Color(0xFFE0D4BE),
                           width: 3,
                         ),
-                        borderRadius: BorderRadius.circular(8), // Less rounded for more box-like
+                        borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
+                            color: Colors.white.withOpacity(0.2),
                             blurRadius: 2,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Container(
-                        // Black overlay inside the border
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5), // Slightly smaller radius to stay inside border
-                          color: Colors.black.withOpacity(0.6), // Darker black overlay
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.black.withOpacity(0.6),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // QR Scanner Button - Made bigger
                             Center(
                               child: GestureDetector(
                                 onTap: () {
                                   HapticFeedback.lightImpact();
                                   _openQRScanner();
                                 },
-                                child: _buildQRScanButton(),
+                                child: _buildQRScanButton(screenWidth),
                               ),
                             ),
                             
-                            const SizedBox(height: 30), // Increased spacing for taller container
+                            SizedBox(height: screenHeight * 0.03),
                             
-                            // Scan Here text with better contrast
                             Center(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.04,
+                                  vertical: screenHeight * 0.01,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(8),
@@ -794,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: const Color(0xFFE0D4BE),
-                                    fontSize: 18,
+                                    fontSize: screenWidth * 0.045,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 2,
                                     shadows: [
@@ -813,14 +787,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ),
                     
-                    const SizedBox(height: 30), // Extra bottom padding
+                    SizedBox(height: screenHeight * 0.03),
                   ],
                 ),
               ),
             ),
           ),
           
-          // ZONE 3 - About the Tribes header section with background and black overlay
+          // ZONE 3 - About the Tribes header
           Container(
             height: zone3Height,
             width: double.infinity,
@@ -828,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               image: DecorationImage(
                 image: AssetImage('assets/images/cultural_section_bg.jpg'),
                 fit: BoxFit.cover,
-                opacity: 0.4, 
+                opacity: 0.4,
               ),
               border: Border(
                 top: BorderSide(color: Colors.white, width: 1.0),
@@ -836,19 +810,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             child: Container(
-              // Black overlay for Zone 3
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5), // Black overlay for better text visibility
+                color: Colors.black.withOpacity(0.5),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   'ABOUT THE TRIBES',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32,
+                    fontSize: screenWidth * 0.08,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2.0,
-                    shadows: [
+                    shadows: const [
                       Shadow(
                         blurRadius: 8,
                         color: Colors.black,
@@ -866,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // ZONE 4 - Tribe Cards Section with background image
+          // ZONE 4 - Tribe Cards Section
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -874,8 +847,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 0, 0, 0), 
-                  Color.fromARGB(255, 0, 0, 0), 
+                  Colors.black,
+                  Colors.black,
                   Colors.black,
                 ],
               ),
@@ -883,34 +856,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/mandaya_main.jpg'), // New background image for Zone 4
+                  image: AssetImage('assets/images/mandaya_main.jpg'),
                   fit: BoxFit.cover,
                   opacity: 0.5,
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    SizedBox(height: screenHeight * 0.05),
                     _buildTribeCard(
                       title: "KAGAN",
                       description: "The Kagan people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
                       imagePath: "assets/images/ata_manobo.jpg",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: screenHeight * 0.03),
                     _buildTribeCard(
                       title: "MANDAYA",
                       description: "The Mandaya tribe is one of the major indigenous groups in Mindanao, primarily found in Davao Oriental. They are masters of traditional music and dance ceremonies.",
                       imagePath: "assets/images/mandaya.jpg",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: screenHeight * 0.03),
                     _buildTribeCard(
                       title: "MANSAKA",
                       description: "The Mansaka people are skilled in various traditional crafts and have a deep connection with nature. They are masters of traditional music and dance ceremonies.",
                       imagePath: "assets/images/mansaka.jpg",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
                     ),
-                    const SizedBox(height: 100), // Extra space at bottom
+                    SizedBox(height: screenHeight * 0.1),
                   ],
                 ),
               ),
@@ -921,26 +900,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQRScanButton() {
+  Widget _buildQRScanButton(double screenWidth) {
+    final buttonSize = screenWidth * 0.35;
+    final innerSize = buttonSize * 0.9;
+    final gridSize = buttonSize * 0.35;
+    
     return SizedBox(
-      width: 140, // Increased from 100
-      height: 140, // Increased from 100
+      width: buttonSize,
+      height: buttonSize,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Shadow circle
           Container(
-            width: 140, // Increased from 100
-            height: 140, // Increased from 100
+            width: buttonSize,
+            height: buttonSize,
             decoration: const BoxDecoration(
               color: Color(0xCC010100),
               shape: BoxShape.circle,
             ),
           ),
-          // Main circle
           Container(
-            width: 126, // Increased from 90 (140 * 0.9)
-            height: 126, // Increased from 90
+            width: innerSize,
+            height: innerSize,
             decoration: BoxDecoration(
               color: const Color(0xDD8E714B),
               shape: BoxShape.circle,
@@ -954,15 +935,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             child: Center(
               child: SizedBox(
-                width: 50, // Increased from 35
-                height: 50, // Increased from 35
+                width: gridSize,
+                height: gridSize,
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
-                    mainAxisSpacing: 3, // Increased spacing for better visibility
-                    crossAxisSpacing: 3, // Increased spacing for better visibility
+                    mainAxisSpacing: 3,
+                    crossAxisSpacing: 3,
                   ),
                   itemCount: 16,
                   itemBuilder: (context, index) {
@@ -1015,31 +996,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required String title,
     required String description,
     required String imagePath,
+    required double screenWidth,
+    required double screenHeight,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      margin: EdgeInsets.symmetric(
+        vertical: screenHeight * 0.01,
+        horizontal: screenWidth * 0.01,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title header
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(bottom: screenHeight * 0.015),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Color(0xFFDBCCB5),
-                    fontSize: 28,
+                  style: TextStyle(
+                    color: const Color(0xFFDBCCB5),
+                    fontSize: screenWidth * 0.07,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                     letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: screenHeight * 0.008),
                 Container(
-                  width: 80,
+                  width: screenWidth * 0.2,
                   height: 3,
                   color: const Color(0xFFEADCB6),
                 ),
@@ -1047,7 +1032,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Gray card
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFF4A4A4A),
@@ -1064,9 +1048,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(16),
               child: Column(
                 children: [
-                  // Image section
                   SizedBox(
-                    height: 200,
+                    height: screenHeight * 0.25,
                     width: double.infinity,
                     child: Stack(
                       children: [
@@ -1116,15 +1099,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   
-                  // Text section
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(screenWidth * 0.05),
                     child: Text(
                       description,
-                      style: const TextStyle(
-                        color: Color(0xFFC5C6C7),
-                        fontSize: 16,
+                      style: TextStyle(
+                        color: const Color(0xFFC5C6C7),
+                        fontSize: screenWidth * 0.04,
                         fontFamily: 'Regular',
                         height: 1.6,
                         letterSpacing: 0.3,
@@ -1137,12 +1119,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Explore more button
           Padding(
-            padding: const EdgeInsets.only(top: 16),
+            padding: EdgeInsets.only(top: screenHeight * 0.02),
             child: Align(
               alignment: Alignment.centerRight,
-              child: _buildExploreButton(title),
+              child: _buildExploreButton(title, screenWidth, screenHeight),
             ),
           ),
         ],
@@ -1150,98 +1131,97 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-Widget _buildExploreButton(String title) {
-  return SizedBox(
-    height: 50, // Increased height to accommodate layers
-    width: double.infinity, // Take full width available
-    child: Stack(
-      children: [
-        // Bottom layer (darkest shadow) - moderate extension for subtle effect
-        Positioned(
-          right: 165,  // More reasonable extension - not too dramatic
-          top: 0,     // Same vertical position
-          child: Container(
-            width: 160,
-            height: 35,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.fromARGB(200, 96, 95, 91),
-                  Color.fromARGB(200, 96, 95, 91),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
-        ),
-        
-        // Second layer (medium shadow) - just slightly bigger than main button
-        Positioned(
-          right: 80,  // Small offset from main button
-          top: 0,     // Same vertical position
-          child: Container(
-            width: 140,
-            height: 35,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.fromARGB(255, 148, 147, 145),
-                  Color.fromARGB(255, 148, 147, 145),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(15),
-            )
-          ),
-        ),
-
-        // Main button (top layer) - original size and position
-        Positioned(
-          right: 8,   // Original position
-          top: 0,     // Same vertical position
-          child: Container(
-            width: 120, // Back to original width
-            height: 35,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFDF8D7), // Main button color
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: const Color(0xFF8B6F47),
-                width: 1,
-              ),
-              // Remove the subtle shadow since we want clean layering
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  _exploreMore(title);
-                },
+  Widget _buildExploreButton(String title, double screenWidth, double screenHeight) {
+    final buttonWidth = screenWidth * 0.3;
+    final buttonHeight = screenHeight * 0.045;
+    
+    return SizedBox(
+      height: buttonHeight * 1.5,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Positioned(
+            right: buttonWidth * 1.4,
+            top: 0,
+            child: Container(
+              width: buttonWidth * 1.3,
+              height: buttonHeight,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.fromARGB(200, 96, 95, 91),
+                    Color.fromARGB(200, 96, 95, 91),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Explore more',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
+              ),
+            ),
+          ),
+          
+          Positioned(
+            right: buttonWidth * 0.7,
+            top: 0,
+            child: Container(
+              width: buttonWidth * 1.15,
+              height: buttonHeight,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.fromARGB(255, 148, 147, 145),
+                    Color.fromARGB(255, 148, 147, 145),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+          ),
+
+          Positioned(
+            right: screenWidth * 0.02,
+            top: 0,
+            child: Container(
+              width: buttonWidth,
+              height: buttonHeight,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDF8D7),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: const Color(0xFF8B6F47),
+                  width: 1,
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    _exploreMore(title);
+                  },
+                  borderRadius: BorderRadius.circular(15),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Explore more',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: screenWidth * 0.035,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildBottomNavigationBar() {
     return Container(
@@ -1354,7 +1334,7 @@ Widget _buildExploreButton(String title) {
     _scrollController.dispose();
     _fadeController.dispose();
     _pulseController.dispose();
-    _backButtonFadeController.dispose(); // Don't forget to dispose the new controller
+    _backButtonFadeController.dispose();
     super.dispose();
   }
-} 
+}

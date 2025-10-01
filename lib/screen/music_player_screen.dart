@@ -306,7 +306,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen>
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
-            maxLines: 2,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),

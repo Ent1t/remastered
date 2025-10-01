@@ -47,7 +47,6 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
 
       debugPrint('Fetching Mansaka events from: $_baseUrl');
       
-      // API call with query parameters for Mansaka events
       const String apiUrl = '$_baseUrl?tribe=mansaka&category=event';
       debugPrint('API URL: $apiUrl');
 
@@ -68,12 +67,10 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -101,7 +98,6 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -112,7 +108,6 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -122,38 +117,31 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
-        // Filter: Must be Mansaka tribe
         if (tribe.toLowerCase() != 'mansaka') {
           debugPrint('Skipping non-Mansaka item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Filter: Must be event category or image content
         if (category.toLowerCase() != 'event' && !_isImageContent(file)) {
           debugPrint('Skipping non-event content: $file (category: $category)');
           continue;
         }
 
-        // Create event item
         final event = EventItem(
           id: id.toString(),
           name: title,
           description: description ?? 'No description available',
           imagePath: '$_uploadsBaseUrl$file',
           file: file,
-          location: 'Davao Region, Philippines', // Default location, can be extracted from description
+          location: 'Davao Region, Philippines',
           date: _formatDate(time),
           isNetworkSource: true,
         );
@@ -192,12 +180,46 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
     } catch (e) {
-      return timeString; // Return original string if parsing fails
+      return timeString;
     }
   }
 
   Future<void> _refreshEvents() async {
     await _fetchEvents();
+  }
+
+  // Responsive helper methods
+  int _getCrossAxisCount(double width) {
+    if (width >= 1200) return 4;
+    if (width >= 900) return 3;
+    if (width >= 600) return 2;
+    return 2;
+  }
+
+  double _getHorizontalPadding(double width) {
+    if (width >= 1200) return 40;
+    if (width >= 900) return 32;
+    if (width >= 600) return 24;
+    return 20;
+  }
+
+  double _getFeaturedImageHeight(double width) {
+    if (width >= 1200) return 300;
+    if (width >= 900) return 250;
+    if (width >= 600) return 220;
+    return 200;
+  }
+
+  double _getHeaderFontSize(double width) {
+    if (width >= 900) return 24;
+    if (width >= 600) return 22;
+    return 20;
+  }
+
+  double _getDescriptionFontSize(double width) {
+    if (width >= 900) return 18;
+    if (width >= 600) return 17;
+    return 16;
   }
 
   @override
@@ -259,45 +281,50 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
 
   Widget _buildErrorState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load events',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: _getHorizontalPadding(MediaQuery.of(context).size.width),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
             ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              _errorMessage!,
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load events',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
-                fontSize: 14,
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshEvents,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB19CD9),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            child: const Text('Retry'),
-          ),
-        ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshEvents,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB19CD9),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -344,34 +371,53 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
   }
 
   Widget _buildContent() {
+    final width = MediaQuery.of(context).size.width;
+    final horizontalPadding = _getHorizontalPadding(width);
+
     return RefreshIndicator(
       onRefresh: _refreshEvents,
       color: const Color(0xFFB19CD9),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildFeaturedImage(),
-            const SizedBox(height: 24),
-            _buildDescription(),
-            const SizedBox(height: 32),
-            _buildBrowseSection(),
-            const SizedBox(height: 20),
-            _buildEventsGrid(),
-            SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Center content for large screens
+          final maxWidth = constraints.maxWidth > 1400 ? 1400.0 : constraints.maxWidth;
+          
+          return Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchBar(horizontalPadding),
+                    const SizedBox(height: 20),
+                    _buildFeaturedImage(horizontalPadding, width),
+                    const SizedBox(height: 24),
+                    _buildDescription(horizontalPadding, width),
+                    const SizedBox(height: 32),
+                    _buildBrowseSection(horizontalPadding),
+                    const SizedBox(height: 20),
+                    _buildEventsGrid(horizontalPadding, width),
+                    SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildHeader() {
+    final width = MediaQuery.of(context).size.width;
+    final horizontalPadding = _getHorizontalPadding(width);
+    final fontSize = _getHeaderFontSize(width);
+
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(horizontalPadding),
       child: Row(
         children: [
           Container(
@@ -392,12 +438,12 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'MANSAKA EVENTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -408,9 +454,9 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(double horizontalPadding) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
@@ -463,11 +509,13 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildFeaturedImage() {
+  Widget _buildFeaturedImage(double horizontalPadding, double width) {
+    final height = _getFeaturedImageHeight(width);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
-        height: 200,
+        height: height,
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -512,9 +560,11 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildDescription() {
+  Widget _buildDescription(double horizontalPadding, double width) {
+    final fontSize = _getDescriptionFontSize(width);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -522,7 +572,7 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
             'Browse through a collection of historical and contemporary photographs showcasing Mansaka events, ceremonies, and cultural celebrations that preserve their rich heritage.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+              fontSize: fontSize,
               height: 1.6,
               letterSpacing: 0.5,
             ),
@@ -532,9 +582,9 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildBrowseSection() {
+  Widget _buildBrowseSection(double horizontalPadding) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Text(
         'Browse events (${_filteredEvents.length})',
         style: const TextStyle(
@@ -546,21 +596,25 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildEventsGrid() {
+  Widget _buildEventsGrid(double horizontalPadding, double width) {
     if (_filteredEvents.isEmpty) {
-      return _buildNoResults();
+      return _buildNoResults(horizontalPadding);
     }
 
+    final crossAxisCount = _getCrossAxisCount(width);
+    final spacing = width >= 900 ? 20.0 : 16.0;
+    final childAspectRatio = width >= 600 ? 0.9 : 0.85;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          childAspectRatio: childAspectRatio,
         ),
         itemCount: _filteredEvents.length,
         itemBuilder: (context, index) {
@@ -570,9 +624,9 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
     );
   }
 
-  Widget _buildNoResults() {
+  Widget _buildNoResults(double horizontalPadding) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -809,36 +863,42 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final maxWidth = screenWidth > 800 ? 800.0 : screenWidth;
     
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1a1a1a),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      child: Column(
-        children: [
-          _buildHandle(),
-          _buildHeader(),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-                HapticFeedback.selectionClick();
-              },
-              itemCount: widget.events.length,
-              itemBuilder: (context, index) {
-                return _buildEventCard(widget.events[index]);
-              },
-            ),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1a1a1a),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20),
           ),
-          _buildPageIndicator(),
-          SizedBox(height: 20 + keyboardHeight * 0.1),
-        ],
+        ),
+        child: Column(
+          children: [
+            _buildHandle(),
+            _buildHeader(isTablet),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  HapticFeedback.selectionClick();
+                },
+                itemCount: widget.events.length,
+                itemBuilder: (context, index) {
+                  return _buildEventCard(widget.events[index], isTablet);
+                },
+              ),
+            ),
+            _buildPageIndicator(),
+            SizedBox(height: 20 + keyboardHeight * 0.1),
+          ],
+        ),
       ),
     );
   }
@@ -855,16 +915,19 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isTablet) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 32 : 20,
+        vertical: 10,
+      ),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Event Details',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: isTablet ? 20 : 18,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -882,9 +945,12 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
     );
   }
 
-  Widget _buildEventCard(EventItem event) {
+  Widget _buildEventCard(EventItem event, bool isTablet) {
+    final horizontalPadding = isTablet ? 32.0 : 20.0;
+    final imageHeight = isTablet ? 350.0 : 250.0;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -892,7 +958,7 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           GestureDetector(
             onTap: () => _showFullScreenImage(event),
             child: Container(
-              height: 250,
+              height: imageHeight,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -998,7 +1064,7 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(isTablet ? 20 : 16),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(12),
@@ -1008,9 +1074,9 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
               children: [
                 Text(
                   event.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: isTablet ? 18 : 16,
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
@@ -1020,7 +1086,7 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
                   event.description,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
+                    fontSize: isTablet ? 16 : 14,
                     height: 1.5,
                   ),
                 ),
@@ -1048,37 +1114,6 @@ class _EventViewerBottomSheetState extends State<EventViewerBottomSheet> {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
-    );
-  }
-
-  Widget _buildMetadataRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: widget.accentColor,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            color: widget.accentColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1147,6 +1182,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -1237,8 +1275,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 32 : 20,
                         vertical: 16,
                       ),
                       decoration: BoxDecoration(
@@ -1268,17 +1306,19 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               children: [
                                 Text(
                                   widget.event.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: isTablet ? 20 : 18,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   'Mansaka Event',
                                   style: TextStyle(
                                     color: widget.accentColor,
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 16 : 14,
                                   ),
                                 ),
                               ],
@@ -1290,7 +1330,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                     const Spacer(),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(isTablet ? 24 : 20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
@@ -1305,7 +1345,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         'Tap to zoom • Pinch to scale • Drag to pan',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
+                          fontSize: isTablet ? 14 : 12,
                         ),
                         textAlign: TextAlign.center,
                       ),

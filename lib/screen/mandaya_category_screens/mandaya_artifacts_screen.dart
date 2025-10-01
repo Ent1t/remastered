@@ -32,6 +32,35 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     }).toList();
   }
 
+  // Responsive helper methods
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 4;
+    if (width > 800) return 3;
+    if (width > 600) return 2;
+    return 2;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 800) return 0.9;
+    return 0.85;
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 40;
+    if (width > 800) return 32;
+    return 20;
+  }
+
+  double _getFeaturedImageHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (width > 800) return height * 0.35;
+    return 200;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +76,6 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
 
       debugPrint('Fetching Mandaya artifacts from: $_baseUrl');
       
-      // API call with query parameters for Mandaya artifacts
       const String apiUrl = '$_baseUrl?tribe=mandaya&category=artifact';
       debugPrint('API URL: $apiUrl');
 
@@ -68,12 +96,10 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -101,7 +127,6 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -112,7 +137,6 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -122,31 +146,24 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
-        // Filter: Must be Mandaya tribe
         if (tribe.toLowerCase() != 'mandaya') {
           debugPrint('Skipping non-Mandaya item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Filter: Must be artifact category or image content
         if (category.toLowerCase() != 'artifact' && !_isImageContent(file)) {
           debugPrint('Skipping non-artifact content: $file (category: $category)');
           continue;
         }
 
-        // Create artifact item
         final artifact = ArtifactItem(
           id: id.toString(),
           name: title,
@@ -189,6 +206,8 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -206,7 +225,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(),
+              _buildHeader(horizontalPadding),
               Expanded(
                 child: _isLoading 
                     ? _buildLoadingState()
@@ -214,7 +233,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
                         ? _buildErrorState()
                         : _allArtifacts.isEmpty
                             ? _buildEmptyState()
-                            : _buildContent(),
+                            : _buildContent(horizontalPadding),
               ),
             ],
           ),
@@ -246,27 +265,27 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
 
   Widget _buildErrorState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.white.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load artifacts',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _getHorizontalPadding(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
             ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load artifacts',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               _errorMessage!,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
@@ -274,17 +293,18 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _refreshArtifacts,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7FB069),
-              foregroundColor: Colors.white,
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshArtifacts,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7FB069),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              ),
+              child: const Text('Retry'),
             ),
-            child: const Text('Retry'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -322,6 +342,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF7FB069),
               foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
             child: const Text('Refresh'),
           ),
@@ -330,7 +351,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(double horizontalPadding) {
     return RefreshIndicator(
       onRefresh: _refreshArtifacts,
       color: const Color(0xFF7FB069),
@@ -340,15 +361,15 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSearchBar(),
+            _buildSearchBar(horizontalPadding),
             const SizedBox(height: 20),
-            _buildFeaturedImage(),
+            _buildFeaturedImage(horizontalPadding),
             const SizedBox(height: 24),
-            _buildDescription(),
+            _buildDescription(horizontalPadding),
             const SizedBox(height: 32),
-            _buildBrowseSection(),
+            _buildBrowseSection(horizontalPadding),
             const SizedBox(height: 20),
-            _buildArtifactsGrid(),
+            _buildArtifactsGrid(horizontalPadding),
             SizedBox(height: 40 + MediaQuery.of(context).viewInsets.bottom),
           ],
         ),
@@ -356,9 +377,11 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(double horizontalPadding) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(horizontalPadding),
       child: Row(
         children: [
           Container(
@@ -371,20 +394,20 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios,
                 color: Colors.white,
-                size: 20,
+                size: isLargeScreen ? 24 : 20,
               ),
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'MANDAYA ARTIFACTS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: isLargeScreen ? 24 : 20,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),
@@ -395,9 +418,9 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(double horizontalPadding) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
@@ -450,11 +473,13 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildFeaturedImage() {
+  Widget _buildFeaturedImage(double horizontalPadding) {
+    final imageHeight = _getFeaturedImageHeight(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Container(
-        height: 200,
+        height: imageHeight,
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -499,9 +524,11 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildDescription() {
+  Widget _buildDescription(double horizontalPadding) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -509,7 +536,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
             'Discover authentic Mandaya artifacts - physical objects that tell the story of this indigenous tribe\'s rich cultural heritage, craftsmanship, and daily life.',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+              fontSize: isLargeScreen ? 18 : 16,
               height: 1.6,
               letterSpacing: 0.5,
             ),
@@ -519,35 +546,41 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildBrowseSection() {
+  Widget _buildBrowseSection(double horizontalPadding) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Text(
         'Browse artifacts (${_filteredArtifacts.length})',
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: isLargeScreen ? 22 : 20,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
 
-  Widget _buildArtifactsGrid() {
+  Widget _buildArtifactsGrid(double horizontalPadding) {
     if (_filteredArtifacts.isEmpty) {
-      return _buildNoResults();
+      return _buildNoResults(horizontalPadding);
     }
 
+    final crossAxisCount = _getCrossAxisCount(context);
+    final aspectRatio = _getChildAspectRatio(context);
+    final spacing = MediaQuery.of(context).size.width > 800 ? 20.0 : 16.0;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          childAspectRatio: aspectRatio,
         ),
         itemCount: _filteredArtifacts.length,
         itemBuilder: (context, index) {
@@ -557,9 +590,9 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
     );
   }
 
-  Widget _buildNoResults() {
+  Widget _buildNoResults(double horizontalPadding) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -595,6 +628,8 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
   }
 
   Widget _buildArtifactCard(ArtifactItem artifact, int index) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -683,27 +718,27 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
                       ),
               ),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isLargeScreen ? 16 : 12),
                 color: const Color(0xFF2A2A2A),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       artifact.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: isLargeScreen ? 16 : 14,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: isLargeScreen ? 6 : 4),
                     Text(
                       artifact.description,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: isLargeScreen ? 14 : 12,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -738,7 +773,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
   }
 }
 
-// Legacy classes for backward compatibility (if needed elsewhere in the app)
+// Legacy classes for backward compatibility
 class ArtifactCategory {
   final String title;
   final String subtitle;
@@ -982,11 +1017,21 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
     super.dispose();
   }
 
+  double _getMaxHeight(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+    if (width > 800) return height * 0.85;
+    return height * 0.9;
+  }
+
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final maxHeight = _getMaxHeight(context);
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
     
     return Container(
+      height: maxHeight,
       decoration: const BoxDecoration(
         color: Color(0xFF1a1a1a),
         borderRadius: BorderRadius.vertical(
@@ -996,7 +1041,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
       child: Column(
         children: [
           _buildHandle(),
-          _buildHeader(),
+          _buildHeader(isLargeScreen),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -1008,7 +1053,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
               },
               itemCount: widget.artifacts.length,
               itemBuilder: (context, index) {
-                return _buildArtifactCard(widget.artifacts[index]);
+                return _buildArtifactCard(widget.artifacts[index], isLargeScreen);
               },
             ),
           ),
@@ -1031,26 +1076,29 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isLargeScreen) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: isLargeScreen ? 32 : 20,
+        vertical: 10,
+      ),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Artifact Details',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: isLargeScreen ? 20 : 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const Spacer(),
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(
+            icon: Icon(
               Icons.close,
               color: Colors.white,
-              size: 24,
+              size: isLargeScreen ? 28 : 24,
             ),
           ),
         ],
@@ -1058,9 +1106,12 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
     );
   }
 
-  Widget _buildArtifactCard(ArtifactItem artifact) {
+  Widget _buildArtifactCard(ArtifactItem artifact, bool isLargeScreen) {
+    final horizontalPadding = isLargeScreen ? 32.0 : 20.0;
+    final imageHeight = isLargeScreen ? 400.0 : 250.0;
+    
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1068,7 +1119,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
           GestureDetector(
             onTap: () => _showFullScreenImage(artifact),
             child: Container(
-              height: 250,
+              height: imageHeight,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -1174,7 +1225,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(isLargeScreen ? 20 : 16),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A2A),
               borderRadius: BorderRadius.circular(12),
@@ -1184,9 +1235,9 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
               children: [
                 Text(
                   artifact.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: isLargeScreen ? 18 : 16,
                     fontWeight: FontWeight.w600,
                     height: 1.4,
                   ),
@@ -1196,7 +1247,7 @@ class _ArtifactViewerBottomSheetState extends State<ArtifactViewerBottomSheet> {
                   artifact.description,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
+                    fontSize: isLargeScreen ? 16 : 14,
                     height: 1.5,
                   ),
                 ),
@@ -1292,6 +1343,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 800;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -1382,8 +1435,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isLargeScreen ? 32 : 20,
                         vertical: 16,
                       ),
                       decoration: BoxDecoration(
@@ -1400,10 +1453,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         children: [
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.close,
                               color: Colors.white,
-                              size: 28,
+                              size: isLargeScreen ? 32 : 28,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -1413,9 +1466,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               children: [
                                 Text(
                                   widget.artifact.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: isLargeScreen ? 20 : 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1423,7 +1476,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                   'Mandaya Artifact',
                                   style: TextStyle(
                                     color: widget.accentColor,
-                                    fontSize: 14,
+                                    fontSize: isLargeScreen ? 16 : 14,
                                   ),
                                 ),
                               ],
@@ -1435,7 +1488,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                     const Spacer(),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(isLargeScreen ? 32 : 20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
@@ -1453,7 +1506,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                             'Tap to zoom • Pinch to scale • Drag to pan',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
+                              fontSize: isLargeScreen ? 14 : 12,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -1469,4 +1522,4 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
       ),
     );
   }
-} 
+}
