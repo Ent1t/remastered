@@ -1,9 +1,9 @@
-// lib/screen/mandaya_category_screens/mandaya_music_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MandayaMusicScreen extends StatefulWidget {
   const MandayaMusicScreen({super.key});
@@ -39,6 +39,11 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   String? _errorMessage;
   MusicTrack? _featuredTrack;
 
+  // Duration cache
+  Map<String, Duration> _durationCache = {};
+  SharedPreferences? _prefs;
+  Set<String> _loadingDurations = {};
+
   List<MusicTrack> get _filteredTracks {
     if (_searchQuery.isEmpty) {
       return _allTracks;
@@ -53,6 +58,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   @override
   void initState() {
     super.initState();
+    _initializePreferences();
     _setupAudioPlayer();
     _setupScrollController();
     _searchFocusNode.addListener(() {
@@ -61,6 +67,100 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       });
     });
     _fetchMusicTracks();
+  }
+
+  Future<void> _initializePreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _loadDurationCache();
+  }
+
+  void _loadDurationCache() {
+    if (_prefs == null) return;
+    
+    final cacheJson = _prefs!.getString('mandaya_music_duration_cache');
+    if (cacheJson != null) {
+      try {
+        final Map<String, dynamic> decoded = json.decode(cacheJson);
+        _durationCache = decoded.map((key, value) => 
+          MapEntry(key, Duration(milliseconds: value as int))
+        );
+        debugPrint('Loaded ${_durationCache.length} cached Mandaya durations');
+      } catch (e) {
+        debugPrint('Error loading duration cache: $e');
+      }
+    }
+  }
+
+  Future<void> _saveDurationCache() async {
+    if (_prefs == null) return;
+    
+    try {
+      final cacheJson = json.encode(
+        _durationCache.map((key, value) => 
+          MapEntry(key, value.inMilliseconds)
+        )
+      );
+      await _prefs!.setString('mandaya_music_duration_cache', cacheJson);
+      debugPrint('Saved ${_durationCache.length} Mandaya durations to cache');
+    } catch (e) {
+      debugPrint('Error saving duration cache: $e');
+    }
+  }
+
+  Duration? _getCachedDuration(String trackId) {
+    return _durationCache[trackId];
+  }
+
+  Future<void> _cacheDuration(String trackId, Duration duration) async {
+    _durationCache[trackId] = duration;
+    await _saveDurationCache();
+  }
+
+  Future<void> _loadTrackDuration(MusicTrack track) async {
+    if (_durationCache.containsKey(track.id) || _loadingDurations.contains(track.id)) {
+      return;
+    }
+
+    _loadingDurations.add(track.id);
+
+    try {
+      final tempPlayer = AudioPlayer();
+      
+      if (track.isNetworkSource) {
+        await tempPlayer.setSourceUrl(track.audioPath);
+      } else {
+        await tempPlayer.setSource(AssetSource(track.audioPath));
+      }
+
+      Duration? duration;
+      int attempts = 0;
+      while (duration == null && attempts < 10) {
+        duration = await tempPlayer.getDuration();
+        if (duration == null) {
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+        attempts++;
+      }
+
+      if (duration != null && duration.inMilliseconds > 0) {
+        await _cacheDuration(track.id, duration);
+        if (mounted) {
+          setState(() {
+            final index = _allTracks.indexWhere((t) => t.id == track.id);
+            if (index != -1) {
+              _allTracks[index] = track.copyWith(duration: duration);
+            }
+          });
+        }
+        debugPrint('Cached duration for ${track.title}: ${_formatDuration(duration)}');
+      }
+
+      await tempPlayer.dispose();
+    } catch (e) {
+      debugPrint('Error loading duration for ${track.title}: $e');
+    } finally {
+      _loadingDurations.remove(track.id);
+    }
   }
 
   void _setupScrollController() {
@@ -86,29 +186,41 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
 
   void _setupAudioPlayer() {
     _audioPlayer.onPositionChanged.listen((position) {
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
     });
 
     _audioPlayer.onDurationChanged.listen((duration) {
-      setState(() {
-        _totalDuration = duration;
-      });
+      if (mounted) {
+        setState(() {
+          _totalDuration = duration;
+        });
+      }
+      
+      if (_currentTrack != null && duration.inMilliseconds > 0) {
+        _cacheDuration(_currentTrack!.id, duration);
+      }
     });
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _isPlaying = state == PlayerState.playing;
-        _isLoadingAudio = state == PlayerState.playing && _currentPosition == Duration.zero;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+          _isLoadingAudio = state == PlayerState.playing && _currentPosition == Duration.zero;
+        });
+      }
     });
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _isPlaying = false;
-        _currentPosition = Duration.zero;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _currentPosition = Duration.zero;
+        });
+      }
     });
   }
 
@@ -121,7 +233,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
 
       debugPrint('Fetching Mandaya music tracks from: $_baseUrl');
       
-      // API call for Mandaya tribe
       const String apiUrl = '$_baseUrl?tribe=mandaya';
       debugPrint('API URL: $apiUrl');
 
@@ -173,7 +284,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -184,7 +294,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -197,19 +306,16 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           continue;
         }
         
-        // Filter: Must be Mandaya tribe
         if (tribe.toLowerCase() != 'mandaya') {
           debugPrint('Skipping non-Mandaya item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Determine if this is audio content
         final fileType = _determineFileType(file);
         
         if (!_isAudioContent(file, category)) {
@@ -217,7 +323,8 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           continue;
         }
 
-        // Create music track
+        final cachedDuration = _getCachedDuration(id.toString());
+
         final musicTrack = MusicTrack(
           id: id.toString(),
           title: title,
@@ -229,10 +336,15 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           file: file,
           fileType: fileType,
           isNetworkSource: true,
+          duration: cachedDuration,
         );
         
-        debugPrint('✅ Added music track: $title (ID: $id, Category: $category)');
+        debugPrint('✅ Added music track: $title (ID: $id, Category: $category, Cached Duration: ${cachedDuration != null ? _formatDuration(cachedDuration) : 'Not cached'})');
         musicTracks.add(musicTrack);
+
+        if (cachedDuration == null) {
+          _loadTrackDuration(musicTrack);
+        }
       }
 
       debugPrint('Final music track count: ${musicTracks.length}');
@@ -257,17 +369,12 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
     final String lowerFilename = filename.toLowerCase();
     final String lowerCategory = category.toLowerCase();
     
-    // Audio file extensions
     const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac'];
-    
-    // Video file extensions (might contain audio)
     const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv'];
     
-    // Check file extension
     final hasAudioExtension = audioExtensions.any((ext) => lowerFilename.endsWith(ext));
     final hasVideoExtension = videoExtensions.any((ext) => lowerFilename.endsWith(ext));
     
-    // Check category hints
     const musicCategories = ['audio', 'music', 'song', 'instrument', 'ceremony'];
     final isMusicCategory = musicCategories.any((cat) => lowerCategory.contains(cat));
     
@@ -375,21 +482,18 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header that shows/hides based on scroll and search focus
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
                 child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
               ),
               
-              // Flexible content area
               Expanded(
                 child: _isSearchFocused 
                     ? _buildSearchResults()
                     : _buildMainContent(),
               ),
               
-              // Inline Music Player at the bottom
               if (_currentTrack != null) _buildInlineMusicPlayer(),
             ],
           ),
@@ -403,7 +507,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Back button - hide when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 48,
@@ -428,13 +531,11 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                   ),
           ),
           
-          // Dynamic spacing
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 16,
           ),
           
-          // Search bar - expands when focused
           Expanded(
             child: Container(
               height: 48,
@@ -491,7 +592,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
             ),
           ),
           
-          // Cancel button when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 80 : 0,
@@ -829,6 +929,8 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
 
   Widget _buildMusicCard(MusicTrack track) {
     final isCurrentTrack = _currentTrack?.id == track.id;
+    final hasDuration = track.duration != null;
+    final isLoadingDuration = _loadingDurations.contains(track.id);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -955,11 +1057,52 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          // Duration display
+                          if (hasDuration)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 10,
+                                    color: Colors.white.withOpacity(0.6),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatDuration(track.duration!),
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.6),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else if (isLoadingDuration)
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withOpacity(0.4),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ],
                   ),
                 ),
+                
+                const SizedBox(width: 8),
                 
                 GestureDetector(
                   onTap: () {
@@ -1014,7 +1157,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Track info with close button
           Row(
             children: [
               Container(
@@ -1081,7 +1223,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                 ),
               ),
               
-              // Control buttons
               IconButton(
                 onPressed: () {
                   _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
@@ -1112,7 +1253,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                 icon: const Icon(Icons.forward_30, color: Colors.white, size: 20),
               ),
               
-              // Close button
               IconButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
@@ -1136,7 +1276,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
           
           const SizedBox(height: 8),
           
-          // Progress bar
           Column(
             children: [
               SliderTheme(
@@ -1161,7 +1300,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
                 ),
               ),
               
-              // Time labels
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -1194,7 +1332,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   Future<void> _togglePlayPause(MusicTrack track) async {
     try {
       if (_currentTrack?.id != track.id) {
-        // Play new track
         setState(() {
           _currentTrack = track;
           _isLoadingAudio = true;
@@ -1203,14 +1340,11 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         await _audioPlayer.stop();
         
         if (track.isNetworkSource) {
-          // Play from network URL
           await _audioPlayer.play(UrlSource(track.audioPath));
         } else {
-          // Play from assets
           await _audioPlayer.play(AssetSource(track.audioPath));
         }
       } else {
-        // Toggle play/pause for current track
         if (_isPlaying) {
           await _audioPlayer.pause();
         } else {
@@ -1220,7 +1354,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
     } catch (e) {
       debugPrint('Error playing audio: $e');
       
-      // Show error message to user
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1235,7 +1368,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         );
       }
       
-      // Reset loading state on error
       setState(() {
         _isLoadingAudio = false;
       });
@@ -1279,7 +1411,6 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
   }
 }
 
-// Enum for file types
 enum FileType {
   video,
   audio,
@@ -1287,7 +1418,6 @@ enum FileType {
   unknown,
 }
 
-// Enhanced MusicTrack model with API support
 class MusicTrack {
   final String id;
   final String title;
@@ -1299,6 +1429,7 @@ class MusicTrack {
   final String file;
   final FileType fileType;
   final bool isNetworkSource;
+  final Duration? duration;
 
   MusicTrack({
     required this.id,
@@ -1311,5 +1442,34 @@ class MusicTrack {
     required this.file,
     required this.fileType,
     this.isNetworkSource = false,
+    this.duration,
   });
+
+  MusicTrack copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? category,
+    String? imagePath,
+    String? artist,
+    String? audioPath,
+    String? file,
+    FileType? fileType,
+    bool? isNetworkSource,
+    Duration? duration,
+  }) {
+    return MusicTrack(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      imagePath: imagePath ?? this.imagePath,
+      artist: artist ?? this.artist,
+      audioPath: audioPath ?? this.audioPath,
+      file: file ?? this.file,
+      fileType: fileType ?? this.fileType,
+      isNetworkSource: isNetworkSource ?? this.isNetworkSource,
+      duration: duration ?? this.duration,
+    );
+  }
 }

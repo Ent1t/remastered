@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KaganMusicScreen extends StatefulWidget {
   const KaganMusicScreen({super.key});
@@ -38,6 +39,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   String? _errorMessage;
   MusicTrack? _featuredTrack;
 
+  // Duration cache
+  Map<String, Duration> _durationCache = {};
+  SharedPreferences? _prefs;
+  Set<String> _loadingDurations = {};
+
   List<MusicTrack> get _filteredTracks {
     if (_searchQuery.isEmpty) {
       return _allTracks;
@@ -52,6 +58,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   @override
   void initState() {
     super.initState();
+    _initializePreferences();
     _setupAudioPlayer();
     _setupScrollController();
     _searchFocusNode.addListener(() {
@@ -60,6 +67,102 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       });
     });
     _fetchMusicTracks();
+  }
+
+  Future<void> _initializePreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _loadDurationCache();
+  }
+
+  void _loadDurationCache() {
+    if (_prefs == null) return;
+    
+    final cacheJson = _prefs!.getString('music_duration_cache');
+    if (cacheJson != null) {
+      try {
+        final Map<String, dynamic> decoded = json.decode(cacheJson);
+        _durationCache = decoded.map((key, value) => 
+          MapEntry(key, Duration(milliseconds: value as int))
+        );
+        debugPrint('Loaded ${_durationCache.length} cached durations');
+      } catch (e) {
+        debugPrint('Error loading duration cache: $e');
+      }
+    }
+  }
+
+  Future<void> _saveDurationCache() async {
+    if (_prefs == null) return;
+    
+    try {
+      final cacheJson = json.encode(
+        _durationCache.map((key, value) => 
+          MapEntry(key, value.inMilliseconds)
+        )
+      );
+      await _prefs!.setString('music_duration_cache', cacheJson);
+      debugPrint('Saved ${_durationCache.length} durations to cache');
+    } catch (e) {
+      debugPrint('Error saving duration cache: $e');
+    }
+  }
+
+  Duration? _getCachedDuration(String trackId) {
+    return _durationCache[trackId];
+  }
+
+  Future<void> _cacheDuration(String trackId, Duration duration) async {
+    _durationCache[trackId] = duration;
+    await _saveDurationCache();
+  }
+
+  Future<void> _loadTrackDuration(MusicTrack track) async {
+    if (_durationCache.containsKey(track.id) || _loadingDurations.contains(track.id)) {
+      return;
+    }
+
+    _loadingDurations.add(track.id);
+
+    try {
+      final tempPlayer = AudioPlayer();
+      
+      if (track.isNetworkSource) {
+        await tempPlayer.setSourceUrl(track.audioPath);
+      } else {
+        await tempPlayer.setSource(AssetSource(track.audioPath));
+      }
+
+      // Wait for duration to be available
+      Duration? duration;
+      int attempts = 0;
+      while (duration == null && attempts < 10) {
+        duration = await tempPlayer.getDuration();
+        if (duration == null) {
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+        attempts++;
+      }
+
+      if (duration != null && duration.inMilliseconds > 0) {
+        await _cacheDuration(track.id, duration);
+        if (mounted) {
+          setState(() {
+            // Update track with duration
+            final index = _allTracks.indexWhere((t) => t.id == track.id);
+            if (index != -1) {
+              _allTracks[index] = track.copyWith(duration: duration);
+            }
+          });
+        }
+        debugPrint('Cached duration for ${track.title}: ${_formatDuration(duration)}');
+      }
+
+      await tempPlayer.dispose();
+    } catch (e) {
+      debugPrint('Error loading duration for ${track.title}: $e');
+    } finally {
+      _loadingDurations.remove(track.id);
+    }
   }
 
   void _setupScrollController() {
@@ -85,29 +188,42 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
   void _setupAudioPlayer() {
     _audioPlayer.onPositionChanged.listen((position) {
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
     });
 
     _audioPlayer.onDurationChanged.listen((duration) {
-      setState(() {
-        _totalDuration = duration;
-      });
+      if (mounted) {
+        setState(() {
+          _totalDuration = duration;
+        });
+      }
+      
+      // Cache the duration when it becomes available
+      if (_currentTrack != null && duration.inMilliseconds > 0) {
+        _cacheDuration(_currentTrack!.id, duration);
+      }
     });
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _isPlaying = state == PlayerState.playing;
-        _isLoadingAudio = state == PlayerState.playing && _currentPosition == Duration.zero;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+          _isLoadingAudio = state == PlayerState.playing && _currentPosition == Duration.zero;
+        });
+      }
     });
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _isPlaying = false;
-        _currentPosition = Duration.zero;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _currentPosition = Duration.zero;
+        });
+      }
     });
   }
 
@@ -120,7 +236,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
       debugPrint('Fetching Kagan music tracks from: $_baseUrl');
       
-      // Correct API call according to documentation - using query parameters
       const String apiUrl = '$_baseUrl?tribe=kagan';
       debugPrint('API URL: $apiUrl');
 
@@ -141,12 +256,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
       final Map<String, dynamic> jsonData = json.decode(response.body);
       
-      // Check for API error response
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
       }
 
-      // Extract data according to API documentation
       if (!jsonData.containsKey('data')) {
         throw Exception('API response missing "data" field');
       }
@@ -174,7 +287,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         
         debugPrint('Processing item: ${item.toString()}');
         
-        // Extract and validate required fields according to API schema
         final dynamic id = item['id'];
         final dynamic userId = item['user_id'];
         final String? title = item['title']?.toString();
@@ -185,7 +297,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         final dynamic isArchived = item['is_archived'];
         final String? time = item['time']?.toString();
         
-        // Validate required fields
         if (id == null || 
             userId == null || 
             title == null || title.isEmpty ||
@@ -201,28 +312,26 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           continue;
         }
         
-        // Filter: Must be Kagan tribe
         if (tribe.toLowerCase() != 'kagan') {
           debugPrint('Skipping non-Kagan item: $tribe');
           continue;
         }
 
-        // Filter: Must not be archived (is_archived should be 0)
         if (isArchived != 0) {
           debugPrint('Skipping archived item: $title');
           continue;
         }
 
-        // Determine if this is audio/video content
         final fileType = _determineFileType(file);
         
-        // Only include audio files and videos (which might contain audio)
         if (!_isAudioContent(file, category)) {
           debugPrint('Skipping non-audio content: $file (category: $category, type: $fileType)');
           continue;
         }
 
-        // Create music track
+        // Get cached duration if available
+        final cachedDuration = _getCachedDuration(id.toString());
+
         final musicTrack = MusicTrack(
           id: id.toString(),
           title: title,
@@ -234,10 +343,16 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           file: file,
           fileType: fileType,
           isNetworkSource: true,
+          duration: cachedDuration,
         );
         
-        debugPrint('✅ Added music track: $title (ID: $id, Category: $category)');
+        debugPrint('✅ Added music track: $title (ID: $id, Category: $category, Cached Duration: ${cachedDuration != null ? _formatDuration(cachedDuration) : 'Not cached'})');
         musicTracks.add(musicTrack);
+
+        // Load duration in background if not cached
+        if (cachedDuration == null) {
+          _loadTrackDuration(musicTrack);
+        }
       }
 
       debugPrint('Final music track count: ${musicTracks.length}');
@@ -262,17 +377,12 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     final String lowerFilename = filename.toLowerCase();
     final String lowerCategory = category.toLowerCase();
     
-    // Audio file extensions
     const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac'];
-    
-    // Video file extensions (might contain audio)
     const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv'];
     
-    // Check file extension
     final hasAudioExtension = audioExtensions.any((ext) => lowerFilename.endsWith(ext));
     final hasVideoExtension = videoExtensions.any((ext) => lowerFilename.endsWith(ext));
     
-    // Check category hints
     const musicCategories = ['audio', 'music', 'song', 'instrument', 'ceremony'];
     final isMusicCategory = musicCategories.any((cat) => lowerCategory.contains(cat));
     
@@ -280,14 +390,10 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 
   String _buildThumbnailUrl(String filename, String category) {
-    // For audio files, use a default music thumbnail
     if (_isAudioContent(filename, category)) {
-      // You could potentially extract thumbnails from the API if they exist
-      // For now, use default asset
       return 'assets/images/kagan_default_music.jpg';
     }
     
-    // For image files, use the actual file
     final String lowerFilename = filename.toLowerCase();
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     
@@ -331,28 +437,24 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       case 'song':
         return 'Song';
       default:
-        return category; // Keep original category if no mapping found
+        return category;
     }
   }
 
   String _extractArtist(String? description, String title) {
-    // Try to extract artist name from description
     if (description != null && description.isNotEmpty) {
-      // Look for common patterns
       final RegExp artistPattern = RegExp(r'(?:by|artist|performed by|sung by)\s+([^,\.\-\n]+)', caseSensitive: false);
       final match = artistPattern.firstMatch(description);
       if (match != null && match.group(1) != null) {
         return match.group(1)!.trim();
       }
       
-      // If description is short and doesn't contain common words, it might be the artist name
       if (description.length < 50 && 
           !description.toLowerCase().contains(RegExp(r'\b(the|a|an|and|or|but|in|on|at|to|for|of|with|by)\b'))) {
         return description.trim();
       }
     }
     
-    // Generate contextual artist names based on title
     final lowerTitle = title.toLowerCase();
     if (lowerTitle.contains(RegExp(r'\b(elder|traditional|ancestral|ancient)\b'))) {
       return 'Kagan Elders';
@@ -388,21 +490,18 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header that shows/hides based on scroll and search focus
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
                 child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
               ),
               
-              // Flexible content area
               Expanded(
                 child: _isSearchFocused 
                     ? _buildSearchResults()
                     : _buildMainContent(),
               ),
               
-              // Inline Music Player at the bottom
               if (_currentTrack != null) _buildInlineMusicPlayer(),
             ],
           ),
@@ -416,7 +515,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Back button - hide when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 48,
@@ -441,13 +539,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                   ),
           ),
           
-          // Dynamic spacing
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 16,
           ),
           
-          // Search bar - expands when focused
           Expanded(
             child: Container(
               height: 48,
@@ -504,7 +600,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
             ),
           ),
           
-          // Cancel button when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 80 : 0,
@@ -842,6 +937,8 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
 
   Widget _buildMusicCard(MusicTrack track) {
     final isCurrentTrack = _currentTrack?.id == track.id;
+    final hasDuration = track.duration != null;
+    final isLoadingDuration = _loadingDurations.contains(track.id);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -968,11 +1065,52 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          // Duration display
+                          if (hasDuration)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 10,
+                                    color: Colors.white.withOpacity(0.6),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatDuration(track.duration!),
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.6),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else if (isLoadingDuration)
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withOpacity(0.4),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ],
                   ),
                 ),
+                
+                const SizedBox(width: 8),
                 
                 GestureDetector(
                   onTap: () {
@@ -1027,7 +1165,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Track info with close button
           Row(
             children: [
               Container(
@@ -1094,7 +1231,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 ),
               ),
               
-              // Control buttons
               IconButton(
                 onPressed: () {
                   _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
@@ -1125,7 +1261,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 icon: const Icon(Icons.forward_30, color: Colors.white, size: 20),
               ),
               
-              // Close button
               IconButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
@@ -1149,7 +1284,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
           
           const SizedBox(height: 8),
           
-          // Progress bar
           Column(
             children: [
               SliderTheme(
@@ -1174,7 +1308,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
                 ),
               ),
               
-              // Time labels
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -1207,7 +1340,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   Future<void> _togglePlayPause(MusicTrack track) async {
     try {
       if (_currentTrack?.id != track.id) {
-        // Play new track
         setState(() {
           _currentTrack = track;
           _isLoadingAudio = true;
@@ -1216,14 +1348,11 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         await _audioPlayer.stop();
         
         if (track.isNetworkSource) {
-          // Play from network URL
           await _audioPlayer.play(UrlSource(track.audioPath));
         } else {
-          // Play from assets
           await _audioPlayer.play(AssetSource(track.audioPath));
         }
       } else {
-        // Toggle play/pause for current track
         if (_isPlaying) {
           await _audioPlayer.pause();
         } else {
@@ -1233,7 +1362,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
     } catch (e) {
       debugPrint('Error playing audio: $e');
       
-      // Show error message to user
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1248,7 +1376,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         );
       }
       
-      // Reset loading state on error
       setState(() {
         _isLoadingAudio = false;
       });
@@ -1292,7 +1419,6 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
   }
 }
 
-// Enum for file types
 enum FileType {
   video,
   audio,
@@ -1300,7 +1426,6 @@ enum FileType {
   unknown,
 }
 
-// Enhanced MusicTrack model with API support
 class MusicTrack {
   final String id;
   final String title;
@@ -1312,6 +1437,7 @@ class MusicTrack {
   final String file;
   final FileType fileType;
   final bool isNetworkSource;
+  final Duration? duration;
 
   MusicTrack({
     required this.id,
@@ -1324,5 +1450,34 @@ class MusicTrack {
     required this.file,
     required this.fileType,
     this.isNetworkSource = false,
+    this.duration,
   });
+
+  MusicTrack copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? category,
+    String? imagePath,
+    String? artist,
+    String? audioPath,
+    String? file,
+    FileType? fileType,
+    bool? isNetworkSource,
+    Duration? duration,
+  }) {
+    return MusicTrack(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      imagePath: imagePath ?? this.imagePath,
+      artist: artist ?? this.artist,
+      audioPath: audioPath ?? this.audioPath,
+      file: file ?? this.file,
+      fileType: fileType ?? this.fileType,
+      isNetworkSource: isNetworkSource ?? this.isNetworkSource,
+      duration: duration ?? this.duration,
+    );
+  }
 }
