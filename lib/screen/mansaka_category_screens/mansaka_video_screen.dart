@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import '../shared/video_player_screen.dart';
+import '../../utils/video_metadata_cache.dart';
 
 class MansakaVideoScreen extends StatefulWidget {
   const MansakaVideoScreen({super.key});
@@ -18,18 +24,18 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearchFocused = false;
   
-  // Scroll controller and visibility state
   final ScrollController _scrollController = ScrollController();
   bool _isHeaderVisible = true;
   double _lastScrollOffset = 0;
 
-  // API and loading state
   static const String _baseUrl = 'https://huni-cms.ionvop.com/api/content/';
   static const String _uploadsBaseUrl = 'https://huni-cms.ionvop.com/uploads/';
   List<VideoItem> _allVideos = [];
   bool _isLoading = true;
   String? _errorMessage;
   VideoItem? _featuredVideo;
+  
+  final Set<String> _loadingMetadata = {};
 
   List<VideoItem> get _filteredVideos {
     if (_searchQuery.isEmpty) {
@@ -83,14 +89,12 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
       });
 
       debugPrint('Fetching videos from: $_baseUrl');
-      debugPrint('Attempting URL: ${_baseUrl}category=video&tribe=mansaka');
 
-      // Try multiple approaches to get data
       List<String> urls = [
-        '${_baseUrl}category=video&tribe=mansaka',  // Original attempt
-        '$_baseUrl?category=video&tribe=mansaka', // With query parameter format
-        '$_baseUrl?tribe=mansaka',                // Just tribe filter
-        _baseUrl,                              // All content
+        '${_baseUrl}category=video&tribe=mansaka',
+        '$_baseUrl?category=video&tribe=mansaka',
+        '$_baseUrl?tribe=mansaka',
+        _baseUrl,
       ];
 
       http.Response? successResponse;
@@ -105,9 +109,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
               'Content-Type': 'application/json',
             },
           ).timeout(const Duration(seconds: 15));
-          
-          debugPrint('Response status for $url: ${response.statusCode}');
-          debugPrint('Response body preview: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}...');
           
           if (response.statusCode == 200) {
             successResponse = response;
@@ -124,7 +125,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
       }
 
       final Map<String, dynamic> jsonData = json.decode(successResponse.body);
-      debugPrint('Parsed JSON keys: ${jsonData.keys.toList()}');
       
       if (jsonData.containsKey('error')) {
         throw Exception(jsonData['error']);
@@ -139,18 +139,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         videoData = [videoDataRaw];
       }
 
-      debugPrint('Found ${videoData.length} items in response');
-
       final List<VideoItem> fetchedVideos = [];
 
       for (var item in videoData) {
         if (item == null) continue;
         
-        debugPrint('Processing item: ${item.toString()}');
-        
-        // STRICT VALIDATION - Only include items that have ALL required fields from the API spec:
-        
-        // 1. Validate all required fields exist
         final id = item['id'];
         final userId = item['user_id'];
         final title = item['title']?.toString();
@@ -161,58 +154,48 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         final isArchived = item['is_archived'];
         final time = item['time']?.toString();
         
-        // Check if any required field is missing
         if (id == null || userId == null || title == null || title.isEmpty ||
             category == null || category.isEmpty || tribe == null || tribe.isEmpty ||
             file == null || file.isEmpty || isArchived == null || time == null) {
-          debugPrint('Skipping item - missing required fields:');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
-        // 2. Must be Mansaka tribe
         if (tribe.toLowerCase() != 'mansaka') {
-          debugPrint('Skipping item - not Mansaka tribe: $tribe');
           continue;
         }
 
-        // 3. Must NOT be archived
         if (isArchived != 0) {
-          debugPrint('Skipping item - is archived: $title');
           continue;
         }
 
-        // 4. Determine file type
         final fileType = _determineFileType(file);
+        final videoUrl = '$_uploadsBaseUrl$file';
+        
+        // Check cache for duration and thumbnail
+        final cachedDuration = await VideoMetadataCache.getDuration(id.toString());
+        final cachedThumbnail = await VideoMetadataCache.getThumbnail(id.toString());
 
         final videoItem = VideoItem(
           id: id.toString(),
           title: title,
-          thumbnail: _buildThumbnailUrl(file),
-          duration: _formatDuration(item['duration']), // This might not be in API response
+          thumbnail: cachedThumbnail ?? _buildThumbnailUrl(file),
+          duration: cachedDuration ?? '--:--',
           description: description ?? 'No description available',
           category: _mapCategory(category),
           file: file,
           fileType: fileType,
+          videoUrl: videoUrl,
         );
         
-        debugPrint('✅ Valid item added: $title (ID: $id, Category: $category, Type: $fileType)');
+        debugPrint('✅ Valid item added: $title (Cached: duration=${cachedDuration != null}, thumbnail=${cachedThumbnail != null})');
         fetchedVideos.add(videoItem);
       }
-
-      debugPrint('Final video count after filtering: ${fetchedVideos.length}');
 
       setState(() {
         _allVideos = fetchedVideos;
         _featuredVideo = fetchedVideos.isNotEmpty ? fetchedVideos.first : null;
         _isLoading = false;
       });
-
-      if (fetchedVideos.isEmpty) {
-        debugPrint('No videos found - this might be expected if there are no Mansaka videos in the database');
-      }
 
     } catch (e, stackTrace) {
       debugPrint('Error fetching videos: $e');
@@ -224,23 +207,97 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     }
   }
 
+  Future<void> _loadVideoMetadata(VideoItem video) async {
+    if (video.fileType != FileType.video || 
+        video.duration != '--:--' || 
+        _loadingMetadata.contains(video.id)) {
+      return;
+    }
+    
+    _loadingMetadata.add(video.id);
+    
+    VideoPlayerController? tempController;
+    try {
+      debugPrint('📥 Loading metadata for: ${video.title}');
+      
+      tempController = VideoPlayerController.networkUrl(
+        Uri.parse(video.videoUrl),
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
+      
+      await tempController.initialize().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          throw Exception('Timeout loading video metadata');
+        },
+      );
+      
+      if (tempController.value.duration.inSeconds > 0) {
+        final minutes = tempController.value.duration.inMinutes;
+        final seconds = tempController.value.duration.inSeconds % 60;
+        final duration = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+        
+        await VideoMetadataCache.saveDuration(video.id, duration);
+        
+        if (mounted) {
+          setState(() {
+            video.duration = duration;
+          });
+        }
+        debugPrint('✅ Duration loaded and cached for ${video.title}: $duration');
+      }
+      
+      try {
+        final thumbnailDir = await getApplicationDocumentsDirectory();
+        final thumbnailPath = await VideoThumbnail.thumbnailFile(
+          video: video.videoUrl,
+          thumbnailPath: '${thumbnailDir.path}/thumbnails',
+          imageFormat: ImageFormat.JPEG,
+          maxWidth: 320,
+          quality: 75,
+          timeMs: 1000,
+        );
+        
+        if (thumbnailPath != null && await File(thumbnailPath).exists()) {
+          await VideoMetadataCache.saveThumbnail(video.id, thumbnailPath);
+          
+          if (mounted) {
+            setState(() {
+              video.thumbnail = thumbnailPath;
+            });
+          }
+          debugPrint('✅ Thumbnail generated and cached for ${video.title}');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Error generating thumbnail for ${video.title}: $e');
+      }
+      
+    } catch (e) {
+      debugPrint('❌ Error loading metadata for ${video.title}: $e');
+      if (mounted) {
+        setState(() {
+          video.duration = 'N/A';
+        });
+      }
+    } finally {
+      tempController?.dispose();
+      _loadingMetadata.remove(video.id);
+    }
+  }
+
   String _buildThumbnailUrl(String? filename) {
     if (filename == null || filename.isEmpty) {
       return 'assets/videos/thumbnails/default_thumbnail.jpg';
     }
     
     final String lowerFilename = filename.toLowerCase();
-    
-    // Check if it's a video file
     const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv', '.flv', '.wmv'];
     bool isVideoFile = videoExtensions.any((ext) => lowerFilename.endsWith(ext));
     
     if (isVideoFile) {
-      // For video files, you might want to generate thumbnails or use a placeholder
       return 'assets/videos/thumbnails/default_thumbnail.jpg';
     }
     
-    // Check if it's an image file that can be used as thumbnail
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     bool isImageFile = imageExtensions.any((ext) => lowerFilename.endsWith(ext));
     
@@ -257,7 +314,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     }
     
     final String lowerFilename = filename.toLowerCase();
-    
     const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.m4v', '.mkv', '.flv', '.wmv'];
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     const audioExtensions = ['.mp3', '.wav', '.aac', '.ogg', '.m4a'];
@@ -271,28 +327,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     }
     
     return FileType.unknown;
-  }
-
-  String _formatDuration(dynamic duration) {
-    if (duration == null) return '--:--';
-    
-    if (duration is String) {
-      if (duration.contains(':')) return duration;
-      final int? seconds = int.tryParse(duration);
-      if (seconds != null) {
-        final minutes = seconds ~/ 60;
-        final remainingSeconds = seconds % 60;
-        return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-      }
-    }
-    
-    if (duration is int) {
-      final minutes = duration ~/ 60;
-      final remainingSeconds = duration % 60;
-      return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-    }
-    
-    return '--:--';
   }
 
   String _mapCategory(String? category) {
@@ -318,6 +352,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
 
   @override
   void dispose() {
+    _loadingMetadata.clear();
     _searchController.dispose();
     _searchFocusNode.dispose();
     _scrollController.dispose();
@@ -343,14 +378,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header that shows/hides based on scroll and search focus
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
                 child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
               ),
-              
-              // Flexible content area
               Expanded(
                 child: _isSearchFocused 
                     ? _buildSearchResults()
@@ -368,7 +400,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Back button - hide when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 48,
@@ -392,14 +423,10 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                     ),
                   ),
           ),
-          
-          // Dynamic spacing
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 0 : 16,
           ),
-          
-          // Search bar - expands when focused
           Expanded(
             child: Container(
               height: 48,
@@ -455,8 +482,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
               ),
             ),
           ),
-          
-          // Cancel button when searching
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: _isSearchFocused ? 80 : 0,
@@ -651,7 +676,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
               ],
             ),
           ),
-        
         Expanded(
           child: _searchQuery.isEmpty
               ? Center(
@@ -757,41 +781,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                       ],
                     ),
                   ),
-                  child: _featuredVideo!.thumbnail.startsWith('http')
-                      ? Image.network(
-                          _featuredVideo!.thumbnail,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: Colors.white,
-                                size: 60,
-                              ),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          _featuredVideo!.thumbnail,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: Colors.white,
-                                size: 60,
-                              ),
-                            );
-                          },
-                        ),
+                  child: _buildThumbnailImage(_featuredVideo!),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -881,176 +871,167 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
   }
 
   Widget _buildVideoCard(VideoItem video) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              _playVideo(video);
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFFB19CD9),
-                              Color(0xFF8B6DB0),
-                            ],
-                          ),
-                        ),
-                        child: video.thumbnail.startsWith('http')
-                            ? Image.network(
-                                video.thumbnail,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.play_circle_outline,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  );
-                                },
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return const Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  );
-                                },
-                              )
-                            : Image.asset(
-                                video.thumbnail,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.play_circle_outline,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  );
-                                },
-                              ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            video.duration,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Icon(
-                            video.fileType == FileType.video 
-                                ? Icons.play_arrow
-                                : video.fileType == FileType.audio
-                                    ? Icons.music_note
-                                    : Icons.image,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    color: const Color(0xFF2A2A2A),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return VisibilityDetector(
+      key: Key('video_${video.id}'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.1 && video.duration == '--:--') {
+          _loadVideoMetadata(video);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                _playVideo(video);
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Stack(
                       children: [
-                        Text(
-                          video.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Expanded(
-                          child: Text(
-                            video.description,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFB19CD9).withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFFB19CD9),
+                                Color(0xFF8B6DB0),
+                              ],
+                            ),
                           ),
-                          child: Text(
-                            video.category,
-                            style: const TextStyle(
-                              color: Color(0xFFB19CD9),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                          child: _buildThumbnailImage(video),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (video.duration == '--:--' && _loadingMetadata.contains(video.id))
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: SizedBox(
+                                      width: 8,
+                                      height: 8,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 1.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  video.duration,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Icon(
+                              video.fileType == FileType.video 
+                                  ? Icons.play_arrow
+                                  : video.fileType == FileType.audio
+                                      ? Icons.music_note
+                                      : Icons.image,
+                              color: Colors.white,
+                              size: 24,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      color: const Color(0xFF2A2A2A),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            video.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Expanded(
+                            child: Text(
+                              video.description,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB19CD9).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              video.category,
+                              style: const TextStyle(
+                                color: Color(0xFFB19CD9),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1058,8 +1039,63 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     );
   }
 
+  Widget _buildThumbnailImage(VideoItem video) {
+    if (video.thumbnail.startsWith('/data') || video.thumbnail.startsWith('/storage')) {
+      return Image.file(
+        File(video.thumbnail),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(
+              Icons.play_circle_outline,
+              color: Colors.white,
+              size: 40,
+            ),
+          );
+        },
+      );
+    }
+    
+    if (video.thumbnail.startsWith('http')) {
+      return Image.network(
+        video.thumbnail,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(
+              Icons.play_circle_outline,
+              color: Colors.white,
+              size: 40,
+            ),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          );
+        },
+      );
+    }
+    
+    return Image.asset(
+      video.thumbnail,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return const Center(
+          child: Icon(
+            Icons.play_circle_outline,
+            color: Colors.white,
+            size: 40,
+          ),
+        );
+      },
+    );
+  }
+
   void _playVideo(VideoItem video) {
-    // Validate that we have a playable video file
     if (video.file.isEmpty || video.fileType != FileType.video) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1086,14 +1122,13 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
           duration: video.duration,
           accentColor: const Color(0xFFB19CD9),
           tribalName: 'Mansaka',
-          videoUrl: '$_uploadsBaseUrl${video.file}',
+          videoUrl: video.videoUrl,
         ),
       ),
     );
   }
 }
 
-// Enum for file types
 enum FileType {
   video,
   audio,
@@ -1104,12 +1139,13 @@ enum FileType {
 class VideoItem {
   final String id;
   final String title;
-  final String thumbnail;
-  final String duration;
+  String thumbnail;
+  String duration;
   final String description;
   final String category;
   final String file;
   final FileType fileType;
+  final String videoUrl;
 
   VideoItem({
     required this.id,
@@ -1120,5 +1156,6 @@ class VideoItem {
     required this.category,
     required this.file,
     required this.fileType,
+    required this.videoUrl,
   });
 }
