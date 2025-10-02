@@ -48,41 +48,46 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
         video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
-  // FIXED: More granular responsive breakpoints
+  // Enhanced responsive helper methods (from Kagan)
   int _getCrossAxisCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width > 1200) return 4;
     if (width > 900) return 3;
     if (width > 600) return 2;
-    if (width > 400) return 2;
-    return 1; // Single column for very small devices
+    return 2;
   }
 
-  // FIXED: Adjusted aspect ratio to prevent overflow
+  // FIXED: More flexible childAspectRatio that accounts for content
   double _getChildAspectRatio(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final crossAxisCount = _getCrossAxisCount(context);
     
-    // Calculate available width per card
+    // Calculate available width per item
     final horizontalPadding = _getHorizontalPadding(context);
-    final totalSpacing = 16.0 * (crossAxisCount - 1);
-    final availableWidth = (width - (horizontalPadding * 2) - totalSpacing) / crossAxisCount;
+    final spacing = _getGridSpacing(context);
+    final availableWidth = width - (horizontalPadding * 2) - (spacing * (crossAxisCount - 1));
+    final itemWidth = availableWidth / crossAxisCount;
     
-    // Use height-based calculation instead of fixed ratio
-    // Thumbnail should be ~60% of card, info section ~40%
-    final thumbnailHeight = availableWidth * 0.7; // Slightly less wide than tall
-    final infoHeight = 90.0; // Approximate minimum height for info section
-    final cardHeight = thumbnailHeight + infoHeight;
+    // Dynamic height based on item width - more generous for smaller screens
+    final itemHeight = itemWidth * 1.4; // Increased from 1.35 to 1.4 for more vertical room
     
-    return availableWidth / cardHeight;
+    return itemWidth / itemHeight;
   }
 
-  // FIXED: Responsive padding
+  // FIXED: Responsive padding that scales more conservatively
   double _getHorizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width > 1200) return width * 0.04; // 4% of width
-    if (width > 800) return width * 0.03;  // 3% of width
-    return width * 0.04; // 4% of width (16px on 400px screen)
+    if (width > 1200) return width * 0.025; // 2.5% of width
+    if (width > 800) return width * 0.02; // 2% of width
+    return width * 0.04; // 4% of width (reduced from fixed 16)
+  }
+
+  // NEW: Responsive grid spacing
+  double _getGridSpacing(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 16;
+    if (width > 800) return 12;
+    return 10; // Reduced from 16 to save space on small screens
   }
 
   // FIXED: More conservative featured video height
@@ -91,42 +96,35 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
     final width = size.width;
     final height = size.height;
     final isLandscape = width > height;
-    final horizontalPadding = _getHorizontalPadding(context);
     
-    // Base calculation on available width for aspect ratio
-    final availableWidth = width - (horizontalPadding * 2);
-    
-    if (isLandscape) {
-      return height * 0.35; // 35% in landscape
-    }
-    
-    // 16:9 aspect ratio with max constraints
-    final idealHeight = (availableWidth / 16) * 9;
-    final maxHeight = height * 0.3; // Never more than 30% of screen height
-    
-    return idealHeight.clamp(150.0, maxHeight);
+    // Use percentage of screen height for better scaling
+    if (width > 1200) return height * 0.35;
+    if (width > 800) return height * 0.3;
+    if (isLandscape) return height * 0.35;
+    return height * 0.25; // Reduced from fixed 200
   }
 
   double _getFontSize(BuildContext context, double baseSize) {
     final width = MediaQuery.of(context).size.width;
-    if (width > 1200) return baseSize * 1.2;
-    if (width > 800) return baseSize * 1.1;
-    if (width < 360) return baseSize * 0.95; // Slightly smaller on very small screens
+    if (width > 1200) return baseSize * 1.15;
+    if (width > 800) return baseSize * 1.08;
+    if (width < 360) return baseSize * 0.95; // Scale down on very small screens
     return baseSize;
   }
 
-  // FIXED: Add responsive spacing helper
-  double _getSpacing(BuildContext context, double baseSpacing) {
-    final width = MediaQuery.of(context).size.width;
-    if (width < 360) return baseSpacing * 0.75;
-    return baseSpacing;
-  }
-
-  // FIXED: Add responsive header height
+  // NEW: Responsive header height
   double _getHeaderHeight(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width < 360) return 70;
-    return 80;
+    if (width > 800) return 80;
+    if (width < 360) return 65;
+    return 72;
+  }
+
+  // NEW: Responsive vertical spacing
+  double _getVerticalSpacing(BuildContext context, double baseSpacing) {
+    final height = MediaQuery.of(context).size.height;
+    if (height < 700) return baseSpacing * 0.75; // Reduce on short screens
+    return baseSpacing;
   }
 
   @override
@@ -461,7 +459,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // FIXED: Use calculated height instead of fixed 80
+              // FIXED: Dynamic header height
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? headerHeight : 0,
@@ -482,12 +480,12 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   }
 
   Widget _buildHeader(BuildContext context, double horizontalPadding) {
-    final spacing = _getSpacing(context, 16);
+    final verticalPadding = _getVerticalSpacing(context, 12);
     
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding,
-        vertical: spacing * 0.75, // Reduced vertical padding
+        horizontal: horizontalPadding, 
+        vertical: verticalPadding
       ),
       child: Row(
         children: [
@@ -516,7 +514,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : spacing,
+            width: _isSearchFocused ? 0 : 12, // Reduced from 16
           ),
           Expanded(
             child: Container(
@@ -566,10 +564,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: spacing,
-                    vertical: 12,
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -618,7 +613,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7FB069)),
             ),
-            SizedBox(height: _getSpacing(context, 16)),
+            SizedBox(height: _getVerticalSpacing(context, 16)),
             Text(
               'Loading Mandaya videos...',
               style: TextStyle(
@@ -644,7 +639,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 size: 64,
                 color: Colors.white.withOpacity(0.5),
               ),
-              SizedBox(height: _getSpacing(context, 16)),
+              SizedBox(height: _getVerticalSpacing(context, 16)),
               Text(
                 'Failed to load videos',
                 style: TextStyle(
@@ -653,7 +648,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: _getSpacing(context, 8)),
+              SizedBox(height: _getVerticalSpacing(context, 8)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: Text(
@@ -665,7 +660,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: _getSpacing(context, 24)),
+              SizedBox(height: _getVerticalSpacing(context, 24)),
               ElevatedButton(
                 onPressed: _refreshVideos,
                 style: ElevatedButton.styleFrom(
@@ -673,7 +668,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
                     horizontal: horizontalPadding,
-                    vertical: _getSpacing(context, 16),
+                    vertical: _getVerticalSpacing(context, 12),
                   ),
                 ),
                 child: Text(
@@ -698,7 +693,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
               size: 64,
               color: Colors.white.withOpacity(0.5),
             ),
-            SizedBox(height: _getSpacing(context, 16)),
+            SizedBox(height: _getVerticalSpacing(context, 16)),
             Text(
               'No Mandaya videos available',
               style: TextStyle(
@@ -707,7 +702,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: _getSpacing(context, 8)),
+            SizedBox(height: _getVerticalSpacing(context, 8)),
             Text(
               'Check back later for new content',
               style: TextStyle(
@@ -715,7 +710,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 fontSize: _getFontSize(context, 14),
               ),
             ),
-            SizedBox(height: _getSpacing(context, 24)),
+            SizedBox(height: _getVerticalSpacing(context, 24)),
             ElevatedButton(
               onPressed: _refreshVideos,
               style: ElevatedButton.styleFrom(
@@ -723,7 +718,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: horizontalPadding,
-                  vertical: _getSpacing(context, 16),
+                  vertical: _getVerticalSpacing(context, 12),
                 ),
               ),
               child: Text(
@@ -735,6 +730,8 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
         ),
       );
     }
+
+    final gridSpacing = _getGridSpacing(context);
 
     return RefreshIndicator(
       onRefresh: _refreshVideos,
@@ -756,8 +753,8 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: _getCrossAxisCount(context),
                 childAspectRatio: _getChildAspectRatio(context),
-                crossAxisSpacing: _getSpacing(context, 16),
-                mainAxisSpacing: _getSpacing(context, 16),
+                crossAxisSpacing: gridSpacing,
+                mainAxisSpacing: gridSpacing,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -769,7 +766,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(height: _getSpacing(context, 20)),
+            child: SizedBox(height: _getVerticalSpacing(context, 20)),
           ),
         ],
       ),
@@ -777,15 +774,15 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   }
 
   Widget _buildSearchResults(double horizontalPadding) {
-    final spacing = _getSpacing(context, 8);
+    final gridSpacing = _getGridSpacing(context);
     
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: spacing,
+              horizontal: horizontalPadding, 
+              vertical: _getVerticalSpacing(context, 8)
             ),
             child: Row(
               children: [
@@ -824,7 +821,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                             size: 48,
                             color: Colors.white.withOpacity(0.3),
                           ),
-                          SizedBox(height: _getSpacing(context, 16)),
+                          SizedBox(height: _getVerticalSpacing(context, 16)),
                           Text(
                             'No videos found',
                             style: TextStyle(
@@ -833,7 +830,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: spacing),
+                          SizedBox(height: _getVerticalSpacing(context, 8)),
                           Text(
                             'Try different keywords',
                             style: TextStyle(
@@ -849,13 +846,13 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                       padding: EdgeInsets.only(
                         left: horizontalPadding,
                         right: horizontalPadding,
-                        bottom: MediaQuery.of(context).viewInsets.bottom + _getSpacing(context, 20),
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: _getCrossAxisCount(context),
                         childAspectRatio: _getChildAspectRatio(context),
-                        crossAxisSpacing: _getSpacing(context, 16),
-                        mainAxisSpacing: _getSpacing(context, 16),
+                        crossAxisSpacing: gridSpacing,
+                        mainAxisSpacing: gridSpacing,
                       ),
                       itemCount: _filteredVideos.length,
                       itemBuilder: (context, index) {
@@ -872,10 +869,10 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
     if (_featuredVideo == null) return const SizedBox.shrink();
 
     final featuredHeight = _getFeaturedVideoHeight(context);
-    final spacing = _getSpacing(context, 16);
+    final cardPadding = horizontalPadding * 0.75; // Proportional padding
 
     return Container(
-      margin: EdgeInsets.all(horizontalPadding),
+      margin: EdgeInsets.all(cardPadding),
       height: featuredHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -926,9 +923,9 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: spacing * 0.75,
-                  left: spacing * 0.75,
-                  right: spacing * 0.75,
+                  bottom: cardPadding,
+                  left: cardPadding,
+                  right: cardPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -943,7 +940,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: _getSpacing(context, 4)),
+                      SizedBox(height: _getVerticalSpacing(context, 4)),
                       Text(
                         _featuredVideo!.description,
                         style: TextStyle(
@@ -958,7 +955,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
                 ),
                 Center(
                   child: Container(
-                    padding: EdgeInsets.all(spacing * 0.75),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(50),
@@ -979,12 +976,10 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
   }
 
   Widget _buildBrowseSection(double horizontalPadding) {
-    final spacing = _getSpacing(context, 16);
-    
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding,
-        vertical: spacing * 0.75,
+        horizontal: horizontalPadding, 
+        vertical: _getVerticalSpacing(context, 12)
       ),
       child: Row(
         children: [
@@ -993,7 +988,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
             color: Color(0xFF7FB069),
             size: 20,
           ),
-          SizedBox(width: spacing * 0.5),
+          SizedBox(width: _getVerticalSpacing(context, 8)),
           Flexible(
             child: Text(
               'Browse Mandaya videos',
@@ -1011,7 +1006,7 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
     );
   }
 
-  // FIXED: Complete rewrite of video card with proper constraints
+  // FIXED: Complete video card rewrite with proper constraints (from Kagan)
   Widget _buildVideoCard(VideoItem video) {
     return VisibilityDetector(
       key: Key('video_${video.id}'),
@@ -1020,192 +1015,189 @@ class _MandayaVideoScreenState extends State<MandayaVideoScreen> {
           _loadVideoMetadata(video);
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate heights dynamically based on available space
+          final cardWidth = constraints.maxWidth;
+          final cardHeight = constraints.maxHeight;
+          
+          // Image should take 60% of card height
+          final imageHeight = cardHeight * 0.6;
+          // Info section takes remaining 40%
+          final infoHeight = cardHeight * 0.4;
+          
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                _playVideo(video);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // FIXED: Use Flexible instead of Expanded with aspect ratio
-                  Flexible(
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF7FB069),
-                                  Color(0xFF5D8A47),
-                                ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _playVideo(video);
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // FIXED: Use SizedBox with explicit height instead of Expanded
+                      SizedBox(
+                        height: imageHeight,
+                        width: double.infinity,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF7FB069),
+                                    Color(0xFF5D8A47),
+                                  ],
+                                ),
                               ),
+                              child: _buildThumbnailImage(video),
                             ),
-                            child: _buildThumbnailImage(video),
-                          ),
-                          Positioned(
-                            top: 6,
-                            right: 6,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.7),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (video.duration == '--:--' && _loadingMetadata.contains(video.id))
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: SizedBox(
-                                        width: 8,
-                                        height: 8,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 1.5,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (video.duration == '--:--' && _loadingMetadata.contains(video.id))
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: SizedBox(
+                                          width: 8,
+                                          height: 8,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 1.5,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  Text(
-                                    video.duration,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: _getFontSize(context, 10),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Container(
-                              padding: EdgeInsets.all(_getSpacing(context, 10)),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Icon(
-                                video.fileType == FileType.video 
-                                    ? Icons.play_arrow
-                                    : video.fileType == FileType.audio
-                                        ? Icons.music_note
-                                        : Icons.image,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // FIXED: Use LayoutBuilder for dynamic sizing
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final spacing = _getSpacing(context, 10);
-                      
-                      return Container(
-                        width: double.infinity,
-                        constraints: const BoxConstraints(
-                          minHeight: 85,
-                          maxHeight: 110,
-                        ),
-                        padding: EdgeInsets.all(spacing),
-                        color: const Color(0xFF2A2A2A),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    video.title,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: _getFontSize(context, 13),
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: _getSpacing(context, 3)),
-                                  Flexible(
-                                    child: Text(
-                                      video.description,
+                                    Text(
+                                      video.duration,
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: _getFontSize(context, 11),
-                                        height: 1.2,
+                                        color: Colors.white,
+                                        fontSize: _getFontSize(context, 10),
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                            SizedBox(height: _getSpacing(context, 6)),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: _getSpacing(context, 8),
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF7FB069).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                video.category,
-                                style: TextStyle(
-                                  color: const Color(0xFF7FB069),
-                                  fontSize: _getFontSize(context, 10),
-                                  fontWeight: FontWeight.w500,
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.all(cardWidth * 0.08), // Proportional padding
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                child: Icon(
+                                  video.fileType == FileType.video 
+                                      ? Icons.play_arrow
+                                      : video.fileType == FileType.audio
+                                          ? Icons.music_note
+                                          : Icons.image,
+                                  color: Colors.white,
+                                  size: cardWidth * 0.15, // Proportional icon size
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      );
-                    },
+                      ),
+                      // FIXED: Use SizedBox with explicit height - NO Flexible/Expanded
+                      SizedBox(
+                        height: infoHeight,
+                        width: double.infinity,
+                        child: Container(
+                          padding: EdgeInsets.all(cardWidth * 0.035), // Reduced padding
+                          color: const Color(0xFF2A2A2A),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // FIXED: Removed Flexible wrappers - direct Text with constraints
+                              Text(
+                                video.title,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: _getFontSize(context, 12), // Reduced from 13
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: cardHeight * 0.005), // Reduced spacing
+                              Text(
+                                video.description,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                  fontSize: _getFontSize(context, 10), // Reduced from 11
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              // FIXED: Spacer pushes category to bottom naturally
+                              const Spacer(),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: cardWidth * 0.02, // Reduced padding
+                                  vertical: cardHeight * 0.006, // Reduced padding
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF7FB069).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  video.category,
+                                  style: TextStyle(
+                                    color: const Color(0xFF7FB069),
+                                    fontSize: _getFontSize(context, 9), // Reduced from 10
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

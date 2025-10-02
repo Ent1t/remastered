@@ -48,7 +48,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
-  // IMPROVED: Responsive helper methods with better breakpoints
+  // Enhanced responsive helper methods (combining best from both screens)
   int _getCrossAxisCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width > 1200) return 4;
@@ -57,70 +57,74 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     return 2;
   }
 
-  // FIXED: Dynamic aspect ratio based on actual screen space
+  // ENHANCED: More flexible childAspectRatio from Kagan
   double _getChildAspectRatio(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final crossAxisCount = _getCrossAxisCount(context);
+    
+    // Calculate available width per item
     final horizontalPadding = _getHorizontalPadding(context);
     final spacing = _getGridSpacing(context);
+    final availableWidth = width - (horizontalPadding * 2) - (spacing * (crossAxisCount - 1));
+    final itemWidth = availableWidth / crossAxisCount;
     
-    // Calculate available width per card
-    final availableWidth = (width - (horizontalPadding * 2) - (spacing * (crossAxisCount - 1))) / crossAxisCount;
+    // Dynamic height based on item width - generous for text content
+    final itemHeight = itemWidth * 1.4; // Adjusted for better content fit
     
-    // Card height calculation: thumbnail (60%) + info section (40%)
-    final cardHeight = availableWidth / 0.65; // Adjusted for better text space
-    
-    return availableWidth / cardHeight;
+    return itemWidth / itemHeight;
   }
 
-  // FIXED: Responsive padding that scales with screen
+  // ENHANCED: More conservative padding from Kagan
   double _getHorizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width > 1200) return width * 0.04; // 4% of width
-    if (width > 800) return width * 0.03; // 3% of width
-    return width * 0.04; // 4% of width for mobile
+    if (width > 1200) return width * 0.025; // 2.5% of width
+    if (width > 800) return width * 0.02; // 2% of width
+    return width * 0.04; // 4% of width
   }
 
-  // NEW: Responsive grid spacing
+  // Responsive grid spacing
   double _getGridSpacing(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width > 1200) return 20;
-    if (width > 800) return 16;
-    return 12;
+    if (width > 1200) return 16;
+    if (width > 800) return 12;
+    return 10; // Reduced to save space on small screens
   }
 
-  // FIXED: Featured video using aspect ratio instead of fixed height
-  double _getFeaturedVideoAspectRatio(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
+  // ENHANCED: Featured video height from Kagan (percentage-based)
+  double _getFeaturedVideoHeight(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
     final isLandscape = width > height;
     
-    if (width > 1200) return 16 / 6; // Wider on desktop
-    if (width > 800) return 16 / 7;
-    if (isLandscape) return 16 / 6;
-    return 16 / 9; // Standard video ratio
+    // Use percentage of screen height for better scaling
+    if (width > 1200) return height * 0.35;
+    if (width > 800) return height * 0.3;
+    if (isLandscape) return height * 0.35;
+    return height * 0.25;
   }
 
-  // FIXED: Responsive font sizes
   double _getFontSize(BuildContext context, double baseSize) {
     final width = MediaQuery.of(context).size.width;
-    final scaleFactor = width / 375; // Base width (iPhone SE)
-    return (baseSize * scaleFactor).clamp(baseSize * 0.85, baseSize * 1.3);
-  }
-
-  // NEW: Responsive icon sizes
-  double _getIconSize(BuildContext context, double baseSize) {
-    final width = MediaQuery.of(context).size.width;
-    if (width > 1200) return baseSize * 1.2;
-    if (width > 800) return baseSize * 1.1;
+    if (width > 1200) return baseSize * 1.15;
+    if (width > 800) return baseSize * 1.08;
+    if (width < 360) return baseSize * 0.95; // Scale down on very small screens
     return baseSize;
   }
 
-  // NEW: Responsive spacing
-  double _getSpacing(BuildContext context, double baseSpacing) {
+  // ENHANCED: Responsive header height from Kagan
+  double _getHeaderHeight(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final scaleFactor = width / 375;
-    return (baseSpacing * scaleFactor).clamp(baseSpacing * 0.8, baseSpacing * 1.5);
+    if (width > 800) return 80;
+    if (width < 360) return 65;
+    return 72;
+  }
+
+  // ENHANCED: Responsive vertical spacing from Kagan
+  double _getVerticalSpacing(BuildContext context, double baseSpacing) {
+    final height = MediaQuery.of(context).size.height;
+    if (height < 700) return baseSpacing * 0.75; // Reduce on short screens
+    return baseSpacing;
   }
 
   @override
@@ -436,6 +440,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
   @override
   Widget build(BuildContext context) {
     final horizontalPadding = _getHorizontalPadding(context);
+    final headerHeight = _getHeaderHeight(context);
     
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -454,12 +459,10 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // FIXED: Dynamic header height instead of fixed 80px
+              // FIXED: Dynamic header height from Kagan
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                height: (_isHeaderVisible || _isSearchFocused) 
-                    ? _getSpacing(context, 72) // Responsive header height
-                    : 0,
+                height: (_isHeaderVisible || _isSearchFocused) ? headerHeight : 0,
                 child: (_isHeaderVisible || _isSearchFocused) 
                     ? _buildHeader(context, horizontalPadding) 
                     : const SizedBox.shrink(),
@@ -477,23 +480,21 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
   }
 
   Widget _buildHeader(BuildContext context, double horizontalPadding) {
-    final searchBarHeight = _getSpacing(context, 44); // Responsive search bar
-    final backButtonSize = _getSpacing(context, 44);
+    final verticalPadding = _getVerticalSpacing(context, 12);
     
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: horizontalPadding, 
-        vertical: _getSpacing(context, 12)
+        vertical: verticalPadding
       ),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : backButtonSize,
+            width: _isSearchFocused ? 0 : 48,
             child: _isSearchFocused 
                 ? const SizedBox.shrink()
                 : Container(
-                    height: backButtonSize,
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(12),
@@ -503,24 +504,24 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                         HapticFeedback.lightImpact();
                         Navigator.pop(context);
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.arrow_back_ios,
                         color: Colors.white,
-                        size: _getIconSize(context, 18),
+                        size: 20,
                       ),
                     ),
                   ),
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : _getSpacing(context, 12),
+            width: _isSearchFocused ? 0 : 12,
           ),
           Expanded(
             child: Container(
-              height: searchBarHeight,
+              height: 48,
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(searchBarHeight / 2),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: _isSearchFocused 
                       ? const Color(0xFFB19CD9) 
@@ -547,7 +548,6 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                     color: _isSearchFocused 
                         ? const Color(0xFFB19CD9)
                         : Colors.white.withOpacity(0.6),
-                    size: _getIconSize(context, 20),
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -560,15 +560,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                           icon: Icon(
                             Icons.clear,
                             color: Colors.white.withOpacity(0.6),
-                            size: _getIconSize(context, 20),
                           ),
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: _getSpacing(context, 16), 
-                    vertical: _getSpacing(context, 12)
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -580,7 +576,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? _getSpacing(context, 72) : 0,
+            width: _isSearchFocused ? 80 : 0,
             child: _isSearchFocused
                 ? TextButton(
                     onPressed: () {
@@ -611,12 +607,13 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     if (_isLoading) {
       return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB19CD9)),
             ),
-            SizedBox(height: _getSpacing(context, 16)),
+            SizedBox(height: _getVerticalSpacing(context, 16)),
             Text(
               'Loading Mansaka videos...',
               style: TextStyle(
@@ -634,14 +631,15 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.error_outline,
-                size: _getIconSize(context, 64),
+                size: 64,
                 color: Colors.white.withOpacity(0.5),
               ),
-              SizedBox(height: _getSpacing(context, 16)),
+              SizedBox(height: _getVerticalSpacing(context, 16)),
               Text(
                 'Failed to load videos',
                 style: TextStyle(
@@ -650,9 +648,9 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: _getSpacing(context, 8)),
+              SizedBox(height: _getVerticalSpacing(context, 8)),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: _getSpacing(context, 32)),
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: Text(
                   _errorMessage!,
                   style: TextStyle(
@@ -662,15 +660,15 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: _getSpacing(context, 24)),
+              SizedBox(height: _getVerticalSpacing(context, 24)),
               ElevatedButton(
                 onPressed: _refreshVideos,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFB19CD9),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                    horizontal: _getSpacing(context, 32), 
-                    vertical: _getSpacing(context, 16)
+                    horizontal: horizontalPadding,
+                    vertical: _getVerticalSpacing(context, 12),
                   ),
                 ),
                 child: Text(
@@ -687,14 +685,15 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     if (_allVideos.isEmpty) {
       return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.video_library_outlined,
-              size: _getIconSize(context, 64),
+              size: 64,
               color: Colors.white.withOpacity(0.5),
             ),
-            SizedBox(height: _getSpacing(context, 16)),
+            SizedBox(height: _getVerticalSpacing(context, 16)),
             Text(
               'No Mansaka videos available',
               style: TextStyle(
@@ -703,7 +702,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: _getSpacing(context, 8)),
+            SizedBox(height: _getVerticalSpacing(context, 8)),
             Text(
               'Check back later for new content',
               style: TextStyle(
@@ -711,15 +710,15 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                 fontSize: _getFontSize(context, 14),
               ),
             ),
-            SizedBox(height: _getSpacing(context, 24)),
+            SizedBox(height: _getVerticalSpacing(context, 24)),
             ElevatedButton(
               onPressed: _refreshVideos,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFB19CD9),
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: _getSpacing(context, 32), 
-                  vertical: _getSpacing(context, 16)
+                  horizontal: horizontalPadding,
+                  vertical: _getVerticalSpacing(context, 12),
                 ),
               ),
               child: Text(
@@ -767,7 +766,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(height: _getSpacing(context, 20)),
+            child: SizedBox(height: _getVerticalSpacing(context, 20)),
           ),
         ],
       ),
@@ -783,7 +782,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: horizontalPadding, 
-              vertical: _getSpacing(context, 8)
+              vertical: _getVerticalSpacing(context, 8)
             ),
             child: Row(
               children: [
@@ -814,14 +813,15 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
               : _filteredVideos.isEmpty
                   ? Center(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.search_off,
-                            size: _getIconSize(context, 48),
+                            size: 48,
                             color: Colors.white.withOpacity(0.3),
                           ),
-                          SizedBox(height: _getSpacing(context, 16)),
+                          SizedBox(height: _getVerticalSpacing(context, 16)),
                           Text(
                             'No videos found',
                             style: TextStyle(
@@ -830,7 +830,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: _getSpacing(context, 8)),
+                          SizedBox(height: _getVerticalSpacing(context, 8)),
                           Text(
                             'Try different keywords',
                             style: TextStyle(
@@ -846,7 +846,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
                       padding: EdgeInsets.only(
                         left: horizontalPadding,
                         right: horizontalPadding,
-                        bottom: MediaQuery.of(context).viewInsets.bottom + _getSpacing(context, 20),
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: _getCrossAxisCount(context),
@@ -865,114 +865,110 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     );
   }
 
-  // FIXED: Using AspectRatio instead of fixed height
+  // ENHANCED: Using Kagan's fixed height approach instead of AspectRatio
   Widget _buildFeaturedVideo(double horizontalPadding) {
     if (_featuredVideo == null) return const SizedBox.shrink();
 
-    final aspectRatio = _getFeaturedVideoAspectRatio(context);
-    final margin = _getSpacing(context, 16);
+    final featuredHeight = _getFeaturedVideoHeight(context);
+    final cardPadding = horizontalPadding * 0.75; // Proportional padding
 
     return Container(
-      margin: EdgeInsets.all(margin),
-      child: AspectRatio(
-        aspectRatio: aspectRatio,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.4),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+      margin: EdgeInsets.all(cardPadding),
+      height: featuredHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  _playVideo(_featuredVideo!);
-                },
-                child: Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFB19CD9),
-                            Color(0xFF8B6DB0),
-                          ],
-                        ),
-                      ),
-                      child: _buildThumbnailImage(_featuredVideo!),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              _playVideo(_featuredVideo!);
+            },
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFB19CD9),
+                        Color(0xFF8B6DB0),
+                      ],
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: _getSpacing(context, 16),
-                      left: _getSpacing(context, 16),
-                      right: _getSpacing(context, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Featured: ${_featuredVideo!.title}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: _getFontSize(context, 18),
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: _getSpacing(context, 4)),
-                          Text(
-                            _featuredVideo!.description,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: _getFontSize(context, 14),
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Container(
-                        padding: EdgeInsets.all(_getSpacing(context, 16)),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: _getIconSize(context, 40),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: _buildThumbnailImage(_featuredVideo!),
                 ),
-              ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: cardPadding,
+                  left: cardPadding,
+                  right: cardPadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Featured: ${_featuredVideo!.title}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: _getFontSize(context, 18),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: _getVerticalSpacing(context, 4)),
+                      Text(
+                        _featuredVideo!.description,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: _getFontSize(context, 14),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -984,16 +980,16 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: horizontalPadding, 
-        vertical: _getSpacing(context, 16)
+        vertical: _getVerticalSpacing(context, 12)
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.video_library,
-            color: const Color(0xFFB19CD9),
-            size: _getIconSize(context, 20),
+            color: Color(0xFFB19CD9),
+            size: 20,
           ),
-          SizedBox(width: _getSpacing(context, 8)),
+          SizedBox(width: _getVerticalSpacing(context, 8)),
           Flexible(
             child: Text(
               'Browse Mansaka videos',
@@ -1011,7 +1007,7 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
     );
   }
 
-  // FIXED: Complete video card rewrite with proper responsive layout
+  // ENHANCED: Complete Kagan-style video card with proper layout
   Widget _buildVideoCard(VideoItem video) {
     return VisibilityDetector(
       key: Key('video_${video.id}'),
@@ -1020,178 +1016,189 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
           _loadVideoMetadata(video);
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate heights dynamically based on available space
+          final cardWidth = constraints.maxWidth;
+          final cardHeight = constraints.maxHeight;
+          
+          // Image should take 60% of card height
+          final imageHeight = cardHeight * 0.6;
+          // Info section takes remaining 40%
+          final infoHeight = cardHeight * 0.4;
+          
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                _playVideo(video);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // CRITICAL: Prevents overflow
-                children: [
-                  // FIXED: Using AspectRatio for thumbnail instead of Expanded
-                  AspectRatio(
-                    aspectRatio: 16 / 9, // Standard video aspect ratio
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFFB19CD9),
-                                Color(0xFF8B6DB0),
-                              ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _playVideo(video);
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // FIXED: Use SizedBox with explicit height instead of Expanded
+                      SizedBox(
+                        height: imageHeight,
+                        width: double.infinity,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFFB19CD9),
+                                    Color(0xFF8B6DB0),
+                                  ],
+                                ),
+                              ),
+                              child: _buildThumbnailImage(video),
                             ),
-                          ),
-                          child: _buildThumbnailImage(video),
-                        ),
-                        Positioned(
-                          top: _getSpacing(context, 6),
-                          right: _getSpacing(context, 6),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: _getSpacing(context, 6),
-                              vertical: _getSpacing(context, 3),
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (video.duration == '--:--' && _loadingMetadata.contains(video.id))
-                                  Padding(
-                                    padding: EdgeInsets.only(right: _getSpacing(context, 4)),
-                                    child: SizedBox(
-                                      width: 8,
-                                      height: 8,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 1.5,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (video.duration == '--:--' && _loadingMetadata.contains(video.id))
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 4),
+                                        child: SizedBox(
+                                          width: 8,
+                                          height: 8,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 1.5,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    Text(
+                                      video.duration,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: _getFontSize(context, 10),
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  ),
-                                Text(
-                                  video.duration,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: _getFontSize(context, 10),
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Center(
-                          child: Container(
-                            padding: EdgeInsets.all(_getSpacing(context, 10)),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Icon(
-                              video.fileType == FileType.video 
-                                  ? Icons.play_arrow
-                                  : video.fileType == FileType.audio
-                                      ? Icons.music_note
-                                      : Icons.image,
-                              color: Colors.white,
-                              size: _getIconSize(context, 22),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // FIXED: Using Flexible with fit: FlexFit.loose instead of Expanded
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(_getSpacing(context, 10)),
-                      color: const Color(0xFF2A2A2A),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min, // CRITICAL: Prevents overflow
-                        children: [
-                          // Title
-                          Text(
-                            video.title,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: _getFontSize(context, 13),
-                              fontWeight: FontWeight.w600,
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: _getSpacing(context, 4)),
-                          // Description
-                          Text(
-                            video.description,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
-                              fontSize: _getFontSize(context, 11),
-                              height: 1.3,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: _getSpacing(context, 6)),
-                          // Category badge
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: _getSpacing(context, 8), 
-                                vertical: _getSpacing(context, 3)
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFB19CD9).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
+                            ),
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.all(cardWidth * 0.08), // Proportional padding
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Icon(
+                                  video.fileType == FileType.video 
+                                      ? Icons.play_arrow
+                                      : video.fileType == FileType.audio
+                                          ? Icons.music_note
+                                          : Icons.image,
+                                  color: Colors.white,
+                                  size: cardWidth * 0.15, // Proportional icon size
+                                ),
                               ),
-                              child: Text(
-                                video.category,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // FIXED: Use SizedBox with explicit height - NO Flexible/Expanded
+                      SizedBox(
+                        height: infoHeight,
+                        width: double.infinity,
+                        child: Container(
+                          padding: EdgeInsets.all(cardWidth * 0.035), // Reduced padding
+                          color: const Color(0xFF2A2A2A),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // FIXED: Removed Flexible wrappers - direct Text with constraints
+                              Text(
+                                video.title,
                                 style: TextStyle(
-                                  color: const Color(0xFFB19CD9),
-                                  fontSize: _getFontSize(context, 10),
-                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                  fontSize: _getFontSize(context, 12),
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
+                              SizedBox(height: cardHeight * 0.005),
+                              Text(
+                                video.description,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                  fontSize: _getFontSize(context, 10),
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              // FIXED: Spacer pushes category to bottom naturally
+                              const Spacer(),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: cardWidth * 0.02,
+                                  vertical: cardHeight * 0.006,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFB19CD9).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  video.category,
+                                  style: TextStyle(
+                                    color: const Color(0xFFB19CD9),
+                                    fontSize: _getFontSize(context, 9),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -1202,11 +1209,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         File(video.thumbnail),
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Center(
+          return const Center(
             child: Icon(
               Icons.play_circle_outline,
               color: Colors.white,
-              size: _getIconSize(context, 40),
+              size: 40,
             ),
           );
         },
@@ -1218,11 +1225,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
         video.thumbnail,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Center(
+          return const Center(
             child: Icon(
               Icons.play_circle_outline,
               color: Colors.white,
-              size: _getIconSize(context, 40),
+              size: 40,
             ),
           );
         },
@@ -1241,11 +1248,11 @@ class _MansakaVideoScreenState extends State<MansakaVideoScreen> {
       video.thumbnail,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
-        return Center(
+        return const Center(
           child: Icon(
             Icons.play_circle_outline,
             color: Colors.white,
-            size: _getIconSize(context, 40),
+            size: 40,
           ),
         );
       },
