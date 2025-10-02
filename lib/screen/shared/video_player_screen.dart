@@ -546,11 +546,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                 Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
+                                        alignment: Alignment.center,
                                         child: Text(
                                           widget.tribalName.toUpperCase(),
                                           style: TextStyle(
@@ -572,6 +572,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
                                       ),
                                     ],
                                   ),

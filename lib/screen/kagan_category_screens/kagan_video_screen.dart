@@ -1,3 +1,4 @@
+// lib/screen/kagan_category_screens/kagan_video_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -47,40 +48,44 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         video.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
-  // Responsive helpers
+  // Responsive helper methods (matching Mansaka/Mandaya)
   int _getCrossAxisCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 1200) return 4;
-    if (width >= 800) return 3;
-    if (width >= 600) return 2;
+    if (width > 1200) return 4;
+    if (width > 800) return 3;
+    if (width > 600) return 2;
     return 2;
   }
 
   double _getChildAspectRatio(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 800) return 0.75;
+    if (width > 800) return 0.85;
     return 0.8;
+  }
+
+  double _getHorizontalPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 32;
+    if (width > 800) return 24;
+    return 16;
   }
 
   double _getFeaturedVideoHeight(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    if (width >= 800) return height * 0.4;
-    if (width >= 600) return 250;
+    final isLandscape = width > height;
+    
+    if (width > 1200) return 300;
+    if (width > 800) return 250;
+    if (isLandscape) return height * 0.4;
     return 200;
   }
 
-  EdgeInsets _getContentPadding(BuildContext context) {
+  double _getFontSize(BuildContext context, double baseSize) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 800) return const EdgeInsets.symmetric(horizontal: 32);
-    if (width >= 600) return const EdgeInsets.symmetric(horizontal: 24);
-    return const EdgeInsets.symmetric(horizontal: 16);
-  }
-
-  double _getGridSpacing(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    if (width >= 800) return 24;
-    return 16;
+    if (width > 1200) return baseSize * 1.2;
+    if (width > 800) return baseSize * 1.1;
+    return baseSize;
   }
 
   @override
@@ -395,6 +400,8 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = _getHorizontalPadding(context);
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -415,12 +422,14 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: (_isHeaderVisible || _isSearchFocused) ? 80 : 0,
-                child: (_isHeaderVisible || _isSearchFocused) ? _buildHeader(context) : const SizedBox.shrink(),
+                child: (_isHeaderVisible || _isSearchFocused) 
+                    ? _buildHeader(context, horizontalPadding) 
+                    : const SizedBox.shrink(),
               ),
               Expanded(
                 child: _isSearchFocused 
-                    ? _buildSearchResults()
-                    : _buildMainContent(),
+                    ? _buildSearchResults(horizontalPadding)
+                    : _buildMainContent(horizontalPadding),
               ),
             ],
           ),
@@ -429,22 +438,15 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    final padding = _getContentPadding(context);
-    final width = MediaQuery.of(context).size.width;
-    final showBackButton = width < 600 || !_isSearchFocused;
-
+  Widget _buildHeader(BuildContext context, double horizontalPadding) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: padding.horizontal / 2,
-        vertical: 16,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused && width < 600 ? 0 : 48,
-            child: _isSearchFocused && width < 600
+            width: _isSearchFocused ? 0 : 48,
+            child: _isSearchFocused 
                 ? const SizedBox.shrink()
                 : Container(
                     decoration: BoxDecoration(
@@ -466,12 +468,11 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused && width < 600 ? 0 : 16,
+            width: _isSearchFocused ? 0 : 16,
           ),
           Expanded(
             child: Container(
               height: 48,
-              constraints: const BoxConstraints(maxWidth: 600),
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
@@ -485,13 +486,16 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocusNode,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: _getFontSize(context, 14),
+                ),
                 scrollPhysics: const BouncingScrollPhysics(),
                 decoration: InputDecoration(
                   hintText: 'Search videos...',
                   hintStyle: TextStyle(
                     color: Colors.white.withOpacity(0.6),
-                    fontSize: 14,
+                    fontSize: _getFontSize(context, 14),
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -537,11 +541,12 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                         _isHeaderVisible = true;
                       });
                     },
-                    child: const Text(
+                    child: Text(
                       'Cancel',
                       style: TextStyle(
-                        color: Color(0xFFD4A574),
+                        color: const Color(0xFFD4A574),
                         fontWeight: FontWeight.w500,
+                        fontSize: _getFontSize(context, 14),
                       ),
                     ),
                   )
@@ -552,7 +557,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(double horizontalPadding) {
     if (_isLoading) {
       return Center(
         child: Column(
@@ -566,7 +571,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
               'Loading Kagan videos...',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
-                fontSize: 14,
+                fontSize: _getFontSize(context, 14),
               ),
             ),
           ],
@@ -577,7 +582,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     if (_errorMessage != null) {
       return Center(
         child: Padding(
-          padding: _getContentPadding(context),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -591,18 +596,21 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                 'Failed to load videos',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
-                  fontSize: 18,
+                  fontSize: _getFontSize(context, 18),
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                _errorMessage!,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
-                  fontSize: 14,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: _getFontSize(context, 14),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -610,8 +618,12 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFD4A574),
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: const Text('Retry'),
+                child: Text(
+                  'Retry',
+                  style: TextStyle(fontSize: _getFontSize(context, 14)),
+                ),
               ),
             ],
           ),
@@ -621,49 +633,48 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
 
     if (_allVideos.isEmpty) {
       return Center(
-        child: Padding(
-          padding: _getContentPadding(context),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.video_library_outlined,
-                size: 64,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.video_library_outlined,
+              size: 64,
+              color: Colors.white.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Kagan videos available',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: _getFontSize(context, 18),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for new content',
+              style: TextStyle(
                 color: Colors.white.withOpacity(0.5),
+                fontSize: _getFontSize(context, 14),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'No Kagan videos available',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _refreshVideos,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD4A574),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Check back later for new content',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
-                  fontSize: 14,
-                ),
+              child: Text(
+                'Refresh',
+                style: TextStyle(fontSize: _getFontSize(context, 14)),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _refreshVideos,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD4A574),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Refresh'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
-
-    final spacing = _getGridSpacing(context);
 
     return RefreshIndicator(
       onRefresh: _refreshVideos,
@@ -674,19 +685,19 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
         slivers: [
           if (_featuredVideo != null)
             SliverToBoxAdapter(
-              child: _buildFeaturedVideo(),
+              child: _buildFeaturedVideo(horizontalPadding),
             ),
           SliverToBoxAdapter(
-            child: _buildBrowseSection(),
+            child: _buildBrowseSection(horizontalPadding),
           ),
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: spacing),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: _getCrossAxisCount(context),
                 childAspectRatio: _getChildAspectRatio(context),
-                crossAxisSpacing: spacing,
-                mainAxisSpacing: spacing,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -705,25 +716,22 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildSearchResults() {
-    final spacing = _getGridSpacing(context);
-    final padding = _getContentPadding(context);
-
+  Widget _buildSearchResults(double horizontalPadding) {
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: padding.horizontal / 2,
-              vertical: 8,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
             child: Row(
               children: [
-                Text(
-                  '${_filteredVideos.length} result${_filteredVideos.length == 1 ? '' : 's'} for "$_searchQuery"',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
+                Flexible(
+                  child: Text(
+                    '${_filteredVideos.length} result${_filteredVideos.length == 1 ? '' : 's'} for "$_searchQuery"',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: _getFontSize(context, 14),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -736,7 +744,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                     'Start typing to search...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
-                      fontSize: 16,
+                      fontSize: _getFontSize(context, 16),
                     ),
                   ),
                 )
@@ -755,7 +763,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                             'No videos found',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.5),
-                              fontSize: 18,
+                              fontSize: _getFontSize(context, 18),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -764,7 +772,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                             'Try different keywords',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
-                              fontSize: 14,
+                              fontSize: _getFontSize(context, 14),
                             ),
                           ),
                         ],
@@ -773,15 +781,15 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                   : GridView.builder(
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       padding: EdgeInsets.only(
-                        left: spacing,
-                        right: spacing,
+                        left: horizontalPadding,
+                        right: horizontalPadding,
                         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: _getCrossAxisCount(context),
                         childAspectRatio: _getChildAspectRatio(context),
-                        crossAxisSpacing: spacing,
-                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
                       ),
                       itemCount: _filteredVideos.length,
                       itemBuilder: (context, index) {
@@ -794,22 +802,14 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildFeaturedVideo() {
+  Widget _buildFeaturedVideo(double horizontalPadding) {
     if (_featuredVideo == null) return const SizedBox.shrink();
 
-    final height = _getFeaturedVideoHeight(context);
-    final padding = _getContentPadding(context);
-    final width = MediaQuery.of(context).size.width;
+    final featuredHeight = _getFeaturedVideoHeight(context);
 
     return Container(
-      margin: EdgeInsets.fromLTRB(
-        padding.horizontal / 2,
-        20,
-        padding.horizontal / 2,
-        20,
-      ),
-      height: height,
-      constraints: const BoxConstraints(maxWidth: 1200),
+      margin: EdgeInsets.all(horizontalPadding),
+      height: featuredHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -859,28 +859,31 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: width >= 600 ? 24 : 16,
-                  left: width >= 600 ? 24 : 16,
-                  right: width >= 600 ? 24 : 16,
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         'Featured: ${_featuredVideo!.title}',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: width >= 600 ? 22 : 18,
+                          fontSize: _getFontSize(context, 18),
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _featuredVideo!.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
-                          fontSize: width >= 600 ? 16 : 14,
+                          fontSize: _getFontSize(context, 14),
                         ),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -888,15 +891,15 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                 ),
                 Center(
                   child: Container(
-                    padding: EdgeInsets.all(width >= 600 ? 20 : 16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.play_arrow,
                       color: Colors.white,
-                      size: width >= 600 ? 48 : 40,
+                      size: 40,
                     ),
                   ),
                 ),
@@ -908,29 +911,27 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
     );
   }
 
-  Widget _buildBrowseSection() {
-    final padding = _getContentPadding(context);
-    
+  Widget _buildBrowseSection(double horizontalPadding) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: padding.horizontal / 2,
-        vertical: 16,
-      ),
-      child: const Row(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+      child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.video_library,
             color: Color(0xFFD4A574),
             size: 20,
           ),
-          SizedBox(width: 8),
-          Text(
-            'Browse Kagan videos',
-            style: TextStyle(
-              color: Color(0xFFD4A574),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              'Browse Kagan videos',
+              style: TextStyle(
+                color: const Color(0xFFD4A574),
+                fontSize: _getFontSize(context, 16),
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -939,10 +940,6 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
   }
 
   Widget _buildVideoCard(VideoItem video) {
-    final width = MediaQuery.of(context).size.width;
-    final fontSize = width >= 800 ? 15.0 : 14.0;
-    final descriptionFontSize = width >= 800 ? 13.0 : 12.0;
-    
     return VisibilityDetector(
       key: Key('video_${video.id}'),
       onVisibilityChanged: (info) {
@@ -1020,9 +1017,9 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                                   ),
                                 Text(
                                   video.duration,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 10,
+                                    fontSize: _getFontSize(context, 10),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -1032,7 +1029,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                         ),
                         Center(
                           child: Container(
-                            padding: EdgeInsets.all(width >= 800 ? 14 : 12),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(30),
@@ -1044,7 +1041,7 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                                       ? Icons.music_note
                                       : Icons.image,
                               color: Colors.white,
-                              size: width >= 800 ? 28 : 24,
+                              size: 24,
                             ),
                           ),
                         ),
@@ -1055,47 +1052,59 @@ class _KaganVideoScreenState extends State<KaganVideoScreen> {
                     flex: 2,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(width >= 800 ? 14 : 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       color: const Color(0xFF2A2A2A),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            video.title,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
                           Expanded(
-                            child: Text(
-                              video.description,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: descriptionFontSize,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  video.title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: _getFontSize(context, 13),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Expanded(
+                                  child: Text(
+                                    video.description,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.6),
+                                      fontSize: _getFontSize(context, 11),
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFD4A574).withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               video.category,
-                              style: const TextStyle(
-                                color: Color(0xFFD4A574),
-                                fontSize: 10,
+                              style: TextStyle(
+                                color: const Color(0xFFD4A574),
+                                fontSize: _getFontSize(context, 10),
                                 fontWeight: FontWeight.w500,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
