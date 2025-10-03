@@ -936,7 +936,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _buildTribeCard(
                       title: "KAGAN",
                       description: "The Kagan people are known for their rich cultural heritage and traditional practices. They are masters of traditional music and dance ceremonies.",
-                      imagePath: "assets/images/ata_manobo.jpg",
+                      imagePath: "assets/images/kagan.jpg",
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       isLandscape: isLandscape,
