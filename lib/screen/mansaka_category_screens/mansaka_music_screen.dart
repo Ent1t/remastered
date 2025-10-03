@@ -51,6 +51,35 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
         track.category.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
+  // Responsive helpers
+  EdgeInsets _getContentPadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return const EdgeInsets.symmetric(horizontal: 32);
+    if (width >= 600) return const EdgeInsets.symmetric(horizontal: 24);
+    return const EdgeInsets.symmetric(horizontal: 16);
+  }
+
+  double _getHeroHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    if (width >= 800) return height * 0.35;
+    if (width >= 600) return 250;
+    return 200;
+  }
+
+  double _getCardHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 800) return 110;
+    if (width >= 600) return 100;
+    return 90;
+  }
+
+  double _getPlayerHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 600) return 140;
+    return 120;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -299,9 +328,6 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
             isArchived == null ||
             time == null || time.isEmpty) {
           debugPrint('Skipping item with missing required fields');
-          debugPrint('  id: $id, user_id: $userId, title: $title');
-          debugPrint('  category: $category, tribe: $tribe, file: $file');
-          debugPrint('  is_archived: $isArchived, time: $time');
           continue;
         }
         
@@ -462,38 +488,8 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     await _fetchMusicTracks();
   }
 
-  // Responsive helper methods
-  bool _isLargeScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width > 600;
-  }
-
-  bool _isExtraLargeScreen(BuildContext context) {
-    return MediaQuery.of(context).size.width > 900;
-  }
-
-  double _getResponsivePadding(BuildContext context) {
-    if (_isExtraLargeScreen(context)) return 24;
-    if (_isLargeScreen(context)) return 20;
-    return 16;
-  }
-
-  double _getResponsiveFontSize(BuildContext context, double base) {
-    if (_isExtraLargeScreen(context)) return base * 1.2;
-    if (_isLargeScreen(context)) return base * 1.1;
-    return base;
-  }
-
-  int _getCrossAxisCount(BuildContext context) {
-    if (_isExtraLargeScreen(context)) return 3;
-    if (_isLargeScreen(context)) return 2;
-    return 1;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isLarge = _isLargeScreen(context);
-    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -518,16 +514,9 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               ),
               
               Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isLarge ? 1200 : double.infinity,
-                    ),
-                    child: _isSearchFocused 
-                        ? _buildSearchResults()
-                        : _buildMainContent(),
-                  ),
-                ),
+                child: _isSearchFocused 
+                    ? _buildSearchResults()
+                    : _buildMainContent(),
               ),
               
               if (_currentTrack != null) _buildInlineMusicPlayer(),
@@ -539,16 +528,20 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final padding = _getResponsivePadding(context);
-    
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      padding: EdgeInsets.all(padding),
+      padding: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 16,
+      ),
       child: Row(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 48,
-            child: _isSearchFocused 
+            width: _isSearchFocused && width < 600 ? 0 : 48,
+            child: _isSearchFocused && width < 600
                 ? const SizedBox.shrink()
                 : Container(
                     decoration: BoxDecoration(
@@ -571,12 +564,13 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
           
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: _isSearchFocused ? 0 : 16,
+            width: _isSearchFocused && width < 600 ? 0 : 16,
           ),
           
           Expanded(
             child: Container(
               height: 48,
+              constraints: const BoxConstraints(maxWidth: 600),
               decoration: BoxDecoration(
                 color: const Color(0xFF2A2A2A),
                 borderRadius: BorderRadius.circular(24),
@@ -590,16 +584,13 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocusNode,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: _getResponsiveFontSize(context, 14),
-                ),
+                style: const TextStyle(color: Colors.white),
                 scrollPhysics: const BouncingScrollPhysics(),
                 decoration: InputDecoration(
                   hintText: 'Search music tracks...',
                   hintStyle: TextStyle(
                     color: Colors.white.withOpacity(0.6),
-                    fontSize: _getResponsiveFontSize(context, 14),
+                    fontSize: 14,
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -646,12 +637,11 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                         _isHeaderVisible = true;
                       });
                     },
-                    child: Text(
+                    child: const Text(
                       'Cancel',
                       style: TextStyle(
-                        color: const Color(0xFFB19CD9),
+                        color: Color(0xFFB19CD9),
                         fontWeight: FontWeight.w500,
-                        fontSize: _getResponsiveFontSize(context, 14),
                       ),
                     ),
                   )
@@ -676,7 +666,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               'Loading Mansaka music tracks...',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
-                fontSize: _getResponsiveFontSize(context, 14),
+                fontSize: 14,
               ),
             ),
           ],
@@ -685,93 +675,96 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     }
 
     if (_errorMessage != null) {
+      final padding = _getContentPadding(context);
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load music tracks',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: _getResponsiveFontSize(context, 18),
-                fontWeight: FontWeight.w500,
+        child: Padding(
+          padding: padding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.white.withOpacity(0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: _getResponsivePadding(context) * 2),
-              child: Text(
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load music tracks',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
                 _errorMessage!,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.5),
-                  fontSize: _getResponsiveFontSize(context, 14),
+                  fontSize: 14,
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB19CD9),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB19CD9),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
               ),
-              child: const Text('Retry'),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     if (_allTracks.isEmpty) {
+      final padding = _getContentPadding(context);
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.music_note_outlined,
-              size: 64,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Mansaka music tracks available',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: _getResponsiveFontSize(context, 18),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Check back later for new music content',
-              style: TextStyle(
+        child: Padding(
+          padding: padding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.music_note_outlined,
+                size: 64,
                 color: Colors.white.withOpacity(0.5),
-                fontSize: _getResponsiveFontSize(context, 14),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _refreshMusicTracks,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB19CD9),
-                foregroundColor: Colors.white,
+              const SizedBox(height: 16),
+              Text(
+                'No Mansaka music tracks available',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: const Text('Refresh'),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Check back later for new music content',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _refreshMusicTracks,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB19CD9),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Refresh'),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    final isLarge = _isLargeScreen(context);
-    
     return RefreshIndicator(
       onRefresh: _refreshMusicTracks,
       color: const Color(0xFFB19CD9),
@@ -782,40 +775,17 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
           SliverToBoxAdapter(
             child: _buildHeroSection(),
           ),
-          
-          // Use grid layout for larger screens
-          if (isLarge)
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: _getResponsivePadding(context)),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: _getCrossAxisCount(context),
-                  childAspectRatio: 3.5,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 12,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final track = _filteredTracks[index];
-                    return _buildMusicCard(track);
-                  },
-                  childCount: _filteredTracks.length,
-                ),
-              ),
-            )
-          else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final track = _filteredTracks[index];
-                  return _buildMusicCard(track);
-                },
-                childCount: _filteredTracks.length,
-              ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final track = _filteredTracks[index];
+                return _buildMusicCard(track);
+              },
+              childCount: _filteredTracks.length,
             ),
-          
+          ),
           SliverToBoxAdapter(
-            child: SizedBox(height: _currentTrack != null ? 120 : 20),
+            child: SizedBox(height: _currentTrack != null ? _getPlayerHeight(context) + 20 : 20),
           ),
         ],
       ),
@@ -823,21 +793,23 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
   }
 
   Widget _buildSearchResults() {
-    final padding = _getResponsivePadding(context);
-    final isLarge = _isLargeScreen(context);
+    final padding = _getContentPadding(context);
     
     return Column(
       children: [
         if (_searchQuery.isNotEmpty)
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: padding.horizontal / 2,
+              vertical: 8,
+            ),
             child: Row(
               children: [
                 Text(
                   '${_filteredTracks.length} result${_filteredTracks.length == 1 ? '' : 's'} for "$_searchQuery"',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
-                    fontSize: _getResponsiveFontSize(context, 14),
+                    fontSize: 14,
                   ),
                 ),
               ],
@@ -851,7 +823,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                     'Start typing to search...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
-                      fontSize: _getResponsiveFontSize(context, 16),
+                      fontSize: 16,
                     ),
                   ),
                 )
@@ -870,7 +842,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                             'No tracks found',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.5),
-                              fontSize: _getResponsiveFontSize(context, 18),
+                              fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -879,55 +851,42 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                             'Try different keywords',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
-                              fontSize: _getResponsiveFontSize(context, 14),
+                              fontSize: 14,
                             ),
                           ),
                         ],
                       ),
                     )
-                  : isLarge
-                      ? GridView.builder(
-                          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                          padding: EdgeInsets.only(
-                            left: padding,
-                            right: padding,
-                            bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 120 : 20),
-                          ),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: _getCrossAxisCount(context),
-                            childAspectRatio: 3.5,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 12,
-                          ),
-                          itemCount: _filteredTracks.length,
-                          itemBuilder: (context, index) {
-                            final track = _filteredTracks[index];
-                            return _buildMusicCard(track);
-                          },
-                        )
-                      : ListView.builder(
-                          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? 120 : 20),
-                          ),
-                          itemCount: _filteredTracks.length,
-                          itemBuilder: (context, index) {
-                            final track = _filteredTracks[index];
-                            return _buildMusicCard(track);
-                          },
-                        ),
+                  : ListView.builder(
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + (_currentTrack != null ? _getPlayerHeight(context) + 20 : 20),
+                      ),
+                      itemCount: _filteredTracks.length,
+                      itemBuilder: (context, index) {
+                        final track = _filteredTracks[index];
+                        return _buildMusicCard(track);
+                      },
+                    ),
         ),
       ],
     );
   }
 
   Widget _buildHeroSection() {
-    final padding = _getResponsivePadding(context);
-    final isLarge = _isLargeScreen(context);
-    
+    final height = _getHeroHeight(context);
+    final padding = _getContentPadding(context);
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      margin: EdgeInsets.all(padding),
-      height: isLarge ? 280 : 200,
+      margin: EdgeInsets.fromLTRB(
+        padding.horizontal / 2,
+        16,
+        padding.horizontal / 2,
+        16,
+      ),
+      height: height,
+      constraints: const BoxConstraints(maxWidth: 1200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -992,9 +951,9 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                     ],
                   ),
                 ),
-                padding: EdgeInsets.all(isLarge ? 24 : 20),
+                padding: EdgeInsets.all(width >= 600 ? 24 : 20),
                 child: Container(
-                  padding: EdgeInsets.all(isLarge ? 20 : 16),
+                  padding: EdgeInsets.all(width >= 600 ? 20 : 16),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -1006,7 +965,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                     'Immerse yourself in the mystical musical world of the Mansaka people. From healing chants to ceremonial dances, discover the spiritual depths of their ancestral melodies.',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.95),
-                      fontSize: _getResponsiveFontSize(context, 14),
+                      fontSize: width >= 600 ? 16 : 14,
                       height: 1.4,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1024,13 +983,24 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     final isCurrentTrack = _currentTrack?.id == track.id;
     final hasDuration = track.duration != null;
     final isLoadingDuration = _loadingDurations.contains(track.id);
-    final padding = _getResponsivePadding(context);
-    final isLarge = _isLargeScreen(context);
+    final width = MediaQuery.of(context).size.width;
+    final padding = _getContentPadding(context);
+    final cardHeight = _getCardHeight(context);
+    
+    // Responsive sizing
+    final imageSize = width >= 800 ? 80.0 : width >= 600 ? 70.0 : 60.0;
+    final titleFontSize = width >= 800 ? 17.0 : width >= 600 ? 16.0 : 16.0;
+    final descriptionFontSize = width >= 800 ? 15.0 : width >= 600 ? 14.0 : 14.0;
+    final categoryFontSize = width >= 800 ? 13.0 : 12.0;
+    final buttonSize = width >= 800 ? 48.0 : width >= 600 ? 44.0 : 40.0;
+    final iconSize = width >= 800 ? 28.0 : width >= 600 ? 26.0 : 24.0;
     
     return Container(
-      margin: isLarge 
-          ? EdgeInsets.zero 
-          : EdgeInsets.symmetric(horizontal: padding, vertical: 6),
+      margin: EdgeInsets.symmetric(
+        horizontal: padding.horizontal / 2,
+        vertical: 6,
+      ),
+      constraints: const BoxConstraints(maxWidth: 1000),
       decoration: BoxDecoration(
         color: isCurrentTrack 
             ? const Color(0xFFB19CD9).withOpacity(0.1)
@@ -1052,13 +1022,12 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
             _togglePlayPause(track);
           },
           child: Padding(
-            padding: EdgeInsets.all(isLarge ? 16 : 12),
+            padding: EdgeInsets.all(width >= 600 ? 14 : 12),
             child: Row(
               children: [
-                // Album Art
                 Container(
-                  width: isLarge ? 70 : 60,
-                  height: isLarge ? 70 : 60,
+                  width: imageSize,
+                  height: imageSize,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFFB19CD9).withOpacity(0.2),
@@ -1073,7 +1042,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               return Icon(
                                 Icons.music_note,
                                 color: const Color(0xFFB19CD9),
-                                size: isLarge ? 35 : 30,
+                                size: imageSize * 0.5,
                               );
                             },
                             loadingBuilder: (context, child, loadingProgress) {
@@ -1093,59 +1062,51 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               return Icon(
                                 Icons.music_note,
                                 color: const Color(0xFFB19CD9),
-                                size: isLarge ? 35 : 30,
+                                size: imageSize * 0.5,
                               );
                             },
                           ),
                   ),
                 ),
                 
-                SizedBox(width: isLarge ? 20 : 16),
+                SizedBox(width: width >= 600 ? 18 : 16),
                 
-                // Track Info - Fixed to handle long titles properly
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Title - handles long text properly
                       Text(
                         track.title,
                         style: TextStyle(
                           color: isCurrentTrack 
                               ? const Color(0xFFB19CD9)
                               : Colors.white,
-                          fontSize: _getResponsiveFontSize(context, 16),
+                          fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
-                          height: 1.2,
+                          height: 1.3,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: isLarge ? 6 : 4),
-                      
-                      // Description - handles long text
+                      const SizedBox(height: 4),
                       Text(
                         track.description,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
-                          fontSize: _getResponsiveFontSize(context, 13),
+                          fontSize: descriptionFontSize,
                           height: 1.3,
                         ),
-                        maxLines: isLarge ? 2 : 1,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: isLarge ? 6 : 4),
-                      
-                      // Category, Artist, and Duration - wrapped for flexibility
+                      const SizedBox(height: 6),
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          // Category badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: const Color(0xFFB19CD9).withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
@@ -1154,29 +1115,25 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               track.category,
                               style: TextStyle(
                                 color: const Color(0xFFB19CD9),
-                                fontSize: _getResponsiveFontSize(context, 11),
-                                fontWeight: FontWeight.w600,
+                                fontSize: categoryFontSize,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          
-                          // Artist - flexible width
-                          Flexible(
-                            child: Text(
-                              '• ${track.artist}',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                                fontSize: _getResponsiveFontSize(context, 12),
+                          if (width >= 600)
+                            Flexible(
+                              child: Text(
+                                '• ${track.artist}',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: categoryFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          
-                          // Duration badge
                           if (hasDuration)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.black.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(8),
@@ -1189,12 +1146,12 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                                     size: 10,
                                     color: Colors.white.withOpacity(0.6),
                                   ),
-                                  const SizedBox(width: 3),
+                                  const SizedBox(width: 4),
                                   Text(
                                     _formatDuration(track.duration!),
                                     style: TextStyle(
                                       color: Colors.white.withOpacity(0.6),
-                                      fontSize: _getResponsiveFontSize(context, 11),
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -1202,13 +1159,13 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                               ),
                             )
                           else if (isLoadingDuration)
-                            SizedBox(
+                            const SizedBox(
                               width: 12,
                               height: 12,
                               child: CircularProgressIndicator(
                                 strokeWidth: 1.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white.withOpacity(0.4),
+                                  Colors.white54,
                                 ),
                               ),
                             ),
@@ -1218,26 +1175,25 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                   ),
                 ),
                 
-                const SizedBox(width: 8),
+                SizedBox(width: width >= 600 ? 12 : 8),
                 
-                // Play/Pause Button
                 GestureDetector(
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     _togglePlayPause(track);
                   },
                   child: Container(
-                    width: isLarge ? 48 : 40,
-                    height: isLarge ? 48 : 40,
+                    width: buttonSize,
+                    height: buttonSize,
                     decoration: BoxDecoration(
                       color: const Color(0xFFB19CD9),
-                      borderRadius: BorderRadius.circular(isLarge ? 24 : 20),
+                      borderRadius: BorderRadius.circular(buttonSize / 2),
                     ),
                     child: Center(
                       child: _isLoadingAudio && isCurrentTrack
                           ? SizedBox(
-                              width: 20,
-                              height: 20,
+                              width: iconSize * 0.75,
+                              height: iconSize * 0.75,
                               child: const CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -1248,7 +1204,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                                   ? Icons.pause
                                   : Icons.play_arrow,
                               color: Colors.white,
-                              size: isLarge ? 28 : 24,
+                              size: iconSize,
                             ),
                     ),
                   ),
@@ -1262,11 +1218,19 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
   }
 
   Widget _buildInlineMusicPlayer() {
-    final isLarge = _isLargeScreen(context);
-    final padding = _getResponsivePadding(context);
+    final width = MediaQuery.of(context).size.width;
+    final playerHeight = _getPlayerHeight(context);
+    final isTablet = width >= 600;
+    final isDesktop = width >= 800;
+    
+    final imageSize = isDesktop ? 60.0 : isTablet ? 55.0 : 50.0;
+    final titleFontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
+    final artistFontSize = isDesktop ? 14.0 : isTablet ? 13.0 : 12.0;
+    final iconSize = isDesktop ? 22.0 : isTablet ? 21.0 : 20.0;
+    final playButtonSize = isDesktop ? 44.0 : isTablet ? 42.0 : 40.0;
     
     return Container(
-      padding: EdgeInsets.all(padding),
+      padding: EdgeInsets.all(isDesktop ? 20 : isTablet ? 18 : 16),
       decoration: const BoxDecoration(
         color: Color(0xFF1F1F1F),
         border: Border(
@@ -1276,186 +1240,191 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
           ),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: isLarge ? 60 : 50,
-                height: isLarge ? 60 : 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color(0xFFB19CD9).withOpacity(0.2),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _currentTrack!.imagePath.startsWith('http')
-                      ? Image.network(
-                          _currentTrack!.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.music_note,
-                              color: const Color(0xFFB19CD9),
-                              size: isLarge ? 30 : 25,
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          _currentTrack!.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.music_note,
-                              color: const Color(0xFFB19CD9),
-                              size: isLarge ? 30 : 25,
-                            );
-                          },
-                        ),
-                ),
-              ),
-              
-              SizedBox(width: isLarge ? 16 : 12),
-              
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _currentTrack!.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: _getResponsiveFontSize(context, 14),
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _currentTrack!.artist,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: _getResponsiveFontSize(context, 12),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              
-              if (isLarge) ...[
-                IconButton(
-                  onPressed: () {
-                    _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
-                  },
-                  icon: const Icon(Icons.replay_10, color: Colors.white, size: 24),
-                ),
-              ],
-              
-              IconButton(
-                onPressed: () => _togglePlayPause(_currentTrack!),
-                icon: Container(
-                  padding: EdgeInsets.all(isLarge ? 10 : 8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFB19CD9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: isLarge ? 24 : 20,
-                  ),
-                ),
-              ),
-              
-              if (isLarge) ...[
-                IconButton(
-                  onPressed: () {
-                    _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
-                  },
-                  icon: const Icon(Icons.forward_30, color: Colors.white, size: 24),
-                ),
-              ],
-              
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _closeMusicPlayer();
-                },
-                icon: Container(
-                  padding: const EdgeInsets.all(4),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: imageSize,
+                  height: imageSize,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFB19CD9).withOpacity(0.2),
                   ),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: isLarge ? 20 : 16,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _currentTrack!.imagePath.startsWith('http')
+                        ? Image.network(
+                            _currentTrack!.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.music_note,
+                                color: const Color(0xFFB19CD9),
+                                size: imageSize * 0.5,
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            _currentTrack!.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.music_note,
+                                color: const Color(0xFFB19CD9),
+                                size: imageSize * 0.5,
+                              );
+                            },
+                          ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          
-          SizedBox(height: isLarge ? 12 : 8),
-          
-          Column(
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0xFFB19CD9),
-                  inactiveTrackColor: const Color(0xFFB19CD9).withOpacity(0.3),
-                  thumbColor: const Color(0xFFB19CD9),
-                  overlayColor: const Color(0xFFB19CD9).withOpacity(0.3),
-                  trackHeight: isLarge ? 5 : 4,
-                  thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: isLarge ? 8 : 6,
+                
+                SizedBox(width: isDesktop ? 16 : 12),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _currentTrack!.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _currentTrack!.artist,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: artistFontSize,
+                          height: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
-                child: Slider(
-                  value: _totalDuration.inMilliseconds > 0 
-                      ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
-                      : 0.0,
-                  onChanged: (value) {
-                    final position = Duration(
-                      milliseconds: (value * _totalDuration.inMilliseconds).round(),
-                    );
-                    _seekTo(position);
+                
+                if (isTablet) ...[
+                  IconButton(
+                    onPressed: () {
+                      _seekTo(Duration(seconds: (_currentPosition.inSeconds - 10).clamp(0, _totalDuration.inSeconds)));
+                    },
+                    icon: Icon(Icons.replay_10, color: Colors.white, size: iconSize),
+                  ),
+                ],
+                
+                IconButton(
+                  onPressed: () => _togglePlayPause(_currentTrack!),
+                  icon: Container(
+                    width: playButtonSize,
+                    height: playButtonSize,
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFB19CD9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: iconSize,
+                    ),
+                  ),
+                ),
+                
+                if (isTablet) ...[
+                  IconButton(
+                    onPressed: () {
+                      _seekTo(Duration(seconds: (_currentPosition.inSeconds + 30).clamp(0, _totalDuration.inSeconds)));
+                    },
+                    icon: Icon(Icons.forward_30, color: Colors.white, size: iconSize),
+                  ),
+                ],
+                
+                IconButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _closeMusicPlayer();
                   },
-                ),
-              ),
-              
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: padding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _formatDuration(_currentPosition),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: _getResponsiveFontSize(context, 12),
-                      ),
+                  icon: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                    Text(
-                      _formatDuration(_totalDuration),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: _getResponsiveFontSize(context, 12),
-                      ),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: isDesktop ? 18 : 16,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            
+            SizedBox(height: isDesktop ? 12 : 8),
+            
+            Column(
+              children: [
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: const Color(0xFFB19CD9),
+                    inactiveTrackColor: const Color(0xFFB19CD9).withOpacity(0.3),
+                    thumbColor: const Color(0xFFB19CD9),
+                    overlayColor: const Color(0xFFB19CD9).withOpacity(0.3),
+                    trackHeight: isDesktop ? 5 : 4,
+                    thumbShape: RoundSliderThumbShape(
+                      enabledThumbRadius: isDesktop ? 7 : 6,
+                    ),
+                  ),
+                  child: Slider(
+                    value: _totalDuration.inMilliseconds > 0 
+                        ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
+                        : 0.0,
+                    onChanged: (value) {
+                      final position = Duration(
+                        milliseconds: (value * _totalDuration.inMilliseconds).round(),
+                      );
+                      _seekTo(position);
+                    },
+                  ),
+                ),
+                
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 18 : 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatDuration(_currentPosition),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: isDesktop ? 13 : 12,
+                        ),
+                      ),
+                      Text(
+                        _formatDuration(_totalDuration),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: isDesktop ? 13 : 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
