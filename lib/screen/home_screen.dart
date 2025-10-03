@@ -525,11 +525,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildWelcomeScreenWithScrollingBackgrounds() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final isLandscape = screenWidth > screenHeight;
     
-    // Responsive zone heights with minimum constraints
-    final zone1Height = (screenHeight * 0.35).clamp(200.0, double.infinity);
-    final zone2Height = (screenHeight * 0.65).clamp(400.0, double.infinity);
-    final zone3Height = (screenHeight * 0.15).clamp(80.0, 150.0);
+    // Adaptive zone heights based on orientation
+    final zone1Height = isLandscape 
+        ? (screenHeight * 0.50).clamp(250.0, double.infinity)
+        : (screenHeight * 0.35).clamp(200.0, double.infinity);
+    
+    final zone2Height = isLandscape
+        ? (screenHeight * 0.90).clamp(500.0, double.infinity)
+        : (screenHeight * 0.65).clamp(400.0, double.infinity);
+    
+    final zone3Height = isLandscape
+        ? (screenHeight * 0.20).clamp(100.0, 200.0)
+        : (screenHeight * 0.15).clamp(80.0, 150.0);
     
     return SingleChildScrollView(
       controller: _scrollController,
@@ -748,7 +757,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     // QR Scanner Card - Responsive with constraints
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        final maxSize = constraints.maxWidth * 0.7;
+                        final maxSize = isLandscape 
+                            ? screenHeight * 0.5 
+                            : constraints.maxWidth * 0.7;
                         final containerSize = maxSize.clamp(200.0, 300.0);
                         
                         return Container(
@@ -922,6 +933,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       imagePath: "assets/images/ata_manobo.jpg",
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
+                      isLandscape: isLandscape,
                     ),
                     SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
                     _buildTribeCard(
@@ -930,6 +942,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       imagePath: "assets/images/mandaya.jpg",
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
+                      isLandscape: isLandscape,
                     ),
                     SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
                     _buildTribeCard(
@@ -938,6 +951,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       imagePath: "assets/images/mansaka.jpg",
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
+                      isLandscape: isLandscape,
                     ),
                     SizedBox(height: (screenHeight * 0.1).clamp(40.0, 100.0)),
                   ],
@@ -1048,7 +1062,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required String imagePath,
     required double screenWidth,
     required double screenHeight,
+    required bool isLandscape,
   }) {
+    // Adaptive image height for landscape - increased for better visibility
+    final imageHeight = isLandscape 
+        ? (screenHeight * 0.50).clamp(250.0, 450.0)
+        : (screenHeight * 0.25).clamp(150.0, 300.0);
+    
+    // Use contain in landscape to show full image, cover in portrait
+    final imageFit = isLandscape ? BoxFit.contain : BoxFit.cover;
+    
     return Container(
       margin: EdgeInsets.symmetric(
         vertical: (screenHeight * 0.01).clamp(6.0, 15.0),
@@ -1102,17 +1125,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(16),
               child: Column(
                 children: [
-                  SizedBox(
-                    height: (screenHeight * 0.25).clamp(150.0, 300.0),
+                  Container(
+                    height: imageHeight,
                     width: double.infinity,
+                    color: Colors.black,
                     child: Stack(
                       children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
+                        Center(
                           child: Image.asset(
                             imagePath,
-                            fit: BoxFit.cover,
+                            fit: imageFit,
+                            width: double.infinity,
+                            height: double.infinity,
+                            alignment: Alignment.center,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
                                 decoration: const BoxDecoration(
@@ -1137,18 +1162,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             },
                           ),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.6),
-                              ],
+                        if (!isLandscape)
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.6),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
