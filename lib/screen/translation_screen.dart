@@ -397,6 +397,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           children: [
             _buildScrollableContent(),
             if (!_isConnectedToInternet()) _buildOfflineIndicator(),
+            if (isPlaying) _buildFixedAudioStatusIndicator(),
           ],
         ),
       ),
@@ -772,13 +773,12 @@ class _TranslationScreenState extends State<TranslationScreen> {
                     
                     SizedBox(height: (screenHeight * 0.04).clamp(16.0, 40.0)),
                     
-                    if (isPlaying) _buildAudioStatusIndicator(screenWidth, screenHeight),
-                    
                     ..._phrases.entries.where((entry) => entry.key != 'Signature Phrase').map((categoryEntry) {
                       return _buildCategorySection(categoryEntry, screenWidth, screenHeight);
                     }),
                     
-                    SizedBox(height: (screenHeight * 0.1).clamp(40.0, 100.0)),
+                    // Extra bottom padding to keep content above navigation bar and audio indicator
+                    SizedBox(height: (screenHeight * 0.18).clamp(80.0, 140.0)),
                   ],
                 ),
               ),
@@ -997,9 +997,85 @@ class _TranslationScreenState extends State<TranslationScreen> {
     );
   }
 
+  Widget _buildFixedAudioStatusIndicator() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    return Positioned(
+      bottom: (screenHeight * 0.012).clamp(10.0, 15.0), // Position just above the navigation bar
+      left: (screenWidth * 0.06).clamp(16.0, 30.0),
+      right: (screenWidth * 0.06).clamp(16.0, 30.0),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: (screenWidth * 0.04).clamp(12.0, 18.0),
+          vertical: (screenHeight * 0.015).clamp(10.0, 16.0),
+        ),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFEADCB6).withOpacity(0.5),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFEADCB6).withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: (screenWidth * 0.05).clamp(18.0, 24.0),
+              height: (screenWidth * 0.05).clamp(18.0, 24.0),
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEADCB6)),
+              ),
+            ),
+            SizedBox(width: (screenWidth * 0.03).clamp(10.0, 14.0)),
+            Expanded(
+              child: Text(
+                'Playing: ${currentlyPlayingPhrase?.replaceAll('_', ' - ') ?? 'Audio'}',
+                style: TextStyle(
+                  color: const Color(0xFFEADCB6),
+                  fontWeight: FontWeight.w600,
+                  fontSize: (screenWidth * 0.035).clamp(12.0, 16.0),
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            SizedBox(width: (screenWidth * 0.02).clamp(8.0, 12.0)),
+            GestureDetector(
+              onTap: _stopAudio,
+              child: Container(
+                padding: EdgeInsets.all((screenWidth * 0.015).clamp(6.0, 10.0)),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.stop,
+                  color: Colors.red,
+                  size: (screenWidth * 0.05).clamp(18.0, 24.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAudioStatusIndicator(double screenWidth, double screenHeight) {
     return Container(
-      margin: EdgeInsets.only(bottom: (screenHeight * 0.025).clamp(12.0, 30.0)),
+      margin: EdgeInsets.only(
+        top: (screenHeight * 0.025).clamp(12.0, 30.0),
+        bottom: (screenHeight * 0.025).clamp(12.0, 30.0),
+      ),
       padding: EdgeInsets.symmetric(
         horizontal: (screenWidth * 0.04).clamp(12.0, 18.0),
         vertical: (screenHeight * 0.015).clamp(8.0, 16.0),
