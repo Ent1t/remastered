@@ -234,41 +234,81 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final availableHeight = constraints.maxHeight;
-          final availableWidth = constraints.maxWidth;
-          
-          final aspectRatio = availableWidth / availableHeight;
-          final cameraHeight = aspectRatio > 0.75 
-              ? (availableHeight * 0.6).clamp(280.0, availableHeight * 0.65)
-              : (availableHeight * 0.65).clamp(300.0, availableHeight * 0.7);
-          final bottomSectionHeight = (availableHeight * 0.35).clamp(120.0, 280.0);
-          
-          return Column(
-            children: <Widget>[
-              _buildCameraSection(availableWidth, cameraHeight),
-              _buildBottomSection(availableWidth, availableHeight, bottomSectionHeight),
-            ],
-          );
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          if (orientation == Orientation.landscape) {
+            return _buildLandscapeLayout();
+          }
+          return _buildPortraitLayout();
         },
       ),
     );
   }
 
+  Widget _buildPortraitLayout() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight;
+        final availableWidth = constraints.maxWidth;
+        
+        final aspectRatio = availableWidth / availableHeight;
+        final cameraHeight = aspectRatio > 0.75 
+            ? (availableHeight * 0.6).clamp(280.0, availableHeight * 0.65)
+            : (availableHeight * 0.65).clamp(300.0, availableHeight * 0.7);
+        final bottomSectionHeight = (availableHeight * 0.35).clamp(120.0, 280.0);
+        
+        return Column(
+          children: <Widget>[
+            _buildCameraSection(availableWidth, cameraHeight),
+            _buildBottomSection(availableWidth, availableHeight, bottomSectionHeight),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildLandscapeLayout() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight;
+        final availableWidth = constraints.maxWidth;
+        
+        return Row(
+          children: [
+            // Camera section on the left
+            Expanded(
+              flex: 3,
+              child: _buildCameraSection(availableWidth * 0.6, availableHeight),
+            ),
+            // Bottom section on the right
+            Expanded(
+              flex: 2,
+              child: Container(
+                height: availableHeight,
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: _buildBottomContent(availableWidth * 0.4, availableHeight),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildCameraSection(double width, double height) {
-    return Container(
-      width: double.infinity,
+    return SizedBox(
+      width: width,
       height: height,
-      constraints: BoxConstraints(
-        maxHeight: height,
-        minHeight: 280.0,
-      ),
       child: Stack(
         children: [
           ClipRect(
-            child: OverflowBox(
-              alignment: Alignment.center,
+            child: SizedBox(
+              width: width,
+              height: height,
               child: FittedBox(
                 fit: BoxFit.cover,
                 child: SizedBox(
@@ -479,10 +519,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
     _processScannedCode(scannedCode, normalizedCode);
   }
 
-  Widget _buildScanningOverlay(double screenWidth, double cameraHeight) {
-    final cutOutSize = (screenWidth * 0.6).clamp(180.0, 300.0);
+  Widget _buildScanningOverlay(double width, double height) {
+    // Calculate responsive cutout size for both orientations
+    final smallerDimension = width < height ? width : height;
+    final cutOutSize = (smallerDimension * 0.6).clamp(180.0, 300.0);
     final borderLength = (cutOutSize * 0.15).clamp(25.0, 45.0);
-    final borderWidth = (screenWidth * 0.02).clamp(6.0, 10.0);
+    final borderWidth = (smallerDimension * 0.02).clamp(6.0, 10.0);
     
     return Container(
       decoration: ShapeDecoration(
