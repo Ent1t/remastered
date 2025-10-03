@@ -406,6 +406,74 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     );
   }
 
+  void _showZoomableImage(BuildContext context, String imageUrl, double screenWidth) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.broken_image, size: 60, color: Colors.white),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Failed to load image',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        padding: const EdgeInsets.all(32),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                            color: Colors.white,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 40,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showContentDialog(Map<String, dynamic> contentData, double screenWidth) {
     final String fileUrl = "https://huni-cms.ionvop.com/uploads/${contentData['file']}";
     final DateTime contentTime = DateTime.fromMillisecondsSinceEpoch(contentData['time'] * 1000);
@@ -433,49 +501,74 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Display image if available
+                  // Display image if available with zoom functionality
                   if (contentData['file'] != null && contentData['file'].isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      constraints: BoxConstraints(
-                        maxHeight: (MediaQuery.of(context).size.height * 0.3).clamp(150.0, 300.0),
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          fileUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.broken_image, size: (screenWidth * 0.12).clamp(40.0, 60.0), color: Colors.grey),
-                                  const SizedBox(height: 8),
-                                  const Text('Failed to load image', style: TextStyle(color: Colors.grey)),
-                                ],
+                    GestureDetector(
+                      onTap: () {
+                        _showZoomableImage(context, fileUrl, screenWidth);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        constraints: BoxConstraints(
+                          maxHeight: (MediaQuery.of(context).size.height * 0.3).clamp(150.0, 300.0),
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                fileUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.broken_image, size: (screenWidth * 0.12).clamp(40.0, 60.0), color: Colors.grey),
+                                        const SizedBox(height: 8),
+                                        const Text('Failed to load image', style: TextStyle(color: Colors.grey)),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    padding: const EdgeInsets.all(32),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              padding: const EdgeInsets.all(32),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
+                            ),
+                            Positioned(
+                              bottom: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Icon(
+                                  Icons.zoom_in,
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ),
                     ),
