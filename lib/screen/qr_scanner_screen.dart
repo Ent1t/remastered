@@ -25,6 +25,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
   bool isProcessing = false;
   bool cameraPermissionGranted = false;
   bool isCheckingPermission = true;
+  bool isPermanentlyDenied = false;
   
   DateTime? lastScanTime;
   final Set<String> _scannedCodesInSession = {};
@@ -46,28 +47,42 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       final status = await Permission.camera.status;
       
       if (status.isGranted) {
-        await _updatePermissionState(true);
+        await _updatePermissionState(true, false);
         await cameraController.start();
       } else if (status.isDenied) {
-        final result = await Permission.camera.request();
-        await _updatePermissionState(result.isGranted);
-        if (result.isGranted) {
-          await cameraController.start();
-        }
+        // Show custom permission request dialog
+        await _updatePermissionState(false, false);
+        _requestCameraPermission();
       } else if (status.isPermanentlyDenied) {
-        await _updatePermissionState(false);
+        await _updatePermissionState(false, true);
       }
     } catch (e) {
       debugPrint('Error checking camera permission: $e');
-      await _updatePermissionState(false);
+      await _updatePermissionState(false, false);
     }
   }
 
-  Future<void> _updatePermissionState(bool granted) async {
+  Future<void> _requestCameraPermission() async {
+    if (!mounted) return;
+    
+    final result = await Permission.camera.request();
+    
+    if (result.isGranted) {
+      await _updatePermissionState(true, false);
+      await cameraController.start();
+    } else if (result.isPermanentlyDenied) {
+      await _updatePermissionState(false, true);
+    } else {
+      await _updatePermissionState(false, false);
+    }
+  }
+
+  Future<void> _updatePermissionState(bool granted, bool permanentlyDenied) async {
     if (mounted) {
       setState(() {
         cameraPermissionGranted = granted;
         isCheckingPermission = false;
+        isPermanentlyDenied = permanentlyDenied;
       });
     }
   }
@@ -158,17 +173,38 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'This app needs camera access to scan QR codes. Please grant camera permission in your device settings.',
-                style: TextStyle(fontSize: 16),
+              Text(
+                isPermanentlyDenied
+                    ? 'Camera permission was denied. Please enable it in your device settings to scan QR codes.'
+                    : 'This app needs camera access to scan QR codes.',
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              ElevatedButton.icon(
-                onPressed: openAppSettings,
-                icon: const Icon(Icons.settings),
-                label: const Text('Open Settings'),
-              ),
+              if (isPermanentlyDenied)
+                ElevatedButton.icon(
+                  onPressed: openAppSettings,
+                  icon: const Icon(Icons.settings),
+                  label: const Text('Open Settings'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                )
+              else
+                ElevatedButton.icon(
+                  onPressed: _requestCameraPermission,
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Allow Camera Access'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
