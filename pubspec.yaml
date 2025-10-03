@@ -23,6 +23,9 @@ dependencies:
   visibility_detector: ^0.4.0
   video_thumbnail: ^0.5.3
   path_provider: ^2.1.1
+  # additional qr dependencies
+  permission_handler: ^11.0.1
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:
