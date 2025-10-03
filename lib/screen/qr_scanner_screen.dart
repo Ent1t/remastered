@@ -743,8 +743,6 @@ class ExpandableContentDialog extends StatefulWidget {
 }
 
 class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
-  bool isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -752,23 +750,20 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
     final String fileUrl = "https://huni-cms.ionvop.com/uploads/${widget.contentData['file']}";
     final DateTime contentTime = DateTime.fromMillisecondsSinceEpoch(widget.contentData['time'] * 1000);
     
-    final maxImageHeight = isExpanded ? screenHeight * 0.4 : screenHeight * 0.25;
-    final maxDialogHeight = isExpanded ? screenHeight * 0.8 : screenHeight * 0.65;
-    
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: maxDialogHeight,
+          maxHeight: screenHeight * 0.85,
           maxWidth: screenWidth * 0.92,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildHeader(context),
-            _buildContent(fileUrl, contentTime, maxImageHeight),
+            _buildContent(fileUrl, contentTime),
             _buildFooter(),
           ],
         ),
@@ -786,37 +781,18 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
           topRight: Radius.circular(16),
         ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              widget.contentData['title'] ?? 'Content Details',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              isExpanded ? Icons.unfold_less : Icons.unfold_more,
-              color: Theme.of(context).primaryColor,
-            ),
-            onPressed: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            tooltip: isExpanded ? 'Show less' : 'Show more',
-          ),
-        ],
+      child: Text(
+        widget.contentData['title'] ?? 'Content Details',
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildContent(String fileUrl, DateTime contentTime, double maxImageHeight) {
+  Widget _buildContent(String fileUrl, DateTime contentTime) {
     return Flexible(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -824,7 +800,7 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.contentData['file'] != null && widget.contentData['file'].isNotEmpty)
-              _buildImageSection(fileUrl, maxImageHeight),
+              _buildImageSection(fileUrl),
             
             if (widget.contentData['description'] != null && widget.contentData['description'].isNotEmpty)
               _buildDescriptionSection(),
@@ -836,12 +812,14 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
     );
   }
 
-  Widget _buildImageSection(String fileUrl, double maxImageHeight) {
+  Widget _buildImageSection(String fileUrl) {
     return GestureDetector(
       onTap: () => _showZoomableImage(context, fileUrl),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        constraints: BoxConstraints(maxHeight: maxImageHeight),
+        constraints: const BoxConstraints(
+          maxHeight: 300,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300),
@@ -923,21 +901,9 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
             ],
           ),
           const SizedBox(height: 8),
-          AnimatedCrossFade(
-            firstChild: Text(
-              widget.contentData['description'],
-              style: const TextStyle(fontSize: 14, height: 1.5),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            secondChild: Text(
-              widget.contentData['description'],
-              style: const TextStyle(fontSize: 14, height: 1.5),
-            ),
-            crossFadeState: isExpanded 
-                ? CrossFadeState.showSecond 
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 300),
+          Text(
+            widget.contentData['description'],
+            style: const TextStyle(fontSize: 14, height: 1.5),
           ),
         ],
       ),
@@ -1046,49 +1012,84 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.zero,
-          child: Stack(
-            children: [
-              Center(
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 4.0,
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => Container(
-                      padding: const EdgeInsets.all(32),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+          child: GestureDetector(
+            onTap: () => Navigator.of(dialogContext).pop(),
+            child: Stack(
+              children: [
+                Center(
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 5.0,
+                    boundaryMargin: const EdgeInsets.all(80),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      placeholder: (context, url) => SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      padding: const EdgeInsets.all(32),
-                      child: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.broken_image, size: 60, color: Colors.white),
-                          SizedBox(height: 16),
-                          Text(
-                            'Failed to load image',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
+                      errorWidget: (context, url, error) => SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image, size: 60, color: Colors.white),
+                            SizedBox(height: 16),
+                            Text(
+                              'Failed to load image',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 40,
-                right: 20,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                  onPressed: () => Navigator.of(dialogContext).pop(),
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Pinch to zoom • Drag to pan • Tap to close',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
