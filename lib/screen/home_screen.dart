@@ -802,32 +802,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 SizedBox(height: (screenHeight * 0.03).clamp(15.0, 30.0)),
                                 
                                 Center(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: (screenWidth * 0.04).clamp(12.0, 20.0),
-                                      vertical: (screenHeight * 0.01).clamp(6.0, 12.0),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.4),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        'SCAN HERE',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: const Color(0xFFE0D4BE),
-                                          fontSize: (screenWidth * 0.045).clamp(14.0, 20.0),
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 2,
-                                          shadows: [
-                                            Shadow(
-                                              blurRadius: 4,
-                                              color: Colors.black.withOpacity(0.8),
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      HapticFeedback.lightImpact();
+                                      _openQRScanner();
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: (screenWidth * 0.04).clamp(12.0, 20.0),
+                                        vertical: (screenHeight * 0.01).clamp(6.0, 12.0),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          'SCAN HERE',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: const Color(0xFFE0D4BE),
+                                            fontSize: (screenWidth * 0.045).clamp(14.0, 20.0),
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 2,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 4,
+                                                color: Colors.black.withOpacity(0.8),
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
