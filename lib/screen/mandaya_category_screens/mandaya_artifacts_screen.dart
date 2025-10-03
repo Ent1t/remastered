@@ -494,7 +494,7 @@ class _MandayaArtifactsScreenState extends State<MandayaArtifactsScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/mandaya_artifacts_featured.jpg',
+            'assets/images/mandaya_arti.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

@@ -400,7 +400,7 @@ class KaganCulturalDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Image.asset(
-                'assets/images/kagan.jpg',
+                'assets/images/kagan_sd.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

@@ -530,7 +530,7 @@ class _MansakaEventScreenState extends State<MansakaEventScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/mansaka_events_featured.jpg',
+            'assets/images/mansaka_eve.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

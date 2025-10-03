@@ -450,7 +450,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: const Color(0xFFB19CD9).withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -526,7 +526,7 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(
-              'assets/images/mansaka_artifacts_featured.jpg',
+              'assets/images/mansaka_arti.jpg',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -535,9 +535,9 @@ class _MansakaArtifactsScreenState extends State<MansakaArtifactsScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF4CAF50),
-                        Color(0xFF388E3C),
-                        Color(0xFF2E7D32),
+                        Color(0xFFB19CD9),
+                        Color(0xFF5D4E75),
+                        Color(0xFF3F325A),
                       ],
                     ),
                   ),

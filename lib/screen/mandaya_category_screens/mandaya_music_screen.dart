@@ -933,7 +933,7 @@ class _MandayaMusicScreenState extends State<MandayaMusicScreen> {
         child: Stack(
           children: [
             Image.asset(
-              'assets/images/mandaya_music_hero.jpg',
+              'assets/images/mandaya_mus.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,

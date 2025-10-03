@@ -546,7 +546,7 @@ class _MandayaEventScreenState extends State<MandayaEventScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/mandaya_events_featured.jpg',
+            'assets/images/mandaya_eve.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

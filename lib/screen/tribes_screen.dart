@@ -106,7 +106,7 @@ class _TribesScreenState extends State<TribesScreen> {
                   tribeName: 'KAGAN',
                   description: 'Known for their rich oral tradition and intricate beadwork',
                   categories: '4 Categories',
-                  imagePath: 'assets/images/ata_manobo_main.jpg',
+                  imagePath: 'assets/images/kagan_d.jpg',
                   onTap: () => _navigateToKaganDetail(),
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,

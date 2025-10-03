@@ -57,7 +57,7 @@ class MansakaCulturalLearnMoreScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/mansaka.jpg',
+                'assets/images/mansaka_lm.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

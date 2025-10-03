@@ -508,7 +508,7 @@ class _KaganArtifactsScreenState extends State<KaganArtifactsScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/kagan_artifacts_featured.jpg',
+            'assets/images/kagan_arti.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

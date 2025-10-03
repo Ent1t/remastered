@@ -506,7 +506,7 @@ class _KaganEventScreenState extends State<KaganEventScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.asset(
-            'assets/images/kagan_events_featured.jpg',
+            'assets/images/kagan_eve.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(

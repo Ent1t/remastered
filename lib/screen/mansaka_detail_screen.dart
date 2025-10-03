@@ -400,7 +400,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Image.asset(
-                'assets/images/mansaka.jpg',
+                'assets/images/mansaka_h.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -721,7 +721,7 @@ class MansakaCulturalDetailScreen extends StatelessWidget {
         
         _buildCategoryCard(
           title: 'ARTIFACTS',
-          imagePath: 'assets/images/mansaka_artifacts.jpg',
+          imagePath: 'assets/images/mansaka_artifacts_featured.jpg',
           gradientColors: const [Color(0xFF8E44AD), Color(0xFF663399)],
           onTap: () => _navigateToArtifacts(context),
           screenWidth: screenWidth,

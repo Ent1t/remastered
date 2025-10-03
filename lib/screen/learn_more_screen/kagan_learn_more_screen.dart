@@ -56,7 +56,7 @@ class KaganCulturalLearnMoreScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/kagan.jpg',
+                'assets/images/kagan_lm.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

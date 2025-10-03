@@ -57,7 +57,7 @@ class MandayaCulturalLearnMoreScreen extends StatelessWidget {
                 bottomRight: Radius.circular(24),
               ),
               child: Image.asset(
-                'assets/images/mandaya.jpg',
+                'assets/images/mandaya_lm.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

@@ -355,7 +355,6 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
           title: title,
           description: description ?? 'No description available',
           category: _mapCategory(category),
-          imagePath: _buildThumbnailUrl(file, category),
           artist: _extractArtist(description, title),
           audioPath: '$_uploadsBaseUrl$file',
           file: file,
@@ -404,21 +403,6 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     final isMusicCategory = musicCategories.any((cat) => lowerCategory.contains(cat));
     
     return hasAudioExtension || (hasVideoExtension && isMusicCategory);
-  }
-
-  String _buildThumbnailUrl(String filename, String category) {
-    if (_isAudioContent(filename, category)) {
-      return 'assets/images/mansaka_default_music.jpg';
-    }
-    
-    final String lowerFilename = filename.toLowerCase();
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-    
-    if (imageExtensions.any((ext) => lowerFilename.endsWith(ext))) {
-      return '$_uploadsBaseUrl$filename';
-    }
-    
-    return 'assets/images/mansaka_default_music.jpg';
   }
 
   FileType _determineFileType(String filename) {
@@ -901,8 +885,9 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
         borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
+            // Background Image
             Image.asset(
-              'assets/images/mansaka_music_hero.jpg',
+              'assets/images/music_mansa.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
@@ -923,6 +908,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               },
             ),
             
+            // Gradient Overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -936,6 +922,7 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
               ),
             ),
             
+            // Text Content
             Positioned(
               bottom: 0,
               left: 0,
@@ -987,8 +974,6 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     final padding = _getContentPadding(context);
     final cardHeight = _getCardHeight(context);
     
-    // Responsive sizing
-    final imageSize = width >= 800 ? 80.0 : width >= 600 ? 70.0 : 60.0;
     final titleFontSize = width >= 800 ? 17.0 : width >= 600 ? 16.0 : 16.0;
     final descriptionFontSize = width >= 800 ? 15.0 : width >= 600 ? 14.0 : 14.0;
     final categoryFontSize = width >= 800 ? 13.0 : 12.0;
@@ -1026,46 +1011,16 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
             child: Row(
               children: [
                 Container(
-                  width: imageSize,
-                  height: imageSize,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFFB19CD9).withOpacity(0.2),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: track.imagePath.startsWith('http')
-                        ? Image.network(
-                            track.imagePath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.music_note,
-                                color: const Color(0xFFB19CD9),
-                                size: imageSize * 0.5,
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB19CD9)),
-                                  strokeWidth: 2,
-                                ),
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            track.imagePath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.music_note,
-                                color: const Color(0xFFB19CD9),
-                                size: imageSize * 0.5,
-                              );
-                            },
-                          ),
+                  child: Icon(
+                    Icons.music_note,
+                    color: const Color(0xFFB19CD9),
+                    size: 30,
                   ),
                 ),
                 
@@ -1223,7 +1178,6 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
     final isTablet = width >= 600;
     final isDesktop = width >= 800;
     
-    final imageSize = isDesktop ? 60.0 : isTablet ? 55.0 : 50.0;
     final titleFontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
     final artistFontSize = isDesktop ? 14.0 : isTablet ? 13.0 : 12.0;
     final iconSize = isDesktop ? 22.0 : isTablet ? 21.0 : 20.0;
@@ -1248,37 +1202,16 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
             Row(
               children: [
                 Container(
-                  width: imageSize,
-                  height: imageSize,
+                  width: 50,
+                  height: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFFB19CD9).withOpacity(0.2),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: _currentTrack!.imagePath.startsWith('http')
-                        ? Image.network(
-                            _currentTrack!.imagePath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.music_note,
-                                color: const Color(0xFFB19CD9),
-                                size: imageSize * 0.5,
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            _currentTrack!.imagePath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.music_note,
-                                color: const Color(0xFFB19CD9),
-                                size: imageSize * 0.5,
-                              );
-                            },
-                          ),
+                  child: const Icon(
+                    Icons.music_note,
+                    color: Color(0xFFB19CD9),
+                    size: 25,
                   ),
                 ),
                 
@@ -1523,7 +1456,6 @@ class MusicTrack {
   final String title;
   final String description;
   final String category;
-  final String imagePath;
   final String artist;
   final String audioPath;
   final String file;
@@ -1536,7 +1468,6 @@ class MusicTrack {
     required this.title,
     required this.description,
     required this.category,
-    required this.imagePath,
     required this.artist,
     required this.audioPath,
     required this.file,
@@ -1550,7 +1481,6 @@ class MusicTrack {
     String? title,
     String? description,
     String? category,
-    String? imagePath,
     String? artist,
     String? audioPath,
     String? file,
@@ -1563,7 +1493,6 @@ class MusicTrack {
       title: title ?? this.title,
       description: description ?? this.description,
       category: category ?? this.category,
-      imagePath: imagePath ?? this.imagePath,
       artist: artist ?? this.artist,
       audioPath: audioPath ?? this.audioPath,
       file: file ?? this.file,

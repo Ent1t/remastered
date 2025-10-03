@@ -902,7 +902,7 @@ class _KaganMusicScreenState extends State<KaganMusicScreen> {
         child: Stack(
           children: [
             Image.asset(
-              'assets/images/kagan_music_hero.jpg',
+              'assets/images/kagan_mus.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
