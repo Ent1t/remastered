@@ -21,8 +21,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
     torchEnabled: false,
   );
   
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  
   String? barcodeResult;
   bool isScanning = true;
   String? errorMessage;
@@ -34,7 +32,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
   bool cameraPermissionGranted = false;
   bool isCheckingPermission = true;
   
-  // Track scanned codes in this session to prevent duplicates
+  // Track scanned codes in this session to prevent duplicates (stored in normalized form)
   final Set<String> _scannedCodesInSession = {};
 
   @override
@@ -49,31 +47,39 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       final status = await Permission.camera.status;
       
       if (status.isGranted) {
-        setState(() {
-          cameraPermissionGranted = true;
-          isCheckingPermission = false;
-        });
+        if (mounted) {
+          setState(() {
+            cameraPermissionGranted = true;
+            isCheckingPermission = false;
+          });
+        }
         await cameraController.start();
       } else if (status.isDenied) {
         final result = await Permission.camera.request();
-        setState(() {
-          cameraPermissionGranted = result.isGranted;
-          isCheckingPermission = false;
-        });
+        if (mounted) {
+          setState(() {
+            cameraPermissionGranted = result.isGranted;
+            isCheckingPermission = false;
+          });
+        }
         if (result.isGranted) {
           await cameraController.start();
         }
       } else if (status.isPermanentlyDenied) {
-        setState(() {
-          cameraPermissionGranted = false;
-          isCheckingPermission = false;
-        });
+        if (mounted) {
+          setState(() {
+            cameraPermissionGranted = false;
+            isCheckingPermission = false;
+          });
+        }
       }
     } catch (e) {
       debugPrint('Error checking camera permission: $e');
-      setState(() {
-        isCheckingPermission = false;
-      });
+      if (mounted) {
+        setState(() {
+          isCheckingPermission = false;
+        });
+      }
     }
   }
 
@@ -425,7 +431,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       // Allow re-scan after 5 seconds for same code
       final now = DateTime.now();
       if (lastScanTime != null && 
-          normalizedCode == lastScannedCode?.toLowerCase() &&
+          normalizedCode == lastScannedCode &&
           now.difference(lastScanTime!).inSeconds < 5) {
         return;
       }
@@ -438,7 +444,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       isScanning = false;
       isProcessing = true;
       errorMessage = null;
-      lastScannedCode = scannedCode;
+      lastScannedCode = normalizedCode; // Store normalized version for consistency
       lastScanTime = DateTime.now();
     });
     
@@ -470,15 +476,16 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       // Handle entrance/attendance scan
       if (normalizedResult == "entrance") {
         if (hasScannedAttendance) {
-          if (mounted) {
-            setState(() {
-              isProcessing = false;
-            });
-            _showStandardDialog(
-              title: 'Already Scanned',
-              content: 'You have already scanned for attendance in this session. Please scan content QR codes to view information.',
-            );
-          }
+          if (!mounted) return;
+          setState(() {
+            isProcessing = false;
+          });
+          // Safely show dialog only if widget is still mounted
+          if (!mounted) return;
+          _showStandardDialog(
+            title: 'Already Scanned',
+            content: 'You have already scanned for attendance in this session. Please scan content QR codes to view information.',
+          );
           return;
         }
 
@@ -506,6 +513,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
           
           _scannedCodesInSession.add(normalizedResult);
           
+          if (!mounted) return;
           _showStandardDialog(
             title: 'Already Visited',
             content: 'You have already recorded your visit today!',
@@ -514,6 +522,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
         }
 
         if (response.statusCode >= 400) {
+          if (!mounted) return;
           setState(() {
             isProcessing = false;
           });
@@ -526,6 +535,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
             errorMsg = response.body.isNotEmpty ? response.body : errorMsg;
           }
           
+          if (!mounted) return;
           _showStandardDialog(
             title: 'Error',
             content: errorMsg,
@@ -533,6 +543,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
           return;
         }
 
+        if (!mounted) return;
         setState(() {
           hasScannedAttendance = true;
           isProcessing = false;
@@ -540,6 +551,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
 
         _scannedCodesInSession.add(normalizedResult);
 
+        if (!mounted) return;
         _showStandardDialog(
           title: 'Success',
           content: 'Thank you for visiting! You can now scan content QR codes to view information.',
@@ -578,6 +590,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
           errorMsg = scanResponse.body.isNotEmpty ? scanResponse.body : errorMsg;
         }
         
+        if (!mounted) return;
         _showStandardDialog(
           title: 'Error',
           content: errorMsg,
@@ -606,6 +619,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
           isProcessing = false;
         });
         
+        if (!mounted) return;
         _showStandardDialog(
           title: 'Error',
           content: 'Failed to load content details. Please try again.',
@@ -615,6 +629,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
 
       final Map<String, dynamic> contentData = jsonDecode(contentResponse.body)["data"];
 
+      if (!mounted) return;
       setState(() {
         isProcessing = false;
       });
@@ -622,87 +637,92 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
       _scannedCodesInSession.add(normalizedResult);
 
       // Display content details in dialog
+      if (!mounted) return;
       _showContentDialog(contentData);
     } on http.ClientException catch (e) {
       debugPrint('Network error in _showResultDialog: $e');
       
-      if (mounted) {
-        setState(() {
-          isProcessing = false;
-        });
-        
-        _showStandardDialog(
-          title: 'Network Error',
-          content: 'Unable to connect to the server. Please check your internet connection and try again.',
-        );
-      }
+      if (!mounted) return;
+      setState(() {
+        isProcessing = false;
+      });
+      
+      if (!mounted) return;
+      _showStandardDialog(
+        title: 'Network Error',
+        content: 'Unable to connect to the server. Please check your internet connection and try again.',
+      );
     } catch (e) {
       debugPrint('Error in _showResultDialog: $e');
       
-      if (mounted) {
-        setState(() {
-          isProcessing = false;
-        });
-        
-        String errorMsg = 'An unexpected error occurred. Please try again.';
-        if (e.toString().contains('timeout')) {
-          errorMsg = 'Connection timeout. Please check your internet connection and try again.';
-        }
-        
-        _showStandardDialog(
-          title: 'Error',
-          content: errorMsg,
-        );
+      if (!mounted) return;
+      setState(() {
+        isProcessing = false;
+      });
+      
+      String errorMsg = 'An unexpected error occurred. Please try again.';
+      if (e.toString().contains('timeout')) {
+        errorMsg = 'Connection timeout. Please check your internet connection and try again.';
       }
+      
+      if (!mounted) return;
+      _showStandardDialog(
+        title: 'Error',
+        content: errorMsg,
+      );
     }
   }
 
   void _showStandardDialog({required String title, required String content}) {
     if (!mounted) return;
     
-    final context = this.context;
-    if (!context.mounted) return;
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(
-            title,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-          ),
-          content: SingleChildScrollView(
-            child: Text(
-              content,
-              style: const TextStyle(fontSize: 14),
+    // Use a post-frame callback to ensure the widget tree is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            title: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
+            content: SingleChildScrollView(
+              child: Text(
+                content,
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   void _showContentDialog(Map<String, dynamic> contentData) {
     if (!mounted) return;
     
-    final context = this.context;
-    if (!context.mounted) return;
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return ExpandableContentDialog(contentData: contentData);
-      },
-    );
+    // Use a post-frame callback to ensure the widget tree is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return ExpandableContentDialog(contentData: contentData);
+        },
+      );
+    });
   }
 
   Future<void> _resetScanner() async {
