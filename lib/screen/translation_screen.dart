@@ -41,7 +41,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     'Good day_English': 'assets/audio/english/ggde.mp3',
     'Good day_Cebuano': 'assets/audio/cebuano/gmac.mp3',
-    'Good day_Kagan': 'assets/audio/kagan/ggdayk.m4a',
+    'Good day_Kagan': 'assets/audio/kagan/ggdk.m4a',
     'Good day_Mansaka': 'assets/audio/mansaka/ggdms.m4a',
     'Good day_Mandaya': 'assets/audio/mandaya/ggdmy.m4a',
     
@@ -60,7 +60,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     'Thank you very much_English': 'assets/audio/english/btyvme.mp3',
     'Thank you very much_Cebuano': 'assets/audio/cebuano/bsalamatkc.mp3',
-    'Thank you very much_Kagan': 'assets/audio/kagan/btyvk.m4a',
+    'Thank you very much_Kagan': 'assets/audio/kagan/btyvmk.m4a',
     'Thank you very much_Mansaka': 'assets/audio/mansaka/btyvmms.m4a',
     'Thank you very much_Mandaya': 'assets/audio/mandaya/btyvmmy.m4a',
     
@@ -131,16 +131,16 @@ class _TranslationScreenState extends State<TranslationScreen> {
       'Good morning': {
         'English': 'Good morning',
         'Cebuano': 'Maayong buntag',
-        'Kagan': 'Madjaw Na Kamdag',
-        'Mansaka': 'Madayaw Na Adlaw',
-        'Mandaya': 'Madayaw Buntag',
+        'Kagan': 'Madyaw Na Kamdag',
+        'Mansaka': 'Madyaw Na Masum',
+        'Mandaya': 'Madyaw Na Kamdag',
       },
       'Good day': {
         'English': 'Good day',
         'Cebuano': 'Maayong adlaw',
-        'Kagan': 'Madjaw Na Allaw',
-        'Mansaka': 'Kumosta Kaw',
-        'Mandaya': 'Madayaw Aldaw',
+        'Kagan': 'Madyaw Na Allaw',
+        'Mansaka': 'Madyaw Na Allaw',
+        'Mandaya': 'Madyaw Na Allaw',
       },
       'How are you?': {
         'English': 'How are you?',
@@ -156,14 +156,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'Cebuano': 'Salamat',
         'Kagan': 'Sukor',
         'Mansaka': 'Salamat',
-        'Mandaya': 'Saramat',
+        'Mandaya': 'Madaig Na Salamat',
       },
       'Thank you very much': {
         'English': 'Thank you very much',
         'Cebuano': 'Salamat kaayo',
-        'Kagan': 'Sukor Laban',
-        'Mansaka': 'Salamat Gid',
-        'Mandaya': 'Rako Saramat',
+        'Kagan': 'Sampu Samat',
+        'Mansaka': 'Untung Salamat',
+        'Mandaya': 'Madaig Na Salamat',
       },
       'Please': {
         'English': 'Please',
@@ -176,8 +176,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'English': 'Excuse me',
         'Cebuano': 'Excuse me',
         'Kagan': 'Tabia Pa',
-        'Mansaka': 'Pasayloa Ako',
-        'Mandaya': 'Pasensar',
+        'Mansaka': 'Tabya/Tabi Kanmo ',
+        'Mandaya': 'Tabi Pa Ansar',
       },
     },
     'Questions': {
@@ -186,14 +186,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
         'Cebuano': 'Unsa imo ngalan?',
         'Kagan': 'Unong Pangan Mo?',
         'Mansaka': 'Nanu Ngayan Nu?',
-        'Mandaya': 'Ngaran Nuan?',
+        'Mandaya': 'Uno Yang Ngan Mo?',
       },
       'Where are you from?': {
         'English': 'Where are you from?',
         'Cebuano': 'Taga asa ka?',
         'Kagan': 'Taga Ayn Kaw?',
         'Mansaka': 'Taga Hain Ka?',
-        'Mandaya': 'Taga In Ka?',
+        'Mandaya': 'A-in Ka Naga Uya?',
       },
     },
     'Numbers': {

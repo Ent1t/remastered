@@ -1017,9 +1017,9 @@ class _MansakaMusicScreenState extends State<MansakaMusicScreen> {
                     borderRadius: BorderRadius.circular(8),
                     color: const Color(0xFFB19CD9).withOpacity(0.2),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.music_note,
-                    color: const Color(0xFFB19CD9),
+                    color: Color(0xFFB19CD9),
                     size: 30,
                   ),
                 ),

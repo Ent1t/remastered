@@ -776,9 +776,9 @@ class ExpandableContentDialog extends StatefulWidget {
   final Map<String, dynamic> contentData;
 
   const ExpandableContentDialog({
-    Key? key,
+    super.key,
     required this.contentData,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpandableContentDialog> createState() => _ExpandableContentDialogState();
@@ -1099,7 +1099,7 @@ class _ExpandableContentDialogState extends State<ExpandableContentDialog> {
                   top: 40,
                   right: 20,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.black54,
                       shape: BoxShape.circle,
                     ),
